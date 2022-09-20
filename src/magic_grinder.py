@@ -87,15 +87,12 @@ def bind_card_list_printout(data, source_cards="all_paper_cards.csv"):
 
 # For a given list of card names and set, returns collector's number
 # Note: Card names are case and special-character sensitive.
-def bind_card_list_audit(source_cards="all_audit_cards.csv", scryfall_source="default-cards-20220109220253.json"):
+def bind_card_list_audit(data, source_cards="all_audit_cards.csv"):
 	all_cards = cool_stuff.read_csv(source_cards)
-	data = import_scryfall(scryfall_source)
 	bound_cards = []
 	failed_cards = []
 
 	for card in all_cards:
-		# print(card)
-		# is_showcase = True if card['is_showcase'] == '0' else False
 
 		scryfall_card = next(
 			(item for item in data if item['name'] == card['name'] and item['set'] == card['set'].lower()), None)
@@ -107,10 +104,24 @@ def bind_card_list_audit(source_cards="all_audit_cards.csv", scryfall_source="de
 			print("Errant operation! Could not find card: " + card['name'])
 			failed_cards.append(card['name'])
 			continue
-		new_line = {'name': card['name'], 'id': card['id'], 'set': card['set'],
-		            'col no': scryfall_card['collector_number']}
 
-		print(new_line)
+		if "id" in card:
+			id = card["id"]
+		else:
+			id = ""
+
+		new_line = {'name': card['name'], 'id': id, 'set': card['set'], 'col no': scryfall_card['collector_number'],
+		            "year": scryfall_card["released_at"][0:4], "rarity": scryfall_card["rarity"][0].upper(),
+		            "card_type": get_card_type(scryfall_card["type_line"]),
+		            "color_id": get_card_id_code(scryfall_card["color_identity"]),
+		            "variant": get_card_variant(scryfall_card)}
+
+		if new_line["variant"].find("Frame") > -1:
+			new_line["spc"] = 0
+		else:
+			new_line["spc"] = 1
+
+		# print(new_line)
 		bound_cards.append(new_line)
 	if len(failed_cards) == 0:
 		print("Success! No cards failed!")
@@ -641,7 +652,7 @@ def extract_unique_types(data):
 if __name__ == '__main__':
 	print("Testing Magic Grinder!")
 	# Import each printing of each card
-	data = import_scryfall("default-cards-20220722090459.json")
+	data = import_scryfall("default-cards-20220919210802.json")
 
 	# Import one printing of each card
 	# data = import_scryfall("oracle-cards-20220616090205.json")
@@ -651,8 +662,5 @@ if __name__ == '__main__':
 
 	print("Data imported")
 
-	all_cards = extract_oracle_text_per_face(data, True)
-	cool_stuff.write_data(all_cards)
-
-# all_frames = extract_all_possible_values_list(data, "finishes")
-# print(all_frames)
+	new_cards = bind_card_list_audit(data, "all_extra_audit_cards.csv")
+	cool_stuff.write_data(new_cards)
