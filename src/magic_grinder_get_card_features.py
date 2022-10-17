@@ -2,7 +2,8 @@ import cool_stuff
 
 
 # Imports Scryfall download file with the given name
-def import_scryfall(path="oracle-cards-20210712.json"):
+def import_scryfall(path):
+	print("Importing Scryfall data at " + path)
 	return cool_stuff.read_json(path)
 
 

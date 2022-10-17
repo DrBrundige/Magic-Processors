@@ -1,8 +1,9 @@
 import cool_stuff
 from magic_grinder_get_card_features import *
+from sort_card_data import sort_cards_by_set
 
 
-# Inputs cards from a bulk set sheet. name, count, foil, collector_number set for whole sheet as parameter
+# Inputs cards from a bulk set sheet. name, count, foil, collector_number, set
 # Outputs rows for audit sheet. To wit:
 # name - input
 # id - empty
@@ -19,17 +20,11 @@ from magic_grinder_get_card_features import *
 # rarity - output
 # card_type - output
 # color_id - output
-# Data - Requires the full default-cards dataset
-def bind_card_list_audit(data, source_cards="all_audit_cards.csv", list_set="dmu"):
+# Data - Requires the full default-cards dataset sorted with the sort_cards_by_set
+def bind_card_list_audit(data_set, source_cards="all_audit_cards.csv"):
 	all_cards = cool_stuff.read_csv(source_cards)
 	bound_cards = []
 	failed_cards = []
-
-	set_cards = []
-
-	for card in data:
-		if card["set"] == list_set:
-			set_cards.append(card)
 
 	for card in all_cards:
 
@@ -37,7 +32,7 @@ def bind_card_list_audit(data, source_cards="all_audit_cards.csv", list_set="dmu
 			continue
 
 		scryfall_card = next(
-			(item for item in set_cards if
+			(item for item in data_set[card['set'].lower()] if
 			 item['name'] == card['name'] and item['collector_number'] == card['collector_number']), None)
 
 		if scryfall_card is None:
@@ -45,9 +40,10 @@ def bind_card_list_audit(data, source_cards="all_audit_cards.csv", list_set="dmu
 			failed_cards.append(card['name'])
 			continue
 
-		new_line = {'name': card['name'], 'id': '', 'set': list_set.upper(),
+		new_line = {'name': card['name'], 'id': '', 'set': scryfall_card['set'].upper(),
 		            'set_num': scryfall_card['collector_number'],
 		            'is_foil': card['foil'], "variant": get_card_variant(scryfall_card)}
+
 		if new_line["variant"].find("Frame") > -1:
 			new_line["spc"] = 0
 		else:
@@ -81,6 +77,8 @@ if __name__ == '__main__':
 	# Import each printing of each card
 	data = import_scryfall("default-cards-20220919210802.json")
 	print("Imported cards!")
+	data = sort_cards_by_set(data)
+	print("Sorted cards!")
 
-	audit_cards = bind_card_list_audit(data, "card_library_dmu.csv", "dmu")
+	audit_cards = bind_card_list_audit(data, "card_library_dmu.csv")
 	cool_stuff.write_data(audit_cards, "audit")
