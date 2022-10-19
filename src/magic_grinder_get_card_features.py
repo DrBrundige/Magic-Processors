@@ -1,7 +1,8 @@
 import cool_stuff
+import os
 
 
-# Imports Scryfall download file with the given name
+# Deprecated. Imports Scryfall download file with the given name
 def import_scryfall(path):
 	print("Importing Scryfall data at " + path)
 	return cool_stuff.read_json(path)
@@ -192,9 +193,10 @@ def get_oracle_text_without_reminder_text(oracle_text):
 
 if __name__ == '__main__':
 	print("Get card features")
-	# data = import_scryfall("some_cards.json")
-	# print("Data imported")
+# data = import_scryfall("some_cards.json")
+# print("Data imported")
 
-	# for card in data:
-	# 	print(f"{card['name']} | {get_card_variant(card)}")
-	print(get_oracle_text_without_reminder_text("Cumulative upkeep {1}{B} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.) At the beginning of each upkeep, if Tombstone Stairwell is on the battlefield, each player creates a 2/2 black Zombie creature token with haste named Tombspawn for each creature card in their graveyard."))
+# for card in data:
+# 	print(f"{card['name']} | {get_card_variant(card)}")
+# print(get_oracle_text_without_reminder_text(
+#     "Cumulative upkeep {1}{B} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.) At the beginning of each upkeep, if Tombstone Stairwell is on the battlefield, each player creates a 2/2 black Zombie creature token with haste named Tombspawn for each creature card in their graveyard."))
