@@ -2,8 +2,7 @@
 # Crawls the Scryfall bulk data to find art data about cards
 
 from magic_grinder import import_scryfall, get_card_type
-from magic_grinder_common_printings import prepare_cards_for_export
-import cool_stuff
+import shared_methods_io
 
 
 def get_all_prints_per_card(data):
@@ -92,7 +91,7 @@ if __name__ == '__main__':
 	# print(artists)
 	artist_rows = prepare_artist_for_export(artists)
 	# print(artist_rows)
-	cool_stuff.write_data(artist_rows, "artists")
+	shared_methods_io.write_data(artist_rows, "artists")
 
 # Get unique arts
 # unique_printings = get_unique_arts_per_card(data)

@@ -1,6 +1,6 @@
-from magic_grinder_get_card_features import *
-from sort_card_data import sort_cards_by_set
-from import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
+from ..shared_methods_grinder import *
+from ..sort_card_data import sort_cards_by_set
+from ..import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
 from datetime import datetime, timedelta
 
 

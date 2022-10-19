@@ -1,14 +1,14 @@
 import datetime
 
-import cool_stuff
+import shared_methods_io
 
 
 def do_reformat(card_names):
-	source_cards = cool_stuff.read_csv(card_names)
+	source_cards = shared_methods_io.read_csv(card_names)
 
 	formatted_cards = reformat_library_to_audit(source_cards)
 
-	cool_stuff.write_data(formatted_cards)
+	shared_methods_io.write_data(formatted_cards)
 
 
 # For a library dataset, reformats as audit.

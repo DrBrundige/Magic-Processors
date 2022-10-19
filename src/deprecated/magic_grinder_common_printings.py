@@ -1,5 +1,6 @@
 # Magic Grinder Thomas Brundige Jones 2022
 # Crawls the Scryfall bulk data to find cards first printed at common in a given set
+# There's a built-in command in Scryfall advanced search that does this crying_wojack.jpeg
 
 from magic_grinder import import_scryfall
 from magic_grinder_get_card_features import prepare_cards_for_export

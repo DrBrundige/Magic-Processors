@@ -1,6 +1,6 @@
-import cool_stuff
+import shared_methods_io
 from datetime import datetime
-from magic_grinder_get_card_features import *
+from shared_methods_grinder import *
 
 
 def sort_cards_by_set(data):

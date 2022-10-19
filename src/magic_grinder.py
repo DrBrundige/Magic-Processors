@@ -2,17 +2,15 @@
 
 # import requests
 import math
-from magic_call_scryfall import call_scryfall_creature_types
-
-import cool_stuff
-from magic_grinder_get_card_features import *
+import shared_methods_io
+from shared_methods_grinder import *
 
 
 # For a given list of card names, returns additional information about each card
 #    Returns rarity, scryfall uri, type line, mana cost, and color id
 # Note: Card names are case and special-character sensitive.
 def bind_card_list(source_cards="all_paper_cards.csv", scryfall_source="oracle-cards-20210712.json"):
-	all_cards = cool_stuff.read_csv_list(source_cards)
+	all_cards = shared_methods_io.read_csv_list(source_cards)
 	data = import_scryfall(scryfall_source)
 	bound_cards = []
 	failed_cards = []
@@ -53,7 +51,7 @@ def bind_card_list(source_cards="all_paper_cards.csv", scryfall_source="oracle-c
 #    Returns name, mana cost, type, rules text, and flavor text
 # Note: Card names are case and special-character sensitive.
 def bind_card_list_printout(data, source_cards="all_paper_cards.csv"):
-	all_cards = cool_stuff.read_csv_list(source_cards)
+	all_cards = shared_methods_io.read_csv_list(source_cards)
 	bound_cards = []
 	failed_cards = []
 
@@ -88,7 +86,7 @@ def bind_card_list_printout(data, source_cards="all_paper_cards.csv"):
 # For a given list of card names and set, returns collector's number
 # Note: Card names are case and special-character sensitive.
 def bind_card_list_audit(data, source_cards="all_audit_cards.csv"):
-	all_cards = cool_stuff.read_csv(source_cards)
+	all_cards = shared_methods_io.read_csv(source_cards)
 	bound_cards = []
 	failed_cards = []
 
@@ -177,7 +175,7 @@ def reformat_library_to_audit(source_cards):
 def find_abundant_types(data, legendaries_only=False, non_legendaries_only=False):
 	total_types = 0
 	# all_types = get_all_creature_types()
-	all_types = call_scryfall_creature_types()
+	all_types = shared_methods_io.call_scryfall_creature_types()
 	types_histogram = {}
 
 	# Checks against official list of all creature types.
@@ -279,7 +277,7 @@ def extract_all_cards(data):
 		if scryfall_card['name'] not in all_unique_names and scryfall_card['legalities']['commander'] != 'not_legal':
 			# print(f"Found card! {scryfall_card['name']}")
 			new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'],
-			            'col no': cool_stuff.clean_word_digits(scryfall_card['collector_number']),
+			            'col no': shared_methods_io.clean_word_digits(scryfall_card['collector_number']),
 			            'rarity': scryfall_card['rarity'].capitalize(),
 			            'rank': -1, 'id': get_card_id_code(scryfall_card['color_identity']),
 			            'cmc': -1}
@@ -324,7 +322,7 @@ def extract_all_cards_in_all_sets(data):
 			card_set = scryfall_card['name'] + "|" + scryfall_card['set']
 			# print(f"Found card! {scryfall_card['name']}")
 			new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
-			            'col no': cool_stuff.clean_word_digits(scryfall_card['collector_number']),
+			            'col no': shared_methods_io.clean_word_digits(scryfall_card['collector_number']),
 			            'rarity': scryfall_card['rarity'][0].capitalize(), 'usd': 0.0,
 			            'rank': -1, 'id': get_card_id_code(scryfall_card['color_identity']),
 			            'cmc': -1, 'released_at': scryfall_card['released_at']}
@@ -362,7 +360,7 @@ def extract_legal_card_names(data):
 		if card['legalities']['vintage'] != 'not_legal':
 			# or card['layout'] == 'token' and card['set_type'] != 'memorabilia':
 			for name in card['name'].split("//"):
-				clean = cool_stuff.clean_word(name)
+				clean = shared_methods_io.clean_word(name)
 				if len(clean) > 0:
 					all_names.append(clean)
 	return all_names
@@ -373,7 +371,7 @@ def extract_tokens(data):
 	for card in data:
 		if card['layout'] == 'token' and card['set_type'] != 'memorabilia':
 			for name in card['name'].split("//"):
-				clean = cool_stuff.clean_word(name)
+				clean = shared_methods_io.clean_word(name)
 				if len(clean) > 0 and clean not in all_names:
 					all_names.append(clean)
 	return all_names
@@ -397,7 +395,7 @@ def extract_keywords(data):
 	for card in data:
 		if card['legalities']['vintage'] != 'not_legal':
 			for type in card['keywords']:
-				clean = cool_stuff.clean_word(type)
+				clean = shared_methods_io.clean_word(type)
 				if len(clean) > 0 and clean not in all_types:
 					all_types.append(clean)
 					print(clean)
@@ -545,7 +543,7 @@ def extract_oracle_text(data, remove_reminder_text=False):
 
 				new_row["oracle_text"] = oracle_text_front + "\n" + oracle_text_back
 			new_row["num_chars"] = len(new_row["oracle_text"])
-			new_row["num_words"] = cool_stuff.count_words(new_row["oracle_text"])
+			new_row["num_words"] = shared_methods_io.count_words(new_row["oracle_text"])
 			all_cards.append(new_row)
 	return all_cards
 
@@ -562,7 +560,7 @@ def extract_oracle_text_per_face(data, remove_reminder_text=False):
 					oracle_text = card["oracle_text"]
 
 				new_row = {'name': card['name'], "oracle_text": oracle_text, "num_chars": len(oracle_text),
-				           "num_words": cool_stuff.count_words(oracle_text)}
+				           "num_words": shared_methods_io.count_words(oracle_text)}
 				all_cards.append(new_row)
 			else:
 				if remove_reminder_text:
@@ -571,7 +569,7 @@ def extract_oracle_text_per_face(data, remove_reminder_text=False):
 					oracle_text = card['card_faces'][0]['oracle_text']
 				new_row = {'name': f"{card['card_faces'][0]['name']} ({card['name']})", "oracle_text": oracle_text,
 				           "num_chars": len(oracle_text),
-				           "num_words": cool_stuff.count_words(oracle_text)}
+				           "num_words": shared_methods_io.count_words(oracle_text)}
 				all_cards.append(new_row)
 
 				if remove_reminder_text:
@@ -581,7 +579,7 @@ def extract_oracle_text_per_face(data, remove_reminder_text=False):
 
 				new_row = {'name': f"{card['card_faces'][1]['name']} ({card['name']})", "oracle_text": oracle_text,
 				           "num_chars": len(oracle_text),
-				           "num_words": cool_stuff.count_words(oracle_text)}
+				           "num_words": shared_methods_io.count_words(oracle_text)}
 				all_cards.append(new_row)
 
 	return all_cards
@@ -663,4 +661,4 @@ if __name__ == '__main__':
 	print("Data imported")
 
 	new_cards = bind_card_list_audit(data, "all_extra_audit_cards.csv")
-	cool_stuff.write_data(new_cards)
+	shared_methods_io.write_data(new_cards)

@@ -3,23 +3,7 @@ import json
 
 from datetime import datetime, timedelta
 from unidecode import unidecode
-
-
-# Gets the current time with the time and second floored to zero
-def get_datetime_rounded():
-	time = datetime.now()
-	zero = timedelta(microseconds=time.microsecond, seconds=time.second)
-	return time - zero
-
-
-def get_yesterday():
-	time = get_datetime_rounded()
-	yesterday = timedelta(hours=24)
-	return time - yesterday
-
-
-def get_epoch():
-	return get_datetime_rounded().timestamp()
+import requests
 
 
 # Writes a list of dictionaries to a csv
@@ -150,78 +134,23 @@ def read_json(path):
 		return data
 
 
-# For a given list and number of characters, returns every unique set
-def sets(chars, length, to_print=False, pointer=0, combo=[], all_combos=[]):
-	if length > 0:
-		for p in range(pointer, len(chars)):
-			new_combo = combo.copy()
-			new_combo.append(chars[p])
-			all_combos = sets(chars, length - 1, to_print, p + 1, new_combo, all_combos)
+def call_scryfall_creature_types():
+	r = requests.get('https://api.scryfall.com/catalog/creature-types')
+
+	if r.status_code == 200:
+		data = r.json()
+		# print(data)
+		print(data['object'])
+		print(data['data'])
+		return data['data']
 	else:
-		if to_print:
-			print(f"Appending combo: {combo}")
-		all_combos.append(combo)
-	return all_combos
-
-
-def combos(chars, length):
-	all_combos = r_combos(chars, length, [], [])
-	print(f"Found {len(all_combos)} combos!")
-	return all_combos
-
-
-def r_combos(chars, remaining, this_combo, all_combos):
-	if remaining <= 0:
-		add_combo = this_combo.copy()
-		all_combos.append(add_combo)
-		return all_combos
-	else:
-		for char in chars:
-			this_combo.append(char)
-			success = r_combos(chars, remaining - 1, this_combo, all_combos)
-			this_combo.pop()
-			if not success:
-				return False
-	return all_combos
-
-
-# For a given word, returns that word in upper case with all non-letter characters removed
-def clean_word(word):
-	cleaned = ""
-	for char in word.upper():
-		if 65 <= ord(char) <= 90:
-			cleaned += char
-	return cleaned
-
-
-# For a given string, returns that string with all non-digit characters removed
-def clean_word_digits(word):
-	cleaned = ""
-	for char in word:
-		if 48 <= ord(char) <= 57:
-			cleaned += char
-	return cleaned
-
-
-def count_words(string):
-	num_words = 0
-	in_word = False
-
-	for char in string:
-		# print(char)
-		if in_word:
-			if char.isspace():
-				in_word = False
-		elif not char.isspace():
-			in_word = True
-			num_words += 1
-
-	return num_words
+		print('Request failed, error code: ' + str(r.status_code) + ' | ' + r.reason)
+		return False
 
 
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
-	# print(get_datetime_rounded())
-	# print(get_yesterday())
-	# print(get_epoch())
-	# print(count_words('I met a traveller from an antique land, who said,\n"Two vast and trunkless legs of stone...'))
+# print(get_datetime_rounded())
+# print(get_yesterday())
+# print(get_epoch())
+# print(count_words('I met a traveller from an antique land, who said,\n"Two vast and trunkless legs of stone...'))

@@ -1,12 +1,12 @@
 import os
-import cool_stuff
+import shared_methods_io
 
 
 # Imports the latest full Scryfall download file containing each printing of each card.
 def import_scryfall_full():
 	path = get_latest_json("default-cards")
 	print("Importing full Scryfall data at " + path)
-	data = cool_stuff.read_json("downloads/" + path)
+	data = shared_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -15,7 +15,7 @@ def import_scryfall_full():
 def import_scryfall_abridged():
 	path = get_latest_json("oracle-cards")
 	print("Importing abridged Scryfall data at " + path)
-	data = cool_stuff.read_json("downloads/" + path)
+	data = shared_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -24,7 +24,7 @@ def import_scryfall_abridged():
 def import_scryfall_art():
 	path = get_latest_json("unique-artwork")
 	print("Importing Scryfall unique art data at " + path)
-	data = cool_stuff.read_json("downloads/" + path)
+	data = shared_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 

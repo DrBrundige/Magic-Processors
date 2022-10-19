@@ -1,6 +1,5 @@
-from magic_grinder import import_scryfall, get_card_type
-from magic_grinder_common_printings import prepare_cards_for_export
-import cool_stuff, count_condition
+from magic_grinder import import_scryfall
+import shared_methods_io, count_condition
 
 
 def count_printings(data, format="vintage", printing_conditions=None):
@@ -36,4 +35,4 @@ if __name__ == '__main__':
 
 	mythic_cards = count_printings(data, printing_conditions=printing_conditions)
 	# prepare_cards_for_export(mythic_cards)
-	cool_stuff.write_data_dictionary(mythic_cards, "cards")
+	shared_methods_io.write_data_dictionary(mythic_cards, "cards")
