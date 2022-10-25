@@ -44,10 +44,11 @@ def full_match_no_set_num(data_sorted, card):
 
 	return None
 
-	# return next(
-	# 	(item for item in data_sorted[card['set'].lower()] if
-	# 	 unidecode(item['name']) == unidecode(card['name'])
-	# 	 and get_card_variant(item) == card['frame']), None)
+
+# return next(
+# 	(item for item in data_sorted[card['set'].lower()] if
+# 	 unidecode(item['name']) == unidecode(card['name'])
+# 	 and get_card_variant(item) == card['frame']), None)
 
 
 # Simplest matching algorithm for abridged data. Matches by name.
