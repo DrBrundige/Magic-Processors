@@ -28,3 +28,30 @@ def scanner_longest_name(scryfall_card, scanned_cards):
 		print("Errant operation scanning card!")
 		print(E)
 		return False
+
+
+# # # # # # # # # # #
+# HISTOGRAM METHODS #
+# # # # # # # # # # #
+
+# Counts each creature type if the face is legendary.
+# Histogram - preloaded with each creature type
+def histogram_legendary_creature_types(scryfall_card, histogram):
+	try:
+		if 'card_faces' in scryfall_card:
+			for face in scryfall_card['card_faces']:
+				if "Legendary" in face["type_line"]:
+					for type in face["type_line"].split():
+						if type in histogram:
+							histogram[type] = histogram[type]+1
+		else:
+			for type in scryfall_card["type_line"].split():
+				if "Legendary" in scryfall_card["type_line"]:
+					if type in histogram:
+						histogram[type] = histogram[type] + 1
+		return True
+
+	except Exception as E:
+		print("Errant operation scanning card!")
+		print(E)
+		return False

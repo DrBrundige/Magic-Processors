@@ -9,6 +9,15 @@ def scan_card_is_eternal(scryfall_card):
 		return False
 
 
+# Checks if the card is printed in pager
+# Unfortunately, this is the only way to distinguish between Magic cards and tokens, art cards, and other stuff
+def scan_card_is_paper(scryfall_card):
+	if 'games' in scryfall_card and 'paper' in scryfall_card['games']:
+		return True
+	else:
+		return False
+
+
 # Scans all cards
 def scan_is_card(scryfall_card):
 	return True

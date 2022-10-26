@@ -2,8 +2,8 @@ from shared_methods_io import write_data, read_csv
 from import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
 from sort_card_data import sort_cards_by_set
 
-from magic_grinder_02_scryfall_card_processors import *
-from magic_grinder_02_custom_match_methods import *
+from magic_grinder_02_methods_card_processors import *
+from magic_grinder_02_methods_custom_match import *
 
 
 # Data - Requires the full default-cards dataset sorted with the sort_cards_by_set
