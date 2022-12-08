@@ -8,7 +8,7 @@ from magic_grinder_02_methods_custom_match import *
 
 # Data - Requires the full default-cards dataset sorted with the sort_cards_by_set
 # Inputs cards from a bulk set sheet: name, count (optional), foil, collector_number, set
-def match_bulk_data(data_sorted, all_cards, match_method, processor_method):
+def match_bulk_data(data_sorted, all_cards, match_method, processor_method, do_output_count=False):
 	bound_cards = []
 	failed_cards = []
 
@@ -33,7 +33,7 @@ def match_bulk_data(data_sorted, all_cards, match_method, processor_method):
 
 			# Some input files include a count row. If this row exists and is greater than 1,
 			#     adds the row to the output list that number of times. Otherwise adds it once.
-			if 'count' in card and int(card['count']) > 1:
+			if do_output_count and ('count' in card and int(card['count']) > 1):
 				for i in range(int(card['count'])):
 					bound_cards.append(new_line)
 			else:
@@ -68,26 +68,30 @@ def controller_value_collection():
 
 
 def controller_get_audit_from_set_sheet():
-	print("Valuing collection")
+	print("Matching cards to audit data")
 
-	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("card_library_dmu.csv"),
-	                             standard_match_full, get_audit_row)
+	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_order_cards_full.csv"),
+	                             standard_match_full, get_audit_row, do_output_count=True)
 	write_data(audit_rows, "audit")
 
 
 def controller_get_set_number_from_variant():
 	print("Getting set number")
-	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_extra_audit_cards.csv"),
-	                             full_match_no_set_num, get_input_row)
+	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_extra_trade_cards.csv"),
+	                             full_match_no_set_num, get_wishlist_row)
 	write_data(audit_rows)
 
 
+# Returns the unabridged dataset sorted by set code
 def controller_get_sorted_data():
 	# Import each printing of each card
+	then = datetime.now().timestamp()
 	data = import_scryfall_full()
 	print("Imported cards!")
+	# Sorts all cards into a dictionary by set
 	data_sorted = sort_cards_by_set(data)
-	print("Sorted cards!")
+	now = datetime.now().timestamp()
+	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now-then} seconds!")
 	return data_sorted
 
 

@@ -54,7 +54,7 @@ def get_card_usd(scryfall_card, card):
 # color_id - output
 def get_audit_row(scryfall_card, card):
 	# Creates a new Audit row from the matched card data
-	new_line = {'name': card['name'], 'id': '', 'set': scryfall_card['set'].upper(),
+	new_line = {'name': scryfall_card['name'], 'id': '', 'set': scryfall_card['set'].upper(),
 	            'set_num': scryfall_card['collector_number'],
 	            'is_foil': card['foil'], "variant": get_card_variant(scryfall_card)}
 
@@ -68,11 +68,13 @@ def get_audit_row(scryfall_card, card):
 	# These lines will be calculated once transferred to Excel
 	new_line["home_box"] = ""
 	new_line["location"] = ""
+	new_line["default_section"] = ""
 	new_line["section"] = ""
 	new_line["box_code"] = ""
 
 	# new_line["year"] = scryfall_card["released_at"][0:4]
 	new_line["year"] = str(datetime.today().year)
+	new_line["input_code"] = ""
 	new_line["rarity"] = scryfall_card["rarity"][0].upper()
 	new_line["card_type"] = get_card_type(scryfall_card["type_line"])
 	new_line["color_id"] = get_card_id_code(scryfall_card["color_identity"])
@@ -86,11 +88,24 @@ def get_audit_row(scryfall_card, card):
 # set_num - output
 # count - input
 def get_input_row(scryfall_card, card):
-	new_line = {'name': card['name'], 'set': scryfall_card['set'].upper(),
+	new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
 	            'set_num': scryfall_card['collector_number']}
 	if 'count' in card:
 		new_line['count'] = card['count']
 	else:
 		new_line['count'] = 1
+
+	return new_line
+
+
+# Outputs the information I like to have on my printed card wishlist. Note: I am insane. To wit:
+# name - input
+# set - output
+# set_num - output
+# rarity - output
+# color - output
+def get_wishlist_row(scryfall_card, card):
+	new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(), 'set_num': scryfall_card['collector_number'],
+	            'rarity': scryfall_card['rarity'][0].upper(), 'color': get_card_id_code(scryfall_card['color_identity'])}
 
 	return new_line

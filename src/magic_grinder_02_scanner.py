@@ -27,12 +27,12 @@ def scan_bulk_data_list(data, match_methods, processor_method):
 			if do_process_card:
 				# Processes bulk data object for output using the parameterized method
 				if not processor_method(scryfall_card, scanned_cards):
-					failed_cards.append(scryfall_card)
+					failed_cards.append(scryfall_card['name'])
 
 		except Exception as E:
 			print(f"Errant operation parsing card {scryfall_card['name']}")
 			print(E)
-			failed_cards.append(scryfall_card)
+			failed_cards.append(scryfall_card['name'])
 
 	# Outputs success / failure
 	if len(scanned_cards) > 0:
@@ -60,7 +60,7 @@ def scan_bulk_data_histogram(data, match_methods, processor_method, histogram=No
 
 	for scryfall_card in data:
 		try:
-			card_name = scryfall_card['name']
+			# card_name = scryfall_card['name']
 			do_process_card = True
 			# Matches the given card to its corresponding object in the bulk data using the parameterized method
 			for method in match_methods:
@@ -72,14 +72,14 @@ def scan_bulk_data_histogram(data, match_methods, processor_method, histogram=No
 			if do_process_card:
 				# Processes bulk data object for output using the parameterized method
 				if not processor_method(scryfall_card, histogram):
-					failed_cards.append(scryfall_card)
+					failed_cards.append(scryfall_card['name'])
 				else:
 					total_counted_cards += 1
 
 		except Exception as E:
 			print(f"Errant operation parsing card {scryfall_card['name']}")
 			print(E)
-			failed_cards.append(scryfall_card)
+			failed_cards.append(scryfall_card['name'])
 
 	# Outputs success / failure
 	if total_counted_cards > 0:
@@ -96,6 +96,50 @@ def scan_bulk_data_histogram(data, match_methods, processor_method, histogram=No
 	return histogram
 
 
+# I think this scans for non-card data, such as set types
+def scan_bulk_data_set(data, match_methods, processor_method, field):
+	fields_set = set()
+	failed_cards = []
+	total_counted_cards = 0
+
+	for scryfall_card in data:
+		try:
+			# card_name = scryfall_card['name']
+			do_process_card = True
+			# Matches the given card to its corresponding object in the bulk data using the parameterized method
+			for method in match_methods:
+				if not method(scryfall_card):
+					do_process_card = False
+					# If one match does not go through, break out of matching
+					break
+
+			if do_process_card:
+				# Processes bulk data object for output using the parameterized method
+				if not processor_method(scryfall_card, fields_set, field):
+					failed_cards.append(scryfall_card['name'])
+				else:
+					total_counted_cards += 1
+
+		except Exception as E:
+			print(f"Errant operation parsing card {scryfall_card['name']}")
+			print(E)
+			failed_cards.append(scryfall_card['name'])
+
+	# Outputs success / failure
+	if total_counted_cards > 0:
+		print(f"Success! Counted {total_counted_cards} cards")
+	else:
+		print("Failure! No cards counted!")
+
+	if len(failed_cards) == 0:
+		print("No cards failed!")
+	else:
+		print(f"{len(failed_cards)} card(s) failed")
+		print(failed_cards)
+
+	return fields_set
+
+
 def controller_test_count():
 	print("Counting cards")
 	data = controller_get_data()
@@ -106,12 +150,34 @@ def controller_test_count():
 def controller_get_legendary_creatures_histogram():
 	print("Counting legendary creatures")
 	data = controller_get_data()
-	histogram = controller_get_type_histogram()
+	histogram = controller_create_type_histogram()
 	match_methods = [scan_card_is_eternal, scan_card_is_paper]
-	types = scan_bulk_data_histogram(data, match_methods, histogram_legendary_creature_types, histogram)
-	write_data_dictionary(types, "types")
+	all_types = scan_bulk_data_histogram(data, match_methods, histogram_legendary_creature_types, histogram)
+	write_data_dictionary(all_types, "types")
 
 
+# Grinds the dataset for each unique art, counting the cards with the most arts.
+def controller_get_unique_arts_histogram():
+	data = import_scryfall_art()
+	histogram = {}
+	match_methods = [scan_card_is_paper]
+	all_arts = scan_bulk_data_histogram(data, match_methods, histogram_count_card_names, histogram)
+	write_data_dictionary(all_arts, "arts")
+
+	print("Imported cards!")
+
+
+def controller_get_set_unique_card_set_types():
+	print("Finding each set type")
+	data = controller_get_data()
+	match_methods = [scan_card_is_eternal, scan_card_is_paper]
+	all_set_types = scan_bulk_data_set(data, match_methods, set_find_string_field, "set_type")
+	print(all_set_types)
+
+
+# write_data_dictionary(all_set_types, "types")
+
+# Retrieves abridged data
 def controller_get_data():
 	# Import each printing of each card
 	data = import_scryfall_abridged()
@@ -119,7 +185,8 @@ def controller_get_data():
 	return data
 
 
-def controller_get_type_histogram():
+# Creates an empty histogram for each creature type listed in the CR
+def controller_create_type_histogram():
 	histogram = {}
 	all_types = get_all_creature_types()
 	for type in all_types:
@@ -130,4 +197,4 @@ def controller_get_type_histogram():
 
 if __name__ == '__main__':
 	print("Scanning Scryfall data!")
-	controller_get_legendary_creatures_histogram()
+	controller_get_set_unique_card_set_types()

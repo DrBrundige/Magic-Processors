@@ -1,5 +1,6 @@
 from shared_methods_io import read_json
 import os
+from unidecode import unidecode
 
 
 # Deprecated. Imports Scryfall download file with the given name
@@ -134,6 +135,8 @@ def get_card_variant(card):
 		return "Foil Etched"
 	elif is_frame_effects_in_card and "showcase" in card["frame_effects"]:
 		return "Showcase"
+	elif is_frame_effects_in_card and "inverted" in card["frame_effects"]:
+		return "Inverted"
 	else:
 		return card["frame"] + " Frame"
 
@@ -197,8 +200,26 @@ def get_oracle_text_without_reminder_text(oracle_text):
 	return new_text.strip()
 
 
+def scrub_card_name(card_name):
+	card_name = unidecode(card_name).upper()
+	# Strips special characters from card name
+
+	if "//" in card_name:
+		card_name = card_name[0:card_name.find("//")]
+
+	new_card_name = ""
+	for character in card_name:
+		if 65 <= ord(character) <= 90:
+			new_card_name += character
+
+	return new_card_name
+
+
 if __name__ == '__main__':
-	print("Get card features")
+	print("Scrubbing card names")
+	print(scrub_card_name("Colossal Badger // Dig Deeper"))
+	print(scrub_card_name("Tocasia's Dig Site "))
+
 # data = import_scryfall("some_cards.json")
 # print("Data imported")
 
