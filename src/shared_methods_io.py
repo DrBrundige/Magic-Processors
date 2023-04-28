@@ -101,6 +101,12 @@ def read_csv(name="record.csv"):
 	with open(name, newline='') as csvfile:
 		reader = csv.reader(csvfile, delimiter=',', quotechar='"')
 		headers = reader.__next__()
+
+		lower_headers = []
+		for header in headers:
+			lower_headers.append(header.lower())
+		headers = lower_headers
+
 		data = []
 		for row in reader:
 			new_row = {}

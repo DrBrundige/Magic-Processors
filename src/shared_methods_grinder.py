@@ -27,6 +27,8 @@ def get_card_type(type_line):
 		return "Instant"
 	elif type_line.find("Sorcery") > -1:
 		return "Sorcery"
+	elif type_line.find("Battle") > -1:
+		return "Battle"
 	elif type_line.find("Planeswalker") > -1:
 		return "Planeswalker"
 	else:
@@ -173,6 +175,7 @@ def get_all_creature_types():
 	        "Wolverine", "Wombat", "Worm", "Wraith", "Wurm", "Yeti", "Zombie", "Zubera"]
 
 
+# Converts a list of dictionaries into a list of lists with the dictionary keys in the first row
 def prepare_cards_for_export(data):
 	all_rows = []
 	for key in data:
