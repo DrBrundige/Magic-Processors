@@ -9,6 +9,18 @@ def scan_card_is_eternal(scryfall_card):
 		return False
 
 
+# Checks if the card is designed for use in a constructed deck.
+#    This checks if it is eternal legal and not a sticker nor conspiracy
+def scan_card_is_eternal_constructed(scryfall_card):
+	if ('legalities' in scryfall_card and scryfall_card['legalities']['vintage'] != 'not_legal') \
+			and ("Conspiracy" not in scryfall_card["type_line"]) \
+			and ("Attraction" not in scryfall_card["type_line"]) \
+			and ("Sticker" not in scryfall_card["type_line"]):
+		return True
+	else:
+		return False
+
+
 def scan_card_eternal_set(scryfall_card):
 	legal_set_types = {'core', 'expansion', 'duel_deck', 'funny', 'masterpiece', 'commander', 'draft_innovation',
 	                   'starter', 'arsenal', 'box', 'masters', 'archenemy', 'planechase'}

@@ -26,10 +26,10 @@ def bind_card_list(source_cards="all_paper_cards.csv", scryfall_source="oracle-c
 		            'scryfall_uri': scryfall_card['scryfall_uri'], 'cmc': int(scryfall_card['cmc'])}
 
 		if 'card_faces' in scryfall_card:
-			new_line['type_line'] = get_card_type(scryfall_card['card_faces'][0]['type_line'])
+			new_line['type_line'] = get_card_type_from_type_line(scryfall_card['card_faces'][0]['type_line'])
 			new_line['mana_cost'] = scryfall_card['card_faces'][0]['mana_cost']
 		else:
-			new_line['type_line'] = get_card_type(scryfall_card['type_line'])
+			new_line['type_line'] = get_card_type_from_type_line(scryfall_card['type_line'])
 			new_line['mana_cost'] = scryfall_card['mana_cost']
 
 		id = ""
@@ -110,8 +110,8 @@ def bind_card_list_audit(data, source_cards="all_audit_cards.csv"):
 
 		new_line = {'name': card['name'], 'id': id, 'set': card['set'], 'col no': scryfall_card['collector_number'],
 		            "year": scryfall_card["released_at"][0:4], "rarity": scryfall_card["rarity"][0].upper(),
-		            "card_type": get_card_type(scryfall_card["type_line"]),
-		            "color_id": get_card_id_code(scryfall_card["color_identity"]),
+		            "card_type": get_card_type_from_type_line(scryfall_card["type_line"]),
+		            "color_id": get_color_code_from_colors(scryfall_card["color_identity"]),
 		            "variant": get_card_variant(scryfall_card)}
 
 		if new_line["variant"].find("Frame") > -1:
@@ -279,7 +279,7 @@ def extract_all_cards(data):
 			new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'],
 			            'col no': shared_methods_io.clean_word_digits(scryfall_card['collector_number']),
 			            'rarity': scryfall_card['rarity'].capitalize(),
-			            'rank': -1, 'id': get_card_id_code(scryfall_card['color_identity']),
+			            'rank': -1, 'id': get_color_code_from_colors(scryfall_card['color_identity']),
 			            'cmc': -1}
 			if 'edhrec_rank' in scryfall_card:
 				new_line['rank'] = scryfall_card['edhrec_rank']
@@ -288,10 +288,10 @@ def extract_all_cards(data):
 				new_line['cmc'] = scryfall_card['cmc']
 
 			if 'card_faces' in scryfall_card:
-				new_line['type_line'] = get_card_type(scryfall_card['card_faces'][0]['type_line'])
+				new_line['type_line'] = get_card_type_from_type_line(scryfall_card['card_faces'][0]['type_line'])
 				new_line['mana_cost'] = scryfall_card['card_faces'][0]['mana_cost']
 			else:
-				new_line['type_line'] = get_card_type(scryfall_card['type_line'])
+				new_line['type_line'] = get_card_type_from_type_line(scryfall_card['type_line'])
 				new_line['mana_cost'] = scryfall_card['mana_cost']
 
 			all_unique_names.append(scryfall_card['name'])
@@ -324,7 +324,7 @@ def extract_all_cards_in_all_sets(data):
 			new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
 			            'col no': shared_methods_io.clean_word_digits(scryfall_card['collector_number']),
 			            'rarity': scryfall_card['rarity'][0].capitalize(), 'usd': 0.0,
-			            'rank': -1, 'id': get_card_id_code(scryfall_card['color_identity']),
+			            'rank': -1, 'id': get_color_code_from_colors(scryfall_card['color_identity']),
 			            'cmc': -1, 'released_at': scryfall_card['released_at']}
 
 			if 'edhrec_rank' in scryfall_card:
@@ -343,10 +343,10 @@ def extract_all_cards_in_all_sets(data):
 				new_line['usd'] = math.floor(float(scryfall_card['prices'][denomination]) * 4.0) / 4.0
 
 			if 'card_faces' in scryfall_card:
-				new_line['type_line'] = get_card_type(scryfall_card['card_faces'][0]['type_line'])
+				new_line['type_line'] = get_card_type_from_type_line(scryfall_card['card_faces'][0]['type_line'])
 				new_line['mana_cost'] = scryfall_card['card_faces'][0]['mana_cost']
 			else:
-				new_line['type_line'] = get_card_type(scryfall_card['type_line'])
+				new_line['type_line'] = get_card_type_from_type_line(scryfall_card['type_line'])
 				new_line['mana_cost'] = scryfall_card['mana_cost']
 
 			all_cards.append(new_line)

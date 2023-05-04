@@ -16,47 +16,33 @@ def get_card_usd(scryfall_card, card):
 	            'set_num': scryfall_card['collector_number'], 'rarity': scryfall_card['rarity'],
 	            'foil': card['foil'], "variant": get_card_variant(scryfall_card)}
 
-	all_prices = scryfall_card['prices']
-	card_price = 0.0
-	price_type = ""
-
-	if new_line['variant'] == "Foil Etched" and 'usd_etched' in all_prices:
-		card_price = all_prices['usd_etched']
-		price_type = "usd_etched"
-	elif card['foil'] == "1" and 'usd_foil' in all_prices:
-		card_price = all_prices['usd_foil']
-		price_type = "usd_foil"
-	elif 'usd' in all_prices:
-		card_price = all_prices['usd']
-		price_type = "usd"
-
-	new_line['price'] = card_price
-	new_line['price_type'] = price_type
+	get_usd_from_card(new_line, scryfall_card['prices'], output_price_type=True)
 
 	return new_line
 
 
 # Outputs rows for audit sheet. To wit:
-# name - input
-# id - empty
-# set - input
-# set_num - input
-# is_foil - input
-# variant - output
-# spc - output
+# name -     input
+# id -       empty
+# set -      input
+# set_num -  input
+# is_foil -  input
+# variant -  output
+# spc -      output
 # home_box - empty
 # location - empty
-# section - empty
+# section -  empty
 # box_code - empty
-# year - output
-# rarity - output
-# card_type - output
+# year -     output
+# rarity -   output
+# card_type -output
 # color_id - output
+# colors -   output
 def get_audit_row(scryfall_card, card):
 	# Creates a new Audit row from the matched card data
 	new_line = {'name': scryfall_card['name'], 'id': '', 'set': scryfall_card['set'].upper(),
 	            'set_num': scryfall_card['collector_number'],
-	            'is_foil': card['foil'], "variant": get_card_variant(scryfall_card)}
+	            'foil': card['foil'], "variant": get_card_variant(scryfall_card)}
 
 	# The spc column notes whether a card has a special collectible treatment.
 	#    Cards with no such treatment are noted in the variant column as '2015 Frame'
@@ -69,6 +55,7 @@ def get_audit_row(scryfall_card, card):
 	new_line["home_box"] = ""
 	new_line["location"] = ""
 	new_line["default_section"] = ""
+	new_line["price_range"] = ""
 	new_line["section"] = ""
 	new_line["box_code"] = ""
 
@@ -76,8 +63,19 @@ def get_audit_row(scryfall_card, card):
 	new_line["year"] = str(datetime.today().year)
 	new_line["input_code"] = ""
 	new_line["rarity"] = scryfall_card["rarity"][0].upper()
-	new_line["card_type"] = get_card_type(scryfall_card["type_line"])
-	new_line["color_id"] = get_card_id_code(scryfall_card["color_identity"])
+	new_line["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+	new_line["color_id"] = get_color_code_from_colors(scryfall_card["color_identity"])
+	new_line["colors"] = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
+
+	produced_mana = get_field_from_card("produced_mana", scryfall_card, not_found="none")
+	if produced_mana != "none":
+		new_line["produced_mana"] = get_color_code_from_colors(produced_mana)
+	else:
+		new_line["produced_mana"] = ""
+
+	get_usd_from_card(new_line, scryfall_card['prices'], output_price_type=True)
+
+	new_line["code"] = f"{scryfall_card['set'].upper()}|{scryfall_card['collector_number']}"
 
 	return new_line
 
@@ -105,7 +103,17 @@ def get_input_row(scryfall_card, card):
 # rarity - output
 # color - output
 def get_wishlist_row(scryfall_card, card):
-	new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(), 'set_num': scryfall_card['collector_number'],
-	            'rarity': scryfall_card['rarity'][0].upper(), 'color': get_card_id_code(scryfall_card['color_identity'])}
+	new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
+	            'set_num': scryfall_card['collector_number'],
+	            'rarity': scryfall_card['rarity'][0].upper(),
+	            'color': get_color_code_from_colors(scryfall_card['color_identity'])}
+
+	return new_line
+
+
+def get_cardname_data(scryfall_card, card):
+	new_line = {'name': scryfall_card['name']}
+
+
 
 	return new_line

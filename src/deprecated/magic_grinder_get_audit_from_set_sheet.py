@@ -68,8 +68,8 @@ def bind_card_list_audit(data_sorted, source_cards="all_audit_cards.csv"):
 			# new_line["year"] = scryfall_card["released_at"][0:4]
 			new_line["year"] = str(datetime.today().year)
 			new_line["rarity"] = scryfall_card["rarity"][0].upper()
-			new_line["card_type"] = get_card_type(scryfall_card["type_line"])
-			new_line["color_id"] = get_card_id_code(scryfall_card["color_identity"])
+			new_line["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+			new_line["color_id"] = get_color_code_from_colors(scryfall_card["color_identity"])
 
 			# Adds a number of copies to the output list equal to the value of the Count
 			#     column in the input

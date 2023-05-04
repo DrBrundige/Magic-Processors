@@ -8,17 +8,31 @@ def import_scryfall(path):
 	print("Importing Scryfall data at " + path)
 	return read_json(path)
 
+# # # # # # # # # # # # #
+# # #     LOGIC     # # #
+# # # # # # # # # # # # #
 
-# For a given type line, returns card base type
-def get_card_type(type_line):
+
+# For a given type line, returns card base type. Prefers front face of card.
+def get_card_type_from_type_line(type_line):
+
+	is_double_faced =type_line.find(" // ")
+	if is_double_faced > -1:
+		type_line = type_line[0: is_double_faced]
+
 	if type_line.find("Token") > -1:
 		return "Token"
-	if type_line.find("Basic") > -1:
+	elif type_line.find("Basic") > -1:
 		return "Basic Land"
-	if type_line.find("Land") > -1:
+	elif type_line.find("Land") > -1:
 		return "Land"
 	elif type_line.find("Creature") > -1:
-		return "Creature"
+		if type_line.find("Artifact") > -1:
+			return "Artifact Creature"
+		if type_line.find("Enchantment") > -1:
+			return "Enchantment Creature"
+		else:
+			return "Creature"
 	elif type_line.find("Artifact") > -1:
 		return "Artifact"
 	elif type_line.find("Enchantment") > -1:
@@ -42,7 +56,7 @@ def get_card_type(type_line):
 # A string of logic to return the formatted color combination for a list of colors
 # Accepts a list of colors
 # Returns the color combination as a string. On failure returns an empty string
-def get_card_id_code(color_identity):
+def get_color_code_from_colors(color_identity):
 	num_colors = len(color_identity)
 	if num_colors == 0:
 		return "C"
@@ -143,6 +157,10 @@ def get_card_variant(card):
 		return card["frame"] + " Frame"
 
 
+# # # # # # # # # # # # #
+# # #     DATA      # # #
+# # # # # # # # # # # # #
+
 # Returns a list containing each creature type according to the CR, last updated 2022-10-07
 def get_all_creature_types():
 	return ["Advisor", "Aetherborn", "Alien", "Ally", "Angel", "Antelope", "Ape", "Archer", "Archon", "Army",
@@ -173,6 +191,46 @@ def get_all_creature_types():
 	        "Trilobite", "Triskelavite", "Troll", "Turtle", "Tyranid", "Unicorn", "Vampire", "Vedalken", "Viashino",
 	        "Volver", "Wall", "Walrus", "Warlock", "Warrior", "Weird", "Werewolf", "Whale", "Wizard", "Wolf",
 	        "Wolverine", "Wombat", "Worm", "Wraith", "Wurm", "Yeti", "Zombie", "Zubera"]
+
+
+def get_field_from_card(field, scryfall_card, not_found = ""):
+	if field in scryfall_card:
+		return scryfall_card[field]
+	else:
+		if "card_faces" in scryfall_card and field in scryfall_card["card_faces"][0]:
+			return scryfall_card["card_faces"][0][field]
+		else:
+			return not_found
+
+
+def get_usd_from_card(new_line, all_prices, output_price_type = False):
+	try:
+		card_price = 0.0
+		price_type = ""
+		if new_line['variant'] == "Foil Etched" and 'usd_etched' in all_prices:
+			card_price = all_prices['usd_etched']
+			price_type = "usd_etched"
+		elif new_line['foil'] == "1" and 'usd_foil' in all_prices:
+			card_price = all_prices['usd_foil']
+			price_type = "usd_foil"
+		elif 'usd' in all_prices:
+			card_price = all_prices['usd']
+			price_type = "usd"
+
+		new_line['price'] = card_price
+		if output_price_type:
+			new_line['price_type'] = price_type
+
+		return True
+	except Exception as E:
+		print("Errant operation calculating price")
+		print(E)
+		return False
+
+
+# # # # # # # # # # # # # # # #
+# # #     MANIPULATION    # # #
+# # # # # # # # # # # # # # # #
 
 
 # Converts a list of dictionaries into a list of lists with the dictionary keys in the first row

@@ -147,6 +147,13 @@ def controller_test_count():
 	write_data(cards)
 
 
+# Outputs non printing-specific information, such as color and card type
+def controller_get_card_name_data():
+	this_data = import_scryfall_abridged()
+	all_card_names = scan_bulk_data_list(this_data, [scan_card_is_eternal], scanner_get_card_name_data)
+	write_data(all_card_names, "card_names")
+
+
 def controller_get_legendary_creatures_histogram():
 	print("Counting legendary creatures")
 	data = controller_get_data()
@@ -175,6 +182,10 @@ def controller_get_set_unique_card_set_types():
 	print(all_set_types)
 
 
+def controller_get_all_card_data():
+	data = controller_get_data()
+
+
 # write_data_dictionary(all_set_types, "types")
 
 # Retrieves abridged data
@@ -197,4 +208,4 @@ def controller_create_type_histogram():
 
 if __name__ == '__main__':
 	print("Scanning Scryfall data!")
-	controller_get_set_unique_card_set_types()
+	controller_get_card_name_data()

@@ -59,15 +59,27 @@ def match_bulk_data(data_sorted, all_cards, match_method, processor_method, do_o
 	return bound_cards
 
 
-def controller_value_collection():
+# Outputs all cards from a given dataset using the given processor method
+# Requires unsorted data
+def get_all_cards(data, processor_method):
+	bound_cards = []
+	card = {}
+	for scryfall_card in data:
+		new_line = processor_method(scryfall_card, card)
+		bound_cards.append(new_line)
+
+	return bound_cards
+
+
+def controller_value_collection(file_name="all_sort_cards.csv"):
 	print("Valuing collection")
 
-	prices = match_bulk_data(controller_get_sorted_data(), read_csv("card_library_dmu.csv"), standard_match_full,
+	prices = match_bulk_data(controller_get_sorted_data(), read_csv(file_name), standard_match_full,
 	                         get_card_usd)
 	write_data(prices, "prices")
 
 
-def controller_get_audit_from_set_sheet(filename = "all_order_cards_full.csv"):
+def controller_get_audit_from_set_sheet(filename="all_order_cards_full.csv"):
 	print("Matching cards to audit data")
 
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
@@ -91,10 +103,11 @@ def controller_get_sorted_data():
 	# Sorts all cards into a dictionary by set
 	data_sorted = sort_cards_by_set(data)
 	now = datetime.now().timestamp()
-	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now-then} seconds!")
+	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now - then} seconds!")
 	return data_sorted
 
 
 if __name__ == '__main__':
 	print("Processing Bulk Data")
-	controller_get_audit_from_set_sheet("all_audit_reset_cards.csv")
+	controller_get_audit_from_set_sheet()
+# controller_value_collection("all_sort_cards.csv")

@@ -1,7 +1,7 @@
 # Magic Grinder Thomas Brundige Jones 2022
 # Crawls the Scryfall bulk data to find art data about cards
 
-from magic_grinder import import_scryfall, get_card_type
+from magic_grinder import import_scryfall, get_card_type_from_type_line
 import shared_methods_io
 
 
@@ -30,7 +30,7 @@ def get_unique_arts_per_card(data):
 			else:
 				new_card = {"name": card["name"], "arts": 1, "set_type": card["set_type"]}
 				if "type_line" in card:
-					new_card["type_line"] = get_card_type(card["type_line"])
+					new_card["type_line"] = get_card_type_from_type_line(card["type_line"])
 				else:
 					new_card["type_line"] = "Multi-faced"
 				found_cards[card["oracle_id"]] = new_card

@@ -1,8 +1,41 @@
+from shared_methods_grinder import *
+
+
 # Creates a simple list of all cards.
 def scanner_count_cards(scryfall_card, scanned_cards):
 	try:
 		new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'],
 		            'set_num': scryfall_card['collector_number']}
+		scanned_cards.append(new_line)
+		return True
+	except Exception as E:
+		print("Errant operation scanning card!")
+		print(E)
+		return False
+
+
+# Outputs non printing-specific information. To wit:
+# name -      input
+# card_type - output
+# color_id -  output
+# colors -    output
+def scanner_get_card_name_data(scryfall_card, scanned_cards):
+	try:
+		new_line = {'name': scryfall_card['name'],
+		            "color_id": get_color_code_from_colors(scryfall_card["color_identity"]),
+		            "colors": get_color_code_from_colors(get_field_from_card("colors", scryfall_card, not_found="")),
+		            "type_line": get_field_from_card("type_line", scryfall_card, not_found=""),
+		            "type": get_card_type_from_type_line(get_field_from_card("type_line", scryfall_card, not_found="")),
+		            "cmc": get_field_from_card("cmc", scryfall_card, not_found=-1),
+		            "mana_cost": get_field_from_card("mana_cost", scryfall_card, not_found="none"),
+		            "edhrec_rank": get_field_from_card("edhrec_rank", scryfall_card, not_found=-1)}
+
+		produced_mana = get_field_from_card("produced_mana", scryfall_card, not_found="none")
+		if produced_mana != "none":
+			new_line["produced_mana"] = get_color_code_from_colors(produced_mana)
+		else:
+			new_line["produced_mana"] = ""
+
 		scanned_cards.append(new_line)
 		return True
 	except Exception as E:

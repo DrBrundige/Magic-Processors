@@ -1,4 +1,4 @@
-from shared_methods_io import read_json, read_csv
+from shared_methods_io import read_json, read_csv, write_data
 
 
 class MagicSorterTrie:
@@ -92,14 +92,24 @@ class BoxNode:
 					self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
 
 
+# Because this algorithm is intended to read directly from the audit sheet, it expects column names to be
+#    uncapitalized with spaces
+# Name,ID,New ID,Set,Set No,Is Foil,Home Box,Section,Card Type
 if __name__ == '__main__':
 	SortAudit = MagicSorterTrie("sorter_logic.json")
 
-	all_sort_cards = read_csv("all_sort_cards.csv")
+	# all_sort_cards = read_csv("all_sort_cards.csv")
+	all_sort_cards = read_csv("audit_csv.csv")
 	for card in all_sort_cards:
 		SortAudit.add_card(card)
 
 	# print(SortAudit)
 	all_sorted_cards = SortAudit.output_cards()
 	print(len(all_sorted_cards))
+	new_id = 1
+	for card in all_sorted_cards:
+		card["new id"] = new_id
+		new_id += 1
+	write_data(all_sorted_cards, "reorder")
+
 # print(SortAudit.sorter_logic)
