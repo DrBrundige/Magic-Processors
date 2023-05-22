@@ -5,15 +5,24 @@ from shared_methods_grinder import get_card_variant, scrub_card_name
 # The standard matching algorithm for full bulk data. Matches by set, then name and set number
 # Requires set, name, and collector_number
 def standard_match_full(data_sorted, card):
-	if card['set'].lower() not in data_sorted.keys():
-		print(f"Errant operation! Could not find set {card['set']} for card {card['name']}")
+	try:
+		if card['set'].lower() not in data_sorted.keys():
+			print(f"Errant operation! Could not find set {card['set']} for card {card['name']}")
+			return None
+
+		if 'collector_number' in card:
+			set_num_name = 'collector_number'
+		else:
+			set_num_name = 'set_no'
+
+		return next(
+			(item for item in data_sorted[card['set'].lower()] if
+			 unidecode(item['name']) == unidecode(card['name'])
+			 and item['collector_number'] == card[set_num_name]), None)
+	except Exception as E:
+		print("Errant operation matching card")
+		print(E)
 		return None
-
-	return next(
-		(item for item in data_sorted[card['set'].lower()] if
-		 unidecode(item['name']) == unidecode(card['name'])
-		 and item['collector_number'] == card['collector_number']), None)
-
 
 # Finds a bulk item where no set number is confirmed. Matches by set, then tries to match by name.
 #     If two or more names are found, matches by frame

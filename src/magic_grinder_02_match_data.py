@@ -29,15 +29,17 @@ def match_bulk_data(data_sorted, all_cards, match_method, processor_method, do_o
 				continue
 
 			# Processes bulk data object for output using the parameterized method
-			new_line = processor_method(scryfall_card, card)
-
-			# Some input files include a count row. If this row exists and is greater than 1,
-			#     adds the row to the output list that number of times. Otherwise adds it once.
-			if do_output_count and ('count' in card and int(card['count']) > 1):
-				for i in range(int(card['count'])):
-					bound_cards.append(new_line)
+			if (processor_method(scryfall_card, card)):
+				# Some input files include a count row. If this row exists and is greater than 1,
+				#     adds the row to the output list that number of times. Otherwise adds it once.
+				if do_output_count and ('count' in card and int(card['count']) > 1):
+					for i in range(int(card['count'])):
+						bound_cards.append(card)
+				else:
+					bound_cards.append(card)
 			else:
-				bound_cards.append(new_line)
+				failed_cards.append(card)
+
 
 		except Exception as E:
 			print(f"Errant operation parsing card {card['name']}")
@@ -54,7 +56,7 @@ def match_bulk_data(data_sorted, all_cards, match_method, processor_method, do_o
 		print("No cards failed!")
 	else:
 		print(f"{len(failed_cards)} card(s) failed")
-		print(failed_cards)
+	# print(failed_cards)
 
 	return bound_cards
 
@@ -83,7 +85,15 @@ def controller_get_audit_from_set_sheet(filename="all_order_cards_full.csv"):
 	print("Matching cards to audit data")
 
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
-	                             standard_match_full, get_audit_row, do_output_count=False)
+	                             standard_match_full, get_audit_row, do_output_count=True)
+	write_data(audit_rows, "audit")
+
+
+def controller_get_audit_from_audit_sheet(filename="audit_csv.csv"):
+	print("Matching cards to audit data")
+	all_cards = read_csv(filename, do_snake_case_names=True, do_standardize_header_names=True)
+	audit_rows = match_bulk_data(controller_get_sorted_data(), all_cards, standard_match_full, get_audit_row,
+	                             do_output_count=False)
 	write_data(audit_rows, "audit")
 
 
@@ -91,6 +101,13 @@ def controller_get_set_number_from_variant():
 	print("Getting set number")
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_extra_trade_cards.csv"),
 	                             full_match_no_set_num, get_audit_row)
+	write_data(audit_rows)
+
+
+def test_new_processors():
+	print("Getting set number")
+	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("card_library_dmu.csv"),
+	                             standard_match_full, get_cardname_data)
 	write_data(audit_rows)
 
 
@@ -109,5 +126,5 @@ def controller_get_sorted_data():
 
 if __name__ == '__main__':
 	print("Processing Bulk Data")
-	controller_get_audit_from_set_sheet()
+	controller_get_audit_from_audit_sheet()
 # controller_value_collection("all_sort_cards.csv")

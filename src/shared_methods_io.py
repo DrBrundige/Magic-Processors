@@ -97,15 +97,23 @@ def write_data_list(data, filename="out"):
 
 
 # Reads from a csv file returning as a list of dictionaries
-def read_csv(name="record.csv"):
+# do_snake_case_names - if True, puts header names into lower case with underscores
+# do_standardize_header_names - runs header names through a dictionary
+#   replacing header names with a set list that the code will expect.
+#   Note: only runs if do_snake_case_names is also set to True.
+def read_csv(name="record.csv", do_snake_case_names=False, do_standardize_header_names=False):
 	with open(name, newline='') as csvfile:
 		reader = csv.reader(csvfile, delimiter=',', quotechar='"')
 		headers = reader.__next__()
 
-		lower_headers = []
-		for header in headers:
-			lower_headers.append(header.lower())
-		headers = lower_headers
+		if do_snake_case_names:
+			lower_headers = []
+			for header in headers:
+				lower_headers.append(snake_case_parameter(header))
+			headers = lower_headers
+
+		if do_snake_case_names and do_standardize_header_names:
+			standardize_header_names(headers)
 
 		data = []
 		for row in reader:
@@ -154,8 +162,33 @@ def call_scryfall_creature_types():
 		return False
 
 
+# No I/O is happening here, but these methods are necessary to support read_csv
+def snake_case_parameter(name):
+	name = name.lower()
+	name = name.replace(' ', '_')
+	name = name.replace('.', '')
+	return name
+
+
+# Modifies a list of headers. Returns True or False for success
+# Accepts a list of strings, a string path
+def standardize_header_names(headers, replacement_path="standardized_headers.json"):
+	# Read from a JSON of headers
+	replacements = read_json(replacement_path)
+
+	for replacement in replacements.keys():
+		if replacement in headers:
+			i = headers.index(replacement)
+			headers[i] = replacements[replacement]
+
+	# For object in read JSON, try to replace the name of each header
+	return True
+
+
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
+	read_csv("audit_csv.csv", True, True)
+
 # print(get_datetime_rounded())
 # print(get_yesterday())
 # print(get_epoch())

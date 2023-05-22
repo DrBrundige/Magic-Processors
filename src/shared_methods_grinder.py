@@ -8,6 +8,7 @@ def import_scryfall(path):
 	print("Importing Scryfall data at " + path)
 	return read_json(path)
 
+
 # # # # # # # # # # # # #
 # # #     LOGIC     # # #
 # # # # # # # # # # # # #
@@ -15,8 +16,7 @@ def import_scryfall(path):
 
 # For a given type line, returns card base type. Prefers front face of card.
 def get_card_type_from_type_line(type_line):
-
-	is_double_faced =type_line.find(" // ")
+	is_double_faced = type_line.find(" // ")
 	if is_double_faced > -1:
 		type_line = type_line[0: is_double_faced]
 
@@ -34,7 +34,10 @@ def get_card_type_from_type_line(type_line):
 		else:
 			return "Creature"
 	elif type_line.find("Artifact") > -1:
-		return "Artifact"
+		if type_line.find("Equipment") > -1:
+			return "Artifact Equipment"
+		else:
+			return "Artifact"
 	elif type_line.find("Enchantment") > -1:
 		return "Enchantment"
 	elif type_line.find("Instant") > -1:
@@ -193,7 +196,7 @@ def get_all_creature_types():
 	        "Wolverine", "Wombat", "Worm", "Wraith", "Wurm", "Yeti", "Zombie", "Zubera"]
 
 
-def get_field_from_card(field, scryfall_card, not_found = ""):
+def get_field_from_card(field, scryfall_card, not_found=""):
 	if field in scryfall_card:
 		return scryfall_card[field]
 	else:
@@ -203,10 +206,11 @@ def get_field_from_card(field, scryfall_card, not_found = ""):
 			return not_found
 
 
-def get_usd_from_card(new_line, all_prices, output_price_type = False):
+def get_usd_from_card(new_line, all_prices, output_price_type=False):
 	try:
 		card_price = 0.0
 		price_type = ""
+
 		if new_line['variant'] == "Foil Etched" and 'usd_etched' in all_prices:
 			card_price = all_prices['usd_etched']
 			price_type = "usd_etched"
@@ -217,7 +221,7 @@ def get_usd_from_card(new_line, all_prices, output_price_type = False):
 			card_price = all_prices['usd']
 			price_type = "usd"
 
-		new_line['price'] = card_price
+		new_line['value'] = card_price
 		if output_price_type:
 			new_line['price_type'] = price_type
 

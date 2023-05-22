@@ -23,7 +23,7 @@ class MagicSorterTrie:
 		return f"Magic Sorter | Boxes: {len(self.all_boxes)}, Total cards: {self.total_cards}"
 
 	def add_card(self, card):
-		matching_box = card["home box"]
+		matching_box = card["home_box"]
 		self.all_boxes[matching_box].add_card(card)
 		self.total_cards += 1
 
@@ -78,7 +78,7 @@ class BoxNode:
 		else:
 			sorted_keys = []
 
-			if (self.logic[0].lower() == "set no"):
+			if self.logic[0].lower() == "collector_number":
 				for key in self.all_sub_nodes.keys():
 					sorted_keys.append(int(key))
 				sorted_keys.sort()
