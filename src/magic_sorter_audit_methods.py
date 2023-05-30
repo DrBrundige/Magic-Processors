@@ -1,5 +1,8 @@
 from magic_sorter import MagicSorterTrie
 from shared_methods_io import read_json, read_csv, write_data
+from magic_grinder_02_match_data import match_bulk_data, controller_get_sorted_data
+from magic_grinder_02_methods_card_processors import get_audit_row
+from magic_grinder_02_methods_custom_match import standard_match_full
 
 
 def assign_default_section(card):
@@ -70,7 +73,10 @@ if __name__ == '__main__':
 	print("Sorting card collection")
 	SortAudit = MagicSorterTrie("sorter_logic.json")
 
-	all_sort_cards = read_csv("audit_csv.csv", True, True)
+	all_cards = read_csv("audit_csv.csv", do_snake_case_names=True, do_standardize_header_names=True)
+	all_sort_cards = match_bulk_data(controller_get_sorted_data(), all_cards, standard_match_full, get_audit_row,
+	                                 do_output_count=False)
+
 	for card in all_sort_cards:
 		print(f"Sorting card {card['name']}")
 		card["price_range"] = assign_price_range(card, 2)

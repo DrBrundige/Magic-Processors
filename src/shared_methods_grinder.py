@@ -208,16 +208,18 @@ def get_field_from_card(field, scryfall_card, not_found=""):
 
 def get_usd_from_card(new_line, all_prices, output_price_type=False):
 	try:
-		card_price = 0.0
+		card_price = "0.0"
 		price_type = ""
 
-		if new_line['variant'] == "Foil Etched" and 'usd_etched' in all_prices:
+		if new_line['variant'] == "Foil Etched" and 'usd_etched' in all_prices \
+				and all_prices['usd_etched'] is not None:
 			card_price = all_prices['usd_etched']
 			price_type = "usd_etched"
-		elif new_line['foil'] == "1" and 'usd_foil' in all_prices:
+		elif new_line['foil'] == "1" and 'usd_foil' in all_prices \
+				and all_prices['usd_foil'] is not None:
 			card_price = all_prices['usd_foil']
 			price_type = "usd_foil"
-		elif 'usd' in all_prices:
+		elif 'usd' in all_prices and all_prices['usd'] is not None:
 			card_price = all_prices['usd']
 			price_type = "usd"
 

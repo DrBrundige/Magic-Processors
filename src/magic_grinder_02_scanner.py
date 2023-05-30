@@ -174,11 +174,11 @@ def controller_get_unique_arts_histogram():
 	print("Imported cards!")
 
 
-def controller_get_set_unique_card_set_types():
+def controller_get_set_unique_card_field(field= "set_type"):
 	print("Finding each set type")
 	data = controller_get_data()
 	match_methods = [scan_card_is_eternal, scan_card_is_paper]
-	all_set_types = scan_bulk_data_set(data, match_methods, set_find_string_field, "set_type")
+	all_set_types = scan_bulk_data_set(data, match_methods, set_find_string_field, field)
 	print(all_set_types)
 
 
@@ -208,4 +208,4 @@ def controller_create_type_histogram():
 
 if __name__ == '__main__':
 	print("Scanning Scryfall data!")
-	controller_get_card_name_data()
+	controller_get_set_unique_card_field()

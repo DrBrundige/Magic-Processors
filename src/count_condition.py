@@ -1,3 +1,5 @@
+# I have no idea what this does or why I wrote it
+
 class Condition:
 	def __init__(self, key, value):
 		self.key = key

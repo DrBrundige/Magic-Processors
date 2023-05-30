@@ -96,6 +96,11 @@ def get_audit_row(scryfall_card, card):
 
 	get_usd_from_card(card, scryfall_card['prices'], output_price_type=False)
 
+	if "released_at" in scryfall_card:
+		card["released_at"] = scryfall_card["released_at"]
+	else:
+		card["released_at"] = ""
+
 	return True
 
 

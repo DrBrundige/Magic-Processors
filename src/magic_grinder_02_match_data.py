@@ -81,11 +81,11 @@ def controller_value_collection(file_name="all_sort_cards.csv"):
 	write_data(prices, "prices")
 
 
-def controller_get_audit_from_set_sheet(filename="all_order_cards_full.csv"):
+def controller_get_audit_from_set_sheet(filename="all_order_cards.csv"):
 	print("Matching cards to audit data")
 
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
-	                             standard_match_full, get_audit_row, do_output_count=True)
+	                             full_match_no_set_num, get_audit_row, do_output_count=True)
 	write_data(audit_rows, "audit")
 
 
@@ -126,5 +126,5 @@ def controller_get_sorted_data():
 
 if __name__ == '__main__':
 	print("Processing Bulk Data")
-	controller_get_audit_from_audit_sheet()
+	controller_get_audit_from_set_sheet("all_order_cards.csv")
 # controller_value_collection("all_sort_cards.csv")

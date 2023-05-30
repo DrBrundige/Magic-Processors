@@ -3,7 +3,6 @@ import json
 
 from datetime import datetime, timedelta
 from unidecode import unidecode
-import requests
 
 
 # Writes a list of dictionaries to a csv
@@ -148,20 +147,6 @@ def read_json(path):
 		return data
 
 
-def call_scryfall_creature_types():
-	r = requests.get('https://api.scryfall.com/catalog/creature-types')
-
-	if r.status_code == 200:
-		data = r.json()
-		# print(data)
-		print(data['object'])
-		print(data['data'])
-		return data['data']
-	else:
-		print('Request failed, error code: ' + str(r.status_code) + ' | ' + r.reason)
-		return False
-
-
 # No I/O is happening here, but these methods are necessary to support read_csv
 def snake_case_parameter(name):
 	name = name.lower()
@@ -187,7 +172,7 @@ def standardize_header_names(headers, replacement_path="standardized_headers.jso
 
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
-	read_csv("audit_csv.csv", True, True)
+	# read_csv("audit_csv.csv", True, True)
 
 # print(get_datetime_rounded())
 # print(get_yesterday())
