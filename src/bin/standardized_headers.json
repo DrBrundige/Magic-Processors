@@ -1,0 +1,11 @@
+{
+	"set_num": "collector_number",
+	"set_no": "collector_number",
+	"is_foil": "foil",
+	"produces": "produced_mana",
+	"r": "rarity",
+	"color": "colors",
+	"price": "value",
+	"c_id": "color_id",
+	"release_date": "released_at"
+}

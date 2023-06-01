@@ -1,4 +1,5 @@
 from shared_methods_io import write_data, read_csv
+from shared_methods_grinder import format_cards_for_audit_sheet
 from import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
 from sort_card_data import sort_cards_by_set
 
@@ -86,6 +87,7 @@ def controller_get_audit_from_set_sheet(filename="all_order_cards.csv"):
 
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
 	                             full_match_no_set_num, get_audit_row, do_output_count=True)
+	format_cards_for_audit_sheet(audit_rows)
 	write_data(audit_rows, "audit")
 
 
@@ -126,5 +128,6 @@ def controller_get_sorted_data():
 
 if __name__ == '__main__':
 	print("Processing Bulk Data")
-	controller_get_audit_from_set_sheet("all_order_cards.csv")
+	controller_get_audit_from_set_sheet()
+	# controller_get_audit_from_set_sheet("all_order_cards.csv")
 # controller_value_collection("all_sort_cards.csv")

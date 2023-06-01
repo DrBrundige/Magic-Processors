@@ -1,0 +1,69 @@
+{
+	"all_box_names": {
+		"KHM": 11,
+		"AFR": 12,
+		"MID": 13,
+		"NEO": 14,
+		"DMU": 15,
+		"Commander": 21,
+		"Pauper": 22,
+		"Lands": 33,
+		"Misc": 34,
+		"Collection": 35
+	},
+	"box_logic": {
+		"KHM": [
+			"price_range",
+			"collector_number",
+			"foil"
+		],
+		"AFR": [
+			"price_range",
+			"collector_number",
+			"foil"
+		],
+		"MID": [
+			"price_range",
+			"collector_number",
+			"foil"
+		],
+		"NEO": [
+			"price_range",
+			"collector_number",
+			"foil"
+		],
+		"DMU": [
+			"price_range",
+			"collector_number",
+			"foil"
+		],
+		"Commander": [
+			"section",
+			"card_type",
+			"name",
+			"set"
+		],
+		"Pauper": [
+			"section",
+			"card_type",
+			"name",
+			"set"
+		],
+		"Lands": [
+			"section",
+			"released_at",
+			"set",
+			"collector_number"
+		],
+		"Misc": [
+			"section",
+			"card_type",
+			"name"
+		],
+		"Collection": [
+			"section",
+			"card_type",
+			"name"
+		]
+	}
+}

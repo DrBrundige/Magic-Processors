@@ -159,7 +159,7 @@ def snake_case_parameter(name):
 # Accepts a list of strings, a string path
 def standardize_header_names(headers, replacement_path="standardized_headers.json"):
 	# Read from a JSON of headers
-	replacements = read_json(replacement_path)
+	replacements = read_json(f"bin/{replacement_path}")
 
 	for replacement in replacements.keys():
 		if replacement in headers:

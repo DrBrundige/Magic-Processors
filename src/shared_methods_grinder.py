@@ -239,7 +239,8 @@ def get_usd_from_card(new_line, all_prices, output_price_type=False):
 # # # # # # # # # # # # # # # #
 
 
-# Converts a list of dictionaries into a list of lists with the dictionary keys in the first row
+# Converts a list of dictionaries into a list of lists with the dictionary keys in the first row.
+#   I'm not sure whether it works
 def prepare_cards_for_export(data):
 	all_rows = []
 	for key in data:
@@ -248,6 +249,26 @@ def prepare_cards_for_export(data):
 
 		all_rows.append(this_row)
 	return all_rows
+
+
+# Manually goes through each dictionary in a list to make sure the key value pairs are just how I like them
+#     There's probably a more efficient way of doing this but I'm not sure what it is.
+def format_cards_for_audit_sheet(data):
+	try:
+		headers = read_json("bin/audit_headers.json")
+		for i in range(len(data)):
+			this_card = data[i]
+			new_card = {}
+			for header in headers:
+				if header in this_card:
+					new_card[header] = this_card[header]
+				else:
+					new_card[header] = ""
+			data[i] = new_card
+	except Exception as E:
+		print("Errant operation formatting cards!")
+		print(E)
+	return True
 
 
 # A simple script to return a string removing any text between parentheses
@@ -283,6 +304,8 @@ def scrub_card_name(card_name):
 
 
 if __name__ == '__main__':
+	data = []
+	format_cards_for_audit_sheet(data)
 	print("Scrubbing card names")
 	print(scrub_card_name("Colossal Badger // Dig Deeper"))
 	print(scrub_card_name("Tocasia's Dig Site "))
