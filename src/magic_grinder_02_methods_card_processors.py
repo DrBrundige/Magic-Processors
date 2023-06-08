@@ -71,7 +71,7 @@ def get_audit_row(scryfall_card, card):
 		card["home_box"] = ""
 	# card["location"] = ""
 	card["price_range"] = ""
-	card["section"] = ""
+	card["section"] = assign_default_section(scryfall_card)
 	if "box_code" not in card:
 		card["box_code"] = ""
 
@@ -105,6 +105,12 @@ def get_audit_row(scryfall_card, card):
 		card["released_at"] = scryfall_card["released_at"]
 	else:
 		card["released_at"] = ""
+
+	# The "price_range" field is declared in the middle of the object
+	#    but not calculated until the end. This extremely bootleg solution makes sure
+	#    the assign_price_range() method has all the information it needs while ensuring the column
+	#    is in the order I like it
+	card["price_range"] = assign_price_range(card, 2)
 
 	return True
 

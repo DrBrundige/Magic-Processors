@@ -60,82 +60,87 @@ def get_card_type_from_type_line(type_line):
 # Accepts a list of colors
 # Returns the color combination as a string. On failure returns an empty string
 def get_color_code_from_colors(color_identity):
-	num_colors = len(color_identity)
-	if num_colors == 0:
-		return "C"
-	elif num_colors == 1:
-		return color_identity[0]
-	elif num_colors == 2:
-		if "W" in color_identity:
-			if "U" in color_identity:
-				return "WU"
-			elif "B" in color_identity:
-				return "WB"
-			elif "R" in color_identity:
-				return "RW"
-			else:
-				return "GW"
-
-		elif "U" in color_identity:
-			if "B" in color_identity:
-				return "UB"
-			elif "R" in color_identity:
-				return "UR"
-			else:
-				return "GU"
-
-		elif "B" in color_identity:
-			if "R" in color_identity:
-				return "BR"
-			else:
-				return "BG"
-
-		elif "R" in color_identity:
-			return "RG"
-
-	elif num_colors == 3:
-		if "W" in color_identity:
-			if "U" in color_identity:
-				if "B" in color_identity:
-					return "WUB"
+	try:
+		num_colors = len(color_identity)
+		if num_colors == 0:
+			return "C"
+		elif num_colors == 1:
+			return color_identity[0]
+		elif num_colors == 2:
+			if "W" in color_identity:
+				if "U" in color_identity:
+					return "WU"
+				elif "B" in color_identity:
+					return "WB"
 				elif "R" in color_identity:
-					return "URW"
+					return "RW"
 				else:
-					return "GWU"
+					return "GW"
+
+			elif "U" in color_identity:
+				if "B" in color_identity:
+					return "UB"
+				elif "R" in color_identity:
+					return "UR"
+				else:
+					return "GU"
+
 			elif "B" in color_identity:
 				if "R" in color_identity:
-					return "RWB"
+					return "BR"
 				else:
-					return "WBG"
-			else:
-				return "RGW"
-		elif "U" in color_identity:
-			if "B" in color_identity:
-				if "R" in color_identity:
-					return "UBR"
+					return "BG"
+
+			elif "R" in color_identity:
+				return "RG"
+
+		elif num_colors == 3:
+			if "W" in color_identity:
+				if "U" in color_identity:
+					if "B" in color_identity:
+						return "WUB"
+					elif "R" in color_identity:
+						return "URW"
+					else:
+						return "GWU"
+				elif "B" in color_identity:
+					if "R" in color_identity:
+						return "RWB"
+					else:
+						return "WBG"
 				else:
-					return "BGU"
+					return "RGW"
+			elif "U" in color_identity:
+				if "B" in color_identity:
+					if "R" in color_identity:
+						return "UBR"
+					else:
+						return "BGU"
+				else:
+					return "GUR"
 			else:
-				return "GUR"
-		else:
-			return "BRG"
+				return "BRG"
 
-	elif num_colors == 4:
-		if "W" not in color_identity:
-			return "UBRG"
-		elif "U" not in color_identity:
-			return "BRGW"
-		elif "B" not in color_identity:
-			return "RGWU"
-		elif "R" not in color_identity:
-			return "GWUB"
-		else:
-			return "WUBR"
+		elif num_colors == 4:
+			if "W" not in color_identity:
+				return "UBRG"
+			elif "U" not in color_identity:
+				return "BRGW"
+			elif "B" not in color_identity:
+				return "RGWU"
+			elif "R" not in color_identity:
+				return "GWUB"
+			else:
+				return "WUBR"
 
-	elif num_colors >= 5:
-		return "WUBRG"
+		elif num_colors >= 5:
+			return "WUBRG"
 
-	return ""
+		return ""
+	except Exception as E:
+		print("Errant operation parsing color ID")
+		print(E)
+		return ""
 
 
 # Returns a string representing the card variant - full art, frame effects, etc.
@@ -232,6 +237,79 @@ def get_usd_from_card(new_line, all_prices, output_price_type=False):
 		print("Errant operation calculating price")
 		print(E)
 		return False
+
+
+def assign_default_section(scryfall_card):
+	try:
+		# Logic for basic lands
+		card_type = get_card_type_from_type_line(scryfall_card["type_line"])
+		if card_type == "Basic Land":
+			id = get_color_code_from_colors(scryfall_card["color_identity"])
+			if id == "W":
+				return "21 - White"
+			elif id == "U":
+				return "22 - Blue"
+			elif id == "B":
+				return "23 - Black"
+			elif id == "R":
+				return "24 - Red"
+			elif id == "G":
+				return "25 - Green"
+			else:
+				print("WTF?!?!")
+				return ""
+
+		# Logic for Commander box, etc.
+		color = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
+		if color != "C":
+			if len(color) > 1:
+				return "31 - Multicolor"
+			elif color == "W":
+				return "21 - White"
+			elif color == "U":
+				return "22 - Blue"
+			elif color == "B":
+				return "23 - Black"
+			elif color == "R":
+				return "24 - Red"
+			elif color == "G":
+				return "25 - Green"
+		elif "Artifact" in card_type:
+			if card_type == "Artifact Creature":
+				return "41 - Artifact (Artifact Creature)"
+			elif card_type == "Artifact Equipment":
+				return "43 - Artifact (Equipment)"
+			elif len(card_type) > 0:
+				return "42 - Artifact (Mana Rock)"
+			else:
+				return "44 - Artifact (Utility Artifact)"
+		elif "Land" in card_type:
+			produced_mana = get_field_from_card(scryfall_card=scryfall_card, field="produced_mana")
+			if len(produced_mana) > 1:
+				return "52 - Color Fixing Lands"
+			else:
+				return "51 - Utility Lands"
+		else:
+			return "11 - Colorless"
+	except Exception as E:
+		print("Errant operation assigning default section!")
+		print(E)
+		return ""
+
+
+# Gets the price range for the given card
+def assign_price_range(card, high_value=2):
+	try:
+		if float(card["value"]) > high_value:
+			return "01 - Rares"
+		elif card["rarity"] == "R" or card["rarity"] == "M":
+			return "02 - Bulk Rares"
+		else:
+			return "03 - Bulk Commons"
+	except ValueError as V:
+		print("Value error calculating price range. Blanking card['value']")
+		card["value"] = "0"
+		return assign_price_range(card, high_value)
 
 
 # # # # # # # # # # # # # # # #

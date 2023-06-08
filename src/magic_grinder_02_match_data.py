@@ -41,7 +41,6 @@ def match_bulk_data(data_sorted, all_cards, match_method, processor_method, do_o
 			else:
 				failed_cards.append(card)
 
-
 		except Exception as E:
 			print(f"Errant operation parsing card {card['name']}")
 			print(E)
@@ -128,6 +127,6 @@ def controller_get_sorted_data():
 
 if __name__ == '__main__':
 	print("Processing Bulk Data")
-	controller_get_audit_from_set_sheet()
-	# controller_get_audit_from_set_sheet("all_order_cards.csv")
+	# controller_get_audit_from_set_sheet()
+	controller_get_audit_from_audit_sheet()
 # controller_value_collection("all_sort_cards.csv")
