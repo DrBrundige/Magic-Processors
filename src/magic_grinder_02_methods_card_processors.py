@@ -96,10 +96,10 @@ def get_audit_row(scryfall_card, card):
 
 	get_usd_from_card(card, scryfall_card['prices'], output_price_type=False)
 
-	if "edhrec_rank" in scryfall_card:
-		card["edhrec_rank"] = scryfall_card["edhrec_rank"]
-	else:
-		card["edhrec_rank"] = "99999999"
+	# if "edhrec_rank" in scryfall_card:
+	# 	card["edhrec_rank"] = scryfall_card["edhrec_rank"]
+	# else:
+	# 	card["edhrec_rank"] = "99999999"
 
 	if "released_at" in scryfall_card:
 		card["released_at"] = scryfall_card["released_at"]
@@ -144,6 +144,34 @@ def get_wishlist_row(scryfall_card, card):
 	            'color': get_color_code_from_colors(scryfall_card['color_identity'])}
 
 	return new_line
+
+
+# Outputs the information that I like to have for set sheets. To wit:
+# name - output
+# count - blank
+# foil - blank
+# collector_number - output
+# rarity - output
+# artist - output
+# value - output
+# variant - output
+def get_set_sheet(scryfall_card, card):
+	try:
+		card['name'] = scryfall_card['name']
+		card['count'] = ""
+		card['foil'] = ""
+		card['collector_number'] = scryfall_card['collector_number']
+		card['rarity'] = scryfall_card["rarity"][0].upper()
+		card["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+		card["colors"] = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
+		card['artist'] = scryfall_card['artist']
+		card['variant'] = get_card_variant(scryfall_card)
+		get_usd_from_card(card, scryfall_card['prices'], output_price_type=False)
+		return True
+	except Exception as E:
+		print("Errant operation preparing set sheet row!")
+		print(E)
+		return False
 
 
 def get_cardname_data(scryfall_card, card):

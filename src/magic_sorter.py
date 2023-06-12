@@ -10,7 +10,7 @@ class MagicSorterTrie:
 	total_cards = 0
 
 	def __init__(self, logic_file="sorter_logic.json"):
-		self.sorter_logic = read_json(logic_file)
+		self.sorter_logic = read_json(f"bin/{logic_file}")
 		self.all_boxes = {}
 		self.reset_boxes()
 

@@ -5,10 +5,13 @@ from sort_card_data import sort_cards_by_set
 
 from magic_grinder_02_methods_custom_scan import *
 from magic_grinder_02_methods_card_scanners import *
+from magic_grinder_02_methods_card_processors import *
 
 
 # Scans bulk data (either full or abridged) and outputs cards in a list.
 #    Unlike the bulk matcher, accepts multiple matching methods
+
+
 def scan_bulk_data_list(data, match_methods, processor_method):
 	scanned_cards = []
 	failed_cards = []
@@ -47,6 +50,32 @@ def scan_bulk_data_list(data, match_methods, processor_method):
 		print(failed_cards)
 
 	return scanned_cards
+
+
+# Outputs all cards from a given dataset using the given processor method
+# Requires unsorted data
+def get_set_cards(data, processor_method, set_name):
+	bound_cards = []
+	failed_cards = []
+
+	for scryfall_card in data:
+		if scryfall_card["set"] == set_name.lower():
+			card = {}
+			if processor_method(scryfall_card, card):
+				bound_cards.append(card)
+			else:
+				print("Binding card failed!")
+				failed_cards.append(card)
+
+	print(f"{len(failed_cards)} failed")
+	print(f"{len(bound_cards)} bound")
+
+	def sort_collector_num(e):
+		return int(e["collector_number"])
+
+	bound_cards.sort(key=sort_collector_num)
+
+	return bound_cards
 
 
 # Scans bulk data (either full or abridged) and outputs cards in a list.
@@ -174,7 +203,7 @@ def controller_get_unique_arts_histogram():
 	print("Imported cards!")
 
 
-def controller_get_set_unique_card_field(field= "set_type"):
+def controller_get_set_unique_card_field(field="set_type"):
 	print("Finding each set type")
 	data = controller_get_data()
 	match_methods = [scan_card_is_eternal, scan_card_is_paper]
@@ -206,6 +235,14 @@ def controller_create_type_histogram():
 	return histogram
 
 
+def controller_create_set_sheet(set_name="DMU"):
+	print(f"Creating set sheet for set {set_name}")
+	data = import_scryfall_full()
+	set_sheet = get_set_cards(data, get_set_sheet, set_name)
+
+	write_data(set_sheet)
+
+
 if __name__ == '__main__':
 	print("Scanning Scryfall data!")
-	controller_get_set_unique_card_field()
+	controller_create_set_sheet()

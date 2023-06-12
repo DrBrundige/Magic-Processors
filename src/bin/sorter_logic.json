@@ -41,7 +41,7 @@
 			"section",
 			"card_type",
 			"name",
-			"set"
+			"released_at"
 		],
 		"Pauper": [
 			"section",
@@ -53,7 +53,8 @@
 			"section",
 			"released_at",
 			"set",
-			"collector_number"
+			"collector_number",
+			"foil"
 		],
 		"Misc": [
 			"section",
