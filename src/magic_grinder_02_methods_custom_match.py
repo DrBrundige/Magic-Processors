@@ -24,6 +24,7 @@ def standard_match_full(data_sorted, card):
 		print(E)
 		return None
 
+
 # Finds a bulk item where no set number is confirmed. Matches by set, then tries to match by name.
 #     If two or more names are found, matches by frame
 # Requires set, name, and frame

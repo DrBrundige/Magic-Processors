@@ -15,12 +15,14 @@ from datetime import datetime, timedelta
 # price_type - output
 def get_card_usd(scryfall_card, card):
 	try:
-		new_line = {'name': card['name'], 'set': scryfall_card['set'].upper(),
-		            'set_num': scryfall_card['collector_number'], 'rarity': scryfall_card['rarity'],
-		            'foil': card['foil'], "variant": get_card_variant(scryfall_card)}
+		is_foil = card['foil']
+		card = {'': ''}
+		card = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
+		        'set_num': scryfall_card['collector_number'], 'rarity': scryfall_card['rarity'],
+		        'foil': is_foil, "variant": get_card_variant(scryfall_card)}
 
-		get_usd_from_card(new_line, scryfall_card['prices'], output_price_type=True)
-		card = new_line
+		get_usd_from_card(card, scryfall_card, output_price_type=True)
+		# card = new_line
 		return True
 	except Exception as E:
 		print("Errant operation processing card value")
@@ -94,7 +96,7 @@ def get_audit_row(scryfall_card, card):
 
 	card["code"] = f"{scryfall_card['set'].upper()}|{scryfall_card['collector_number']}"
 
-	get_usd_from_card(card, scryfall_card['prices'], output_price_type=False)
+	get_usd_from_card(card, scryfall_card, output_price_type=False)
 
 	# if "edhrec_rank" in scryfall_card:
 	# 	card["edhrec_rank"] = scryfall_card["edhrec_rank"]
@@ -166,7 +168,7 @@ def get_set_sheet(scryfall_card, card):
 		card["colors"] = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
 		card['artist'] = scryfall_card['artist']
 		card['variant'] = get_card_variant(scryfall_card)
-		get_usd_from_card(card, scryfall_card['prices'], output_price_type=False)
+		get_usd_from_card(card, scryfall_card, output_price_type=False)
 		return True
 	except Exception as E:
 		print("Errant operation preparing set sheet row!")

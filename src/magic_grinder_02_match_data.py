@@ -73,10 +73,11 @@ def get_all_cards(data, processor_method):
 	return bound_cards
 
 
-def controller_value_collection(file_name="all_sort_cards.csv"):
+def controller_value_collection(filename="all_sort_cards.csv"):
 	print("Valuing collection")
 
-	prices = match_bulk_data(controller_get_sorted_data(), read_csv(file_name), standard_match_full,
+	data = read_csv(filename, do_snake_case_names=True, do_standardize_header_names=True)
+	prices = match_bulk_data(controller_get_sorted_data(), data, standard_match_full,
 	                         get_card_usd)
 	write_data(prices, "prices")
 
@@ -84,7 +85,9 @@ def controller_value_collection(file_name="all_sort_cards.csv"):
 def controller_get_audit_from_set_sheet(filename="all_order_cards.csv"):
 	print("Matching cards to audit data")
 
-	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
+	data = read_csv(filename, do_snake_case_names=True, do_standardize_header_names=True)
+
+	audit_rows = match_bulk_data(controller_get_sorted_data(), data,
 	                             full_match_no_set_num, get_audit_row, do_output_count=True)
 	format_cards_for_audit_sheet(audit_rows)
 	write_data(audit_rows, "audit")
@@ -128,5 +131,5 @@ def controller_get_sorted_data():
 if __name__ == '__main__':
 	print("Processing Bulk Data")
 	# controller_get_audit_from_set_sheet()
-	controller_get_audit_from_audit_sheet()
-# controller_value_collection("all_sort_cards.csv")
+	# controller_get_audit_from_audit_sheet()
+	controller_value_collection("audit_csv.csv")
