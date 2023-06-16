@@ -147,6 +147,17 @@ def read_json(path):
 		return data
 
 
+# Imports TXT file with the given name. Returns a list of strings
+def read_txt(path):
+	with open(path, encoding='utf-8') as f:
+		text = []
+		for line in f:
+			text.append(unidecode(line.strip()))
+		f.close()
+		# print(text)
+		return text
+
+
 # No I/O is happening here, but these methods are necessary to support read_csv
 def snake_case_parameter(name):
 	name = name.lower()
@@ -172,6 +183,7 @@ def standardize_header_names(headers, replacement_path="standardized_headers.jso
 
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
+	read_txt("bin/decklist.txt")
 	# read_csv("audit_csv.csv", True, True)
 
 # print(get_datetime_rounded())
