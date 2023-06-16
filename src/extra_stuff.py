@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+# Various small algorithms I carry with me from project to project. Most of them aren't even used here.
 
 
 # For a given word, returns that word in upper case with all non-letter characters removed

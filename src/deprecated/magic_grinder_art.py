@@ -1,7 +1,7 @@
 # Magic Grinder Thomas Brundige Jones 2022
 # Crawls the Scryfall bulk data to find art data about cards
 
-from magic_grinder import import_scryfall, get_card_type_from_type_line
+from src.deprecated.magic_grinder import import_scryfall, get_card_type_from_type_line
 import shared_methods_io
 
 

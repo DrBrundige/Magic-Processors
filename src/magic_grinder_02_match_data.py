@@ -1,10 +1,10 @@
 from shared_methods_io import write_data, read_csv
 from shared_methods_grinder import format_cards_for_audit_sheet
-from import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
-from sort_card_data import sort_cards_by_set
+from import_scryfall import *
+# from sort_card_data import sort_cards_by_set
 
-from magic_grinder_02_methods_card_processors import *
-from magic_grinder_02_methods_custom_match import *
+from magic_grinder_02_match_data_processors import *
+from magic_grinder_02_match_data_match_methods import *
 
 
 # Data - Requires the full default-cards dataset sorted with the sort_cards_by_set
@@ -105,13 +105,6 @@ def controller_get_set_number_from_variant():
 	print("Getting set number")
 	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_extra_trade_cards.csv"),
 	                             full_match_no_set_num, get_audit_row)
-	write_data(audit_rows)
-
-
-def test_new_processors():
-	print("Getting set number")
-	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("card_library_dmu.csv"),
-	                             standard_match_full, get_cardname_data)
 	write_data(audit_rows)
 
 

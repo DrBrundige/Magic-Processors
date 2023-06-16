@@ -1,7 +1,7 @@
 from ..shared_methods_grinder import *
-from ..sort_card_data import sort_cards_by_set
-from ..import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
-from datetime import datetime, timedelta
+from src.deprecated.sort_card_data import sort_cards_by_set
+from ..import_scryfall import import_scryfall_full
+from datetime import datetime
 
 
 # Inputs cards from a bulk set sheet. name, count, foil, collector_number, set

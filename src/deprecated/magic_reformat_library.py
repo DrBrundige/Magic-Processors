@@ -3,6 +3,9 @@ import datetime
 import shared_methods_io
 
 
+# I'm not sure what this does, but I think format_cards_for_audit_sheet does the same thing
+
+
 def do_reformat(card_names):
 	source_cards = shared_methods_io.read_csv(card_names)
 

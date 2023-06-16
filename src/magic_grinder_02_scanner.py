@@ -1,11 +1,10 @@
 from shared_methods_io import write_data, write_data_dictionary
 from shared_methods_grinder import get_all_creature_types
-from import_scryfall import import_scryfall_abridged, import_scryfall_art, import_scryfall_full
-from sort_card_data import sort_cards_by_set
+from import_scryfall import *
 
-from magic_grinder_02_methods_custom_scan import *
-from magic_grinder_02_methods_card_scanners import *
-from magic_grinder_02_methods_card_processors import *
+from magic_grinder_02_scanner_scan_methods import *
+from magic_grinder_02_scanner_processors import *
+from magic_grinder_02_match_data_processors import *
 
 
 # Scans bulk data (either full or abridged) and outputs cards in a list.

@@ -3,7 +3,8 @@ import os
 from unidecode import unidecode
 
 
-# Deprecated. Imports Scryfall download file with the given name
+# Deprecated. Use import_scryfall.import_scryfall_full() instead
+# Imports Scryfall download file with the given name
 def import_scryfall(path):
 	print("Importing Scryfall data at " + path)
 	return read_json(path)
@@ -62,6 +63,7 @@ def get_card_type_from_type_line(type_line):
 def get_color_code_from_colors(color_identity):
 	try:
 		num_colors = len(color_identity)
+		# Uses a long string of logic to determine color combination
 		if num_colors == 0:
 			return "C"
 		elif num_colors == 1:
@@ -133,9 +135,10 @@ def get_color_code_from_colors(color_identity):
 			else:
 				return "WUBR"
 
-		elif num_colors >= 5:
+		elif num_colors == 5:
 			return "WUBRG"
 
+		# If num_colors is <0 or >5, some bug has occurred. Returns empty string
 		return ""
 	except Exception as E:
 		print("Errant operation parsing color ID")
@@ -170,6 +173,7 @@ def get_card_variant(card):
 # # # # # # # # # # # # #
 
 # Returns a list containing each creature type according to the CR, last updated 2022-10-07
+# There's a Scryfall API endpoint that does this, but this is funnier
 def get_all_creature_types():
 	return ["Advisor", "Aetherborn", "Alien", "Ally", "Angel", "Antelope", "Ape", "Archer", "Archon", "Army",
 	        "Artificer", "Assassin", "Assembly-Worker", "Astartes", "Atog", "Aurochs", "Avatar", "Azra", "Badger",
@@ -201,6 +205,8 @@ def get_all_creature_types():
 	        "Wolverine", "Wombat", "Worm", "Wraith", "Wurm", "Yeti", "Zombie", "Zubera"]
 
 
+# Checks to see if a field in a given card. If not, checks the front face for that field
+# Multifaced cards have some fields in the face object
 def get_field_from_card(field, scryfall_card, not_found=""):
 	if field in scryfall_card:
 		return scryfall_card[field]
@@ -245,6 +251,9 @@ def get_usd_from_card(card, scryfall_card, output_price_type=False):
 		return False
 
 
+# Handles the verbose logic to assign a card a default section for the audit sheet
+#    As of the 2023 Audit, this information can be derived entirely from the card itself
+# Returns a string
 def assign_default_section(scryfall_card):
 	try:
 		# Logic for basic lands
@@ -349,9 +358,9 @@ def assign_default_section(scryfall_card):
 		elif "Land" in card_type:
 			produced_mana = get_field_from_card(scryfall_card=scryfall_card, field="produced_mana")
 			if len(produced_mana) > 1:
-				return "502 - Color Fixing Lands"
+				return "502 - Lands (Color Fixing)"
 			else:
-				return "503 - Utility Lands"
+				return "503 - Lands (Utility Lands)"
 		else:
 			return "101 - Colorless"
 	except Exception as E:
@@ -429,6 +438,7 @@ def get_oracle_text_without_reminder_text(oracle_text):
 	return new_text.strip()
 
 
+# Clears special characters from a card name, capitalizes, and removes any back face
 def scrub_card_name(card_name):
 	card_name = unidecode(card_name).upper()
 	# Strips special characters from card name

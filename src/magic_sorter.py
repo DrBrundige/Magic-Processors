@@ -1,7 +1,7 @@
 from shared_methods_io import read_json, read_csv, write_data
 from magic_grinder_02_match_data import match_bulk_data, controller_get_sorted_data
-from magic_grinder_02_methods_card_processors import get_audit_row
-from magic_grinder_02_methods_custom_match import standard_match_full
+from magic_grinder_02_match_data_processors import get_audit_row
+from magic_grinder_02_match_data_match_methods import standard_match_full
 
 
 class MagicSorterTrie:
