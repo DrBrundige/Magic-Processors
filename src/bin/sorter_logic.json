@@ -1,70 +1,106 @@
 {
-	"all_box_names": {
-		"KHM": 11,
-		"AFR": 12,
-		"MID": 13,
-		"NEO": 14,
-		"DMU": 15,
-		"Commander": 21,
-		"Pauper": 22,
-		"Lands": 33,
-		"Misc": 34,
-		"Collection": 35
-	},
-	"box_logic": {
-		"KHM": [
-			"price_range",
-			"collector_number",
-			"foil"
-		],
-		"AFR": [
-			"price_range",
-			"collector_number",
-			"foil"
-		],
-		"MID": [
-			"price_range",
-			"collector_number",
-			"foil"
-		],
-		"NEO": [
-			"price_range",
-			"collector_number",
-			"foil"
-		],
-		"DMU": [
-			"price_range",
-			"collector_number",
-			"foil"
-		],
-		"Commander": [
-			"section",
-			"card_type",
-			"name",
-			"released_at"
-		],
-		"Pauper": [
-			"section",
-			"card_type",
-			"name",
-			"set"
-		],
-		"Lands": [
-			"section",
-			"released_at",
-			"set",
-			"collector_number",
-			"foil"
-		],
-		"Misc": [
-			"section",
-			"card_type",
-			"name"
-		],
-		"Collection": [
-			"section",
-			"card_type",
-			"name"
-		]
-	}
+  "all_box_names": {
+    "Set Boxes": 11,
+    "Commander": 21,
+    "Pauper": 22,
+    "Lands": 33,
+    "Misc": 34,
+    "Collection": 35
+  },
+  "box_logic": {
+    "Set Boxes": [
+      "released_at",
+      "price_range",
+      "collector_number",
+      "foil"
+    ],
+    "Commander": [
+      "section",
+      "code_color_id",
+      "code_card_type",
+      "name",
+      "released_at"
+    ],
+    "Pauper": [
+      "section",
+      "code_color_id",
+      "code_card_type",
+      "name",
+      "set"
+    ],
+    "Lands": [
+      "code_color_id",
+      "released_at",
+      "set",
+      "collector_number",
+      "foil"
+    ],
+    "Misc": [
+      "section",
+      "code_card_type",
+      "name"
+    ],
+    "Collection": [
+      "section",
+      "code_color_id",
+      "code_card_type",
+      "name"
+    ]
+  },
+  "sort_codes": {
+    "code_color_id": {
+      "field": "color_id",
+      "logic": {
+        "C": "01",
+        "W": "02",
+        "U": "03",
+        "B": "04",
+        "R": "05",
+        "G": "06",
+        "WU": "07",
+        "UB": "08",
+        "BR": "09",
+        "RG": "10",
+        "GW": "11",
+        "WB": "12",
+        "UR": "13",
+        "BG": "14",
+        "RW": "15",
+        "GU": "16",
+        "WUB": "17",
+        "UBR": "18",
+        "BRG": "19",
+        "RGW": "20",
+        "GWU": "21",
+        "WBG": "22",
+        "URW": "23",
+        "BGU": "24",
+        "RWB": "25",
+        "BUR": "26",
+        "WUBR": "27",
+        "UBRG": "28",
+        "BRGW": "29",
+        "RGWU": "30",
+        "GWUB": "31",
+        "WUBRG": "32"
+      }
+    },
+    "code_card_type": {
+      "field": "card_type",
+      "logic": {
+        "Planeswalker": "01",
+        "Battle": "02",
+        "Creature": "03",
+        "Enchantment Creature": "03",
+        "Artifact Creature": "03",
+        "Artifact": "04",
+        "Artifact Equipment": "04",
+        "Enchantment": "05",
+        "Sorcery": "06",
+        "Instant": "07",
+        "Land": "08",
+        "Basic Land": "09"
+      }
+    }
+  }
 }

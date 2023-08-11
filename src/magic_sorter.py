@@ -2,6 +2,12 @@ from shared_methods_io import read_json, read_csv, write_data
 from magic_grinder_02_match_data import match_bulk_data, controller_get_sorted_data
 from magic_grinder_02_match_data_processors import get_audit_row
 from magic_grinder_02_match_data_match_methods import standard_match_full
+from shared_methods_grinder import format_cards_for_audit_sheet
+
+
+# TODO: Add an error box that gets generated automatically.
+#    Cards that throw errors in the add_card stage are assigned here
+#    On output_cards, they are output at the end and not assigned a new_id
 
 
 class MagicSorterTrie:
@@ -25,8 +31,17 @@ class MagicSorterTrie:
 	def __str__(self):
 		return f"Magic Sorter | Boxes: {len(self.all_boxes)}, Total cards: {self.total_cards}"
 
+	def add_sort_codes(self, card):
+		all_codes = self.sorter_logic["sort_codes"]
+		for key in all_codes.keys():
+			field = all_codes[key]["field"]
+			# print(card[field])
+			code = all_codes[key]["logic"][card[field]]
+			card[key] = code
+
 	def add_card(self, card):
 		matching_box = card["home_box"]
+		self.add_sort_codes(card)
 		self.all_boxes[matching_box].add_card(card)
 		self.total_cards += 1
 
@@ -115,8 +130,10 @@ if __name__ == '__main__':
 	print(len(all_sorted_cards))
 	new_id = 1
 	for card in all_sorted_cards:
-		card["new id"] = new_id
+		card["id"] = new_id
 		new_id += 1
+
+	format_cards_for_audit_sheet(all_sorted_cards)
 	write_data(all_sorted_cards, "reorder")
 
 # print(SortAudit.sorter_logic)

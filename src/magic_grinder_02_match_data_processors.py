@@ -1,7 +1,6 @@
 from shared_methods_grinder import *
 from datetime import datetime, timedelta
 
-
 # TODO: Change these to update a parameterized card object and return True / False
 
 # Outputs largely the same information plus price data
@@ -41,7 +40,6 @@ def get_card_usd(scryfall_card, card):
 # home_box - empty
 # location - empty
 # section -  empty
-# box_code - empty
 # year -     output
 # rarity -   output
 # card_type -output
@@ -74,8 +72,6 @@ def get_audit_row(scryfall_card, card):
 	# card["location"] = ""
 	card["price_range"] = ""
 	card["section"] = assign_default_section(scryfall_card)
-	if "box_code" not in card:
-		card["box_code"] = ""
 
 	# new_line["year"] = scryfall_card["released_at"][0:4]
 	if "year" not in card:
@@ -140,13 +136,18 @@ def get_input_row(scryfall_card, card):
 # rarity - output
 # color - output
 def get_wishlist_row(scryfall_card, card):
-	new_line = {'name': scryfall_card['name'], 'set': scryfall_card['set'].upper(),
-	            'set_num': scryfall_card['collector_number'],
-	            'rarity': scryfall_card['rarity'][0].upper(),
-	            'color': get_color_code_from_colors(scryfall_card['color_identity'])}
+	try:
+		card['name'] = scryfall_card['name']
+		card['set'] = scryfall_card['set'].upper()
+		card['set_num'] = scryfall_card['collector_number']
+		card['rarity'] = scryfall_card['rarity'][0].upper()
+		card['color'] = get_color_code_from_colors(scryfall_card['color_identity'])
 
-	return new_line
-
+		return True
+	except Exception as E:
+		print("Errant operation preparing wishlist row!")
+		print(E)
+		return False
 
 # Outputs the information that I like to have for set sheets. To wit:
 # name - output
@@ -172,6 +173,39 @@ def get_set_sheet(scryfall_card, card):
 		return True
 	except Exception as E:
 		print("Errant operation preparing set sheet row!")
+		print(E)
+		return False
+
+
+# Outputs basic card information plus the URI to return the highest resolution scan available
+# name - output
+# set - output
+# collector_number - output
+# image_uri - output
+# resolution - output (output as name of file in scryfall object)
+def get_card_images(scryfall_card, card):
+	try:
+		card['name'] = scryfall_card['name']
+		card['set'] = scryfall_card['set']
+		card['collector_number'] = scryfall_card['collector_number']
+
+		if "image_uris" in scryfall_card:
+			if "large" in scryfall_card["image_uris"]:
+				card['image_uri'] = scryfall_card["image_uris"]["large"]
+				card['resolution'] = "large"
+			elif "normal" in scryfall_card["image_uris"]:
+				card['image_uri'] = scryfall_card["image_uris"]["normal"]
+				card['resolution'] = "normal"
+			elif "small" in scryfall_card["image_uris"]:
+				card['image_uri'] = scryfall_card["image_uris"]["small"]
+				card['resolution'] = "small"
+				# Somehow this card has neither small, medium, nor large image. We're done here.
+			else:
+				return False
+
+		return True
+	except Exception as E:
+		print("Errant operation preparing card images!")
 		print(E)
 		return False
 

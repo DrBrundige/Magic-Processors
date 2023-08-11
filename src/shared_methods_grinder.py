@@ -28,7 +28,7 @@ def get_card_type_from_type_line(type_line):
 	elif type_line.find("Land") > -1:
 		return "Land"
 	elif type_line.find("Creature") > -1:
-		if type_line.find("Artifact") > -1:
+		if type_line.find("Artifact") > -1 or type_line.find("Vehicle") > -1:
 			return "Artifact Creature"
 		if type_line.find("Enchantment") > -1:
 			return "Enchantment Creature"
@@ -62,6 +62,12 @@ def get_card_type_from_type_line(type_line):
 # Returns the color combination as a string. On failure returns an empty string
 def get_color_code_from_colors(color_identity):
 	try:
+		# Cards such as filter lands can technically produce six colors: WUBRG and C.
+		# For this purpose, however either a card can produce only produce C or it can produce colored mana -
+		# that it can do both is just not important and makes things more complicated. It is removed here.
+		if "C" in color_identity:
+			color_identity.remove("C")
+
 		num_colors = len(color_identity)
 		# Uses a long string of logic to determine color combination
 		if num_colors == 0:
@@ -135,7 +141,7 @@ def get_color_code_from_colors(color_identity):
 			else:
 				return "WUBR"
 
-		elif num_colors == 5:
+		elif num_colors >= 5:
 			return "WUBRG"
 
 		# If num_colors is <0 or >5, some bug has occurred. Returns empty string
@@ -258,111 +264,65 @@ def assign_default_section(scryfall_card):
 	try:
 		# Logic for basic lands
 		card_type = get_card_type_from_type_line(scryfall_card["type_line"])
-		if card_type == "Basic Land":
-			# Maybe someday I can make a section for snow lands. IDK
-			# Retrieves color ID. Normally I like to sort by color rather than ID,
-			#    but since lands are colorless it's a bit easier to do it this way
-			id = get_color_code_from_colors(scryfall_card["color_identity"])
-			if id == "W":
-				return "201 - White"
-			elif id == "U":
-				return "202 - Blue"
-			elif id == "B":
-				return "203 - Black"
-			elif id == "R":
-				return "204 - Red"
-			elif id == "G":
-				return "205 - Green"
-			else:
-				return "501 - Land (Basic)"
+		# if card_type == "Basic Land":
+		# 	# Maybe someday I can make a section for snow lands. IDK
+		# 	# Retrieves color ID. Normally I like to sort by color rather than ID,
+		# 	#    but since lands are colorless it's a bit easier to do it this way
+		# 	id = get_color_code_from_colors(scryfall_card["color_identity"])
+		# 	if id == "W":
+		# 		return "201 - White"
+		# 	elif id == "U":
+		# 		return "202 - Blue"
+		# 	elif id == "B":
+		# 		return "203 - Black"
+		# 	elif id == "R":
+		# 		return "204 - Red"
+		# 	elif id == "G":
+		# 		return "205 - Green"
+		# 	else:
+		# 		return "501 - Land (Basic)"
 
 		# Most cards are sorted by color with some special rules for lands and artifacts
 		color = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
+
+		produced_mana = get_field_from_card("produced_mana", scryfall_card, not_found="none")
+		if produced_mana != "none":
+			produced_mana = get_color_code_from_colors(produced_mana)
+		else:
+			produced_mana = ""
+
 		if color != "C":
 			if len(color) > 1:
 				# If the length of the card's color is greater than one, then it is multicolor
-				if len(color) == 2:
-					# print("Card is two colors")
-					two_colors = {
-						"WU": "301 - Multicolor (WU)",
-						"UB": "302 - Multicolor (UB)",
-						"BR": "303 - Multicolor (BR)",
-						"RG": "304 - Multicolor (RG)",
-						"GW": "305 - Multicolor (GW)",
-						"WB": "306 - Multicolor (WB)",
-						"UR": "307 - Multicolor (UR)",
-						"BG": "308 - Multicolor (BG)",
-						"RW": "309 - Multicolor (RW)",
-						"GU": "310 - Multicolor (GU)"
-					}
-					if color in two_colors:
-						return two_colors[color]
-					else:
-						return "300 - Multicolor"
-
-				elif len(color) == 3:
-					# print("Card is three colors")
-					three_color = {
-						"WUB": "311 - Multicolor (WUB)",
-						"UBR": "312 - Multicolor (UBR)",
-						"BRG": "313 - Multicolor (BRG)",
-						"RGW": "314 - Multicolor (RGW)",
-						"GWU": "315 - Multicolor (GWU)",
-						"WBG": "316 - Multicolor (WBG)",
-						"URW": "317 - Multicolor (URW)",
-						"BGU": "318 - Multicolor (BGU)",
-						"RWB": "319 - Multicolor (RWB)",
-						"BUR": "320 - Multicolor (BUR)"
-					}
-					if color in three_color:
-						return three_color[color]
-					else:
-						return "300 - Multicolor"
-
-				elif len(color) == 4:
-					four_color = {
-						"WUBR": "321 - Multicolor (WUBR)",
-						"UBRG": "322 - Multicolor (UBRG)",
-						"BRGW": "323 - Multicolor (BRGW)",
-						"RGWU": "324 - Multicolor (RGWU)",
-						"GWUB": "325 - Multicolor (GWUB)"
-					}
-					if color in four_color:
-						return four_color[color]
-					else:
-						return "300 - Multicolor"
-
-				elif len(color) == 5:
-					return "326 - Multicolor (WUBRG)"
-				# Card is multicolor
-				return "300 - Multicolor"
+				return "31 - Multicolor"
 			elif color == "W":
-				return "201 - White"
+				return "21 - White"
 			elif color == "U":
-				return "202 - Blue"
+				return "22 - Blue"
 			elif color == "B":
-				return "203 - Black"
+				return "23 - Black"
 			elif color == "R":
-				return "204 - Red"
+				return "24 - Red"
 			elif color == "G":
-				return "205 - Green"
+				return "25 - Green"
 		elif "Artifact" in card_type:
 			if card_type == "Artifact Creature":
-				return "401 - Artifact (Artifact Creature)"
+				return "41 - Artifact (Artifact Creature)"
 			elif card_type == "Artifact Equipment":
-				return "404 - Artifact (Equipment)"
-			elif len(card_type) > 0:
-				return "403 - Artifact (Mana Rock)"
+				return "44 - Artifact (Equipment)"
+			elif len(produced_mana) > 0:
+				return "43 - Artifact (Mana Rock)"
 			else:
-				return "402 - Artifact (Utility Artifact)"
+				return "42 - Artifact (Utility Artifact)"
 		elif "Land" in card_type:
-			produced_mana = get_field_from_card(scryfall_card=scryfall_card, field="produced_mana")
-			if len(produced_mana) > 1:
-				return "502 - Lands (Color Fixing)"
+			if card_type == "Basic Land":
+				return "51 - Land (Basic)"
+			elif len(produced_mana) > 1:
+				return "52 - Lands (Color Fixing)"
 			else:
-				return "503 - Lands (Utility Lands)"
+				return "53 - Lands (Utility Lands)"
 		else:
-			return "101 - Colorless"
+			return "11 - Colorless"
 	except Exception as E:
 		print("Errant operation assigning default section!")
 		print(E)

@@ -1,10 +1,12 @@
-from shared_methods_io import write_data, read_csv
+from shared_methods_io import write_data, read_csv, snake_case_parameter
 from shared_methods_grinder import format_cards_for_audit_sheet
 from import_scryfall import *
 # from sort_card_data import sort_cards_by_set
 
 from magic_grinder_02_match_data_processors import *
 from magic_grinder_02_match_data_match_methods import *
+from shared_methods_io_requests import get_image_from_uri
+from extra_stuff import clean_word
 
 
 # Data - Requires the full default-cards dataset sorted with the sort_cards_by_set
@@ -98,14 +100,24 @@ def controller_get_audit_from_audit_sheet(filename="audit_csv.csv"):
 	all_cards = read_csv(filename, do_snake_case_names=True, do_standardize_header_names=True)
 	audit_rows = match_bulk_data(controller_get_sorted_data(), all_cards, standard_match_full, get_audit_row,
 	                             do_output_count=False)
+	format_cards_for_audit_sheet(audit_rows)
 	write_data(audit_rows, "audit")
 
 
-def controller_get_set_number_from_variant():
+def controller_get_set_number_from_variant(filename="all_extra_trade_cards.csv"):
 	print("Getting set number")
-	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv("all_extra_trade_cards.csv"),
-	                             full_match_no_set_num, get_audit_row)
+	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename),
+	                             standard_match_full, get_wishlist_row)
 	write_data(audit_rows)
+
+
+def controller_get_card_images(filename="all_progenitus_deck_cards.csv", deck="5c_progenitus"):
+	print("Getting card images")
+	audit_rows = match_bulk_data(controller_get_sorted_data(), read_csv(filename, True, True),
+	                             standard_match_full, get_card_images)
+	print("Success! Retrieving images")
+	for card in audit_rows:
+		get_image_from_uri(card["image_uri"], f"{deck}_{snake_case_parameter(clean_word(card['name']))}.jpg")
 
 
 # Returns the unabridged dataset sorted by set code
@@ -125,4 +137,5 @@ if __name__ == '__main__':
 	print("Processing Bulk Data")
 	# controller_get_audit_from_set_sheet()
 	# controller_get_audit_from_audit_sheet()
-	controller_value_collection("audit_csv.csv")
+	# controller_value_collection("audit_csv.csv")
+	controller_get_card_images(filename="all_progenitus_deck_cards.csv")

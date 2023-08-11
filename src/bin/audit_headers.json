@@ -1,1 +1,23 @@
-["name", "id", "set", "collector_number", "foil", "variant", "spc", "home_box", "2023_audit", "previous_location", "price_range", "section", "box_code", "year", "input_code", "rarity", "card_type", "colors", "color_id", "produced_mana", "code", "value", "released_at"]
+[
+  "name",
+  "id",
+  "set",
+  "collector_number",
+  "foil",
+  "variant",
+  "spc",
+  "home_box",
+  "2023_audit",
+  "price_range",
+  "section",
+  "year",
+  "input_code",
+  "rarity",
+  "card_type",
+  "colors",
+  "color_id",
+  "produced_mana",
+  "code",
+  "value",
+  "released_at"
+]
