@@ -210,6 +210,28 @@ def controller_get_set_unique_card_field(field="set_type"):
 	print(all_set_types)
 
 
+def controller_get_unique_mana_costs():
+	print("Finding each unique mana cost")
+	data = controller_get_data()
+	# match_methods = [scan_card_is_eternal, scan_card_is_paper]
+	match_methods = []
+	all_mana_values = scan_bulk_data_histogram(data, match_methods, histogram_sort_mana_costs)
+	# print(all_mana_values)
+	mana_value_totals = {}
+	cards_with_unique_mv = 0
+
+	for key in all_mana_values:
+		count = len(all_mana_values[key])
+		mana_value_totals[key] = count
+		if count == 1:
+			# print(f"{all_mana_values[key][0]} | {key}")
+			print(all_mana_values[key][0])
+			cards_with_unique_mv += 1
+
+	print(f"Total cards with unique mana values: {cards_with_unique_mv}")
+	return mana_value_totals
+
+
 def controller_get_all_card_data():
 	data = controller_get_data()
 
@@ -244,4 +266,5 @@ def controller_create_set_sheet(set_name="DMU"):
 
 if __name__ == '__main__':
 	print("Scanning Scryfall data!")
-	controller_create_set_sheet()
+	mana_values = controller_get_unique_mana_costs()
+	write_data_dictionary(mana_values)

@@ -85,6 +85,45 @@ def histogram_count_card_names(scryfall_card, histogram):
 		return False
 
 
+# TODO: Make this modular with a parameterized field
+# Counts each mana value
+# Histogram - empty dictionary
+def histogram_sort_mana_costs(scryfall_card, histogram):
+	try:
+		# name = scryfall_card['name']
+
+		if "card_faces" in scryfall_card:
+			for face in scryfall_card["card_faces"]:
+				if "mana_cost" in face:
+					sort_mana_costs_processor(face["mana_cost"], histogram, face["name"])
+				else:
+					return False
+		elif "mana_cost" in scryfall_card:
+			sort_mana_costs_processor(scryfall_card["mana_cost"], histogram, scryfall_card['name'])
+		else:
+			return False
+
+		# if "mana_cost" in scryfall_card:
+		# 	mana_cost = scryfall_card["mana_cost"]
+		# elif "mana_cost" in scryfall_card["card_faces"][0]:
+		# 	mana_cost = scryfall_card["card_faces"][0]["mana_cost"]
+		# else:
+		# 	mana_cost = ""
+
+		return True
+
+	except Exception as E:
+		print("Errant operation scanning card!")
+		print(E)
+		return False
+
+
+def sort_mana_costs_processor(mana_cost, histogram, name):
+	if mana_cost in histogram:
+		histogram[mana_cost].append(name)
+	else:
+		histogram[mana_cost] = [name]
+
 # Counts each creature type if the face is legendary.
 # Histogram - preloaded with each creature type
 def histogram_legendary_creature_types(scryfall_card, histogram):

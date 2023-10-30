@@ -17,6 +17,7 @@ from shared_methods_io import write_data
 def call_scryfall(endpoint="sets/khm", return_full_data_object=False, full_url=""):
 	try:
 		print("Contacting Scryfall API")
+		# Waits a tenth of a second before continuing
 		time.sleep(.1)
 
 		if len(full_url) > 0:
@@ -77,6 +78,8 @@ def controller_get_scryfall_creature_types():
 	return call_scryfall("catalog/creature-types")
 
 
+# Retrieves card information from a given API string and processes.
+# If there are too many cards for a single request, recurses
 def process_cards_from_scryfall(api_string, processor_method):
 	bound_cards = []
 	failed_objects = []
@@ -120,17 +123,25 @@ def do_process_scryfall_object(api_string, bound_cards, failed_objects, processo
 		return True
 
 
-def controller_get_set_sheet_from_scryfall():
+def controller_get_set_sheet_from_scryfall(endpoint="sets/dmu"):
 	print("Processing cards from Scryfall API")
-	set_data = call_scryfall(endpoint="sets/dmu", return_full_data_object=True)
-	# https://api.scryfall.com/cards/search?order=name&q=c%3#Ared+pow%3#D3
+	# Retrieves set information, including API endpoint to retrieve all set cards
+	set_data = call_scryfall(endpoint=endpoint, return_full_data_object=True)
 	set_rows = process_cards_from_scryfall(set_data["search_uri"], get_set_sheet)
 	write_data(set_rows, "set")
+
+
+def controller_get_cards_from_api_query(query="https://api.scryfall.com/cards/search?order=name&q=c%3#Ared+pow%3#D3"):
+	set_rows = process_cards_from_scryfall(query, get_set_sheet)
+	write_data(set_rows, "cards")
 
 
 if __name__ == '__main__':
 	print("Calling Scryfall API")
 	# call_scryfall("bingus")
 	# print(controller_get_scryfall_creature_types())
-	controller_get_set_sheet_from_scryfall()
-# controller_get_set_data()
+	# controller_get_set_sheet_from_scryfall("sets/woe")
+	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?order=name&q=set%3Awoe+is%3Abooster")
+	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost")
+	controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+game%3Apaper")
+	# controller_get_set_data()

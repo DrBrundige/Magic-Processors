@@ -165,9 +165,13 @@ def get_set_sheet(scryfall_card, card):
 		card['foil'] = ""
 		card['collector_number'] = scryfall_card['collector_number']
 		card['rarity'] = scryfall_card["rarity"][0].upper()
-		card["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+		if "type_line" in scryfall_card:
+			card["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+		else:
+			card["card_type"] = ""
 		card["colors"] = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
 		card['artist'] = scryfall_card['artist']
+		card['booster'] = scryfall_card['booster']
 		card['variant'] = get_card_variant(scryfall_card)
 		get_usd_from_card(card, scryfall_card, output_price_type=False)
 		return True
