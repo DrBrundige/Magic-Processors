@@ -1,6 +1,7 @@
 from shared_methods_grinder import *
 from datetime import datetime, timedelta
 
+
 # TODO: Change these to update a parameterized card object and return True / False
 
 # Outputs largely the same information plus price data
@@ -149,6 +150,7 @@ def get_wishlist_row(scryfall_card, card):
 		print(E)
 		return False
 
+
 # Outputs the information that I like to have for set sheets. To wit:
 # name - output
 # count - blank
@@ -181,6 +183,23 @@ def get_set_sheet(scryfall_card, card):
 		return False
 
 
+# Outputs basic card info irrespective of printing. To wit:
+# name - output
+# card type - output
+# color - output
+def get_basic_card_data(scryfall_card, card):
+	try:
+		card['name'] = scryfall_card['name']
+		card['set'] = scryfall_card['set']
+		card["card_type"] = get_card_type_from_type_line(scryfall_card["type_line"])
+		card["colors"] = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
+		return True
+	except Exception as E:
+		print("Errant operation preparing basic card data!")
+		print(E)
+		return False
+
+
 # Outputs basic card information plus the URI to return the highest resolution scan available
 # name - output
 # set - output
@@ -203,7 +222,7 @@ def get_card_images(scryfall_card, card):
 			elif "small" in scryfall_card["image_uris"]:
 				card['image_uri'] = scryfall_card["image_uris"]["small"]
 				card['resolution'] = "small"
-				# Somehow this card has neither small, medium, nor large image. We're done here.
+			# Somehow this card has neither small, medium, nor large image. We're done here.
 			else:
 				return False
 

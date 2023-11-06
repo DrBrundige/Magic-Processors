@@ -154,24 +154,24 @@ def get_color_code_from_colors(color_identity):
 
 # Returns a string representing the card variant - full art, frame effects, etc.
 #    Normal cards are returned as (2015) Frame.
-def get_card_variant(card):
-	is_frame_effects_in_card = "frame_effects" in card
-	is_finishes_in_card = "finishes" in card
+def get_card_variant(scryfall_card):
+	is_frame_effects_in_card = "frame_effects" in scryfall_card
+	is_finishes_in_card = "finishes" in scryfall_card
 
-	if card['full_art'] or (is_frame_effects_in_card and "fullart" in card["frame_effects"]):
+	if scryfall_card['full_art'] or (is_frame_effects_in_card and "fullart" in scryfall_card["frame_effects"]):
 		return "Full Art"
-	elif card['border_color'] == "borderless":
+	elif scryfall_card['border_color'] == "borderless":
 		return "Borderless"
-	elif is_frame_effects_in_card and "extendedart" in card["frame_effects"]:
+	elif is_frame_effects_in_card and "extendedart" in scryfall_card["frame_effects"]:
 		return "Extended Art"
-	elif is_finishes_in_card and "etched" in card["finishes"]:
+	elif is_finishes_in_card and "etched" in scryfall_card["finishes"]:
 		return "Foil Etched"
-	elif is_frame_effects_in_card and "showcase" in card["frame_effects"]:
+	elif is_frame_effects_in_card and "showcase" in scryfall_card["frame_effects"]:
 		return "Showcase"
-	elif is_frame_effects_in_card and "inverted" in card["frame_effects"]:
+	elif is_frame_effects_in_card and "inverted" in scryfall_card["frame_effects"]:
 		return "Inverted"
 	else:
-		return card["frame"] + " Frame"
+		return scryfall_card["frame"] + " Frame"
 
 
 # # # # # # # # # # # # #

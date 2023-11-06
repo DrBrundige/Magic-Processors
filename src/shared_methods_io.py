@@ -83,6 +83,9 @@ def write_data_list(data, filename="out"):
 			# For each row in data, writes values to file
 			for row in data:
 				if isinstance(row, list):
+					for i in range(len(row)):
+						row[i] = unidecode(row[i])
+
 					writer.writerow(row)
 				else:
 					writer.writerow([row])
@@ -139,6 +142,24 @@ def read_csv_list(name="all_fields.csv"):
 	return data
 
 
+# Reads from a csv file returning the first row as a list
+def read_csv_get_headers(name="record.csv", do_snake_case_names=False, do_standardize_header_names=False):
+	with open(name, newline='') as csvfile:
+		reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+		headers = reader.__next__()
+
+		if do_snake_case_names:
+			lower_headers = []
+			for header in headers:
+				lower_headers.append(snake_case_parameter(header))
+			headers = lower_headers
+
+		if do_snake_case_names and do_standardize_header_names:
+			standardize_header_names(headers)
+
+	print("File closed")
+	return headers
+
 # Imports JSON file with the given name. Returns a list of dictionaries
 def read_json(path):
 	with open(path, encoding='utf-8') as f:
@@ -161,6 +182,7 @@ def read_txt(path):
 # No I/O is happening here, but these methods are necessary to support read_csv
 def snake_case_parameter(name):
 	name = name.lower()
+	name = name.strip()
 	name = name.replace(' ', '_')
 	name = name.replace('.', '')
 	return name

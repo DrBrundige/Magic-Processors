@@ -1,4 +1,4 @@
-from shared_methods_io import read_csv, read_txt, write_data
+from shared_methods_io import read_csv, read_txt, write_data, write_data_dictionary
 
 
 # Processes a list of card objects into a dictionary histogram
@@ -72,6 +72,8 @@ def controller_get_upgrades(collection_path="audit_csv.csv", decklist_path="bin/
 	collection = get_audit_card_histogram(all_cards)
 
 	decklist = parse_text_decklist(read_txt(decklist_path))
+
+	# write_data_dictionary(decklist, "decklist")
 
 	upgrades = get_deck_upgrade(collection, decklist)
 	print("Complete!")

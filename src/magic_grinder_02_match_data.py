@@ -1,6 +1,6 @@
 from shared_methods_io import write_data, read_csv, snake_case_parameter
 from shared_methods_grinder import format_cards_for_audit_sheet
-from import_scryfall import *
+from import_scryfall_bulk_data import *
 # from sort_card_data import sort_cards_by_set
 
 from magic_grinder_02_match_data_processors import *
@@ -120,6 +120,14 @@ def controller_get_card_images(filename="all_progenitus_deck_cards.csv", deck="5
 		get_image_from_uri(card["image_uri"], f"{deck}_{snake_case_parameter(clean_word(card['name']))}.jpg")
 
 
+def controller_get_card_basic_info(filename="all_decklist_cards.csv"):
+	print("Getting card info")
+
+	card_rows = match_bulk_data(import_scryfall_abridged(), read_csv(filename),
+	                             standard_match_abridged, get_basic_card_data)
+	write_data(card_rows)
+
+
 # Returns the unabridged dataset sorted by set code
 def controller_get_sorted_data():
 	# Import each printing of each card
@@ -138,4 +146,4 @@ if __name__ == '__main__':
 	# controller_get_audit_from_set_sheet()
 	# controller_get_audit_from_audit_sheet()
 	# controller_value_collection("audit_csv.csv")
-	controller_get_card_images(filename="all_progenitus_deck_cards.csv")
+	controller_get_card_basic_info()

@@ -1,5 +1,5 @@
 from ..shared_methods_grinder import *
-from ..import_scryfall import import_scryfall_full
+from ..import_scryfall_bulk_data import import_scryfall_full
 from src.deprecated.sort_card_data import sort_cards_by_set
 from unidecode import unidecode
 
