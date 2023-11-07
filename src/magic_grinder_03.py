@@ -4,6 +4,7 @@ from shared_methods_io import *
 from shared_methods_grinder import *
 from import_scryfall_bulk_data import *
 from shared_methods_grinder_03 import get_usd_from_card_03, get_price_range_03
+from magic_grinder_03_call_api import call_scryfall_03
 
 
 class NewCard:
@@ -52,6 +53,11 @@ class NewCard:
 			print("Errant operation matching card")
 			print(E)
 			return False
+
+	# For cards returned from the API, the scryfall_card field can be assigned directly
+	def try_assign_card(self, scryfall_card):
+		self.scryfall_card = scryfall_card
+		return True
 
 	# Creates a copy of the parameterized card dictionary where each key is snake-cased
 	#    and assigns that copy to the self.card field
@@ -251,9 +257,9 @@ def match_cards_03(data_sorted, all_cards, match_fields_raw):
 def controller_process_cards_in_file(filename):
 	print("Matching cards to audit data")
 
+	# data = import_scryfall_abridged()
 	data = read_csv(filename, True, True)
 	match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
-	# data = import_scryfall_abridged()
 
 	audit_rows = match_cards_03(controller_get_sorted_data(), data, match_fields)
 
@@ -265,9 +271,51 @@ def controller_process_cards_in_file(filename):
 	write_data_list(audit_rows_with_headers, "audit")
 
 
+def controller_process_cards_from_api(request_url, match_fields_raw, display_fields=""):
+	print("Matching cards from API")
+
+	match_fields = []
+	# If called from controller_process_over_cards_in_file, this information will already be sanitized.
+	#     But the code doesn't know that
+	for field in match_fields_raw:
+		match_fields.append(snake_case_parameter(field))
+
+	# Assigns the first row of the output rows list to display fields if it exists. Otherwise the match fields
+	audit_rows = []
+	if len(display_fields) > 0:
+		audit_rows.append(display_fields)
+	else:
+		audit_rows.append(match_fields)
+
+	do_process_cards_from_api(request_url, match_fields, audit_rows)
+
+	write_data_list(audit_rows, "api_cards")
+
+
+def do_process_cards_from_api(request_url, match_fields, audit_rows):
+	payload = call_scryfall_03(request_url=request_url)
+	for scryfall_card in payload["data"]:
+		card = {"name": scryfall_card["name"], "set": scryfall_card["set"],
+		        "collector_number": scryfall_card["collector_number"]}
+		this_card = NewCard(card)
+		this_card.try_assign_card(scryfall_card)
+		new_row = []
+		for match_field in match_fields:
+			new_row.append(this_card.try_get_field(match_field))
+
+		audit_rows.append(new_row)
+
+	if payload["has_more"]:
+		do_process_cards_from_api(payload["next_page"], match_fields, audit_rows)
+
+
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
-	filename = "audit_csv.csv"
+	# filename = "audit_csv.csv"
 	# filename = "all_audit_cards.csv"
 	# match_fields = ["name", "set", "set_num", "frame", "value"]
-	controller_process_cards_in_file(filename)
+	match_fields = ["name", "flavor_name", "set", "set_num", "rarity", "released_at"]
+	# search_url = "https://api.scryfall.com/cards/search?q=set%3A2x2+r%3Ac+new%3Ararity"
+	search_url = "https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+f%3Avintage&unique=art"
+	controller_process_cards_from_api(search_url, match_fields)
+# controller_process_cards_in_file(filename)

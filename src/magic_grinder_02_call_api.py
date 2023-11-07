@@ -67,7 +67,7 @@ def parse_scryfall_data(endpoint, fields):
 
 # Controller. Calls parse_scryfall_data() to retrieve information on all sets and prints
 def controller_get_set_data():
-	fields = ["code", "name", "released_at"]
+	fields = ["code", "name", "released_at", "card_count"]
 	set_data = parse_scryfall_data("sets", fields)
 	write_data(set_data, "sets")
 
@@ -143,5 +143,5 @@ if __name__ == '__main__':
 	# controller_get_set_sheet_from_scryfall("sets/woe")
 	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?order=name&q=set%3Awoe+is%3Abooster")
 	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost")
-	controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+game%3Apaper")
-	# controller_get_set_data()
+	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+game%3Apaper")
+	controller_get_set_data()

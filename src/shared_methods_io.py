@@ -160,6 +160,7 @@ def read_csv_get_headers(name="record.csv", do_snake_case_names=False, do_standa
 	print("File closed")
 	return headers
 
+
 # Imports JSON file with the given name. Returns a list of dictionaries
 def read_json(path):
 	with open(path, encoding='utf-8') as f:
@@ -206,9 +207,5 @@ def standardize_header_names(headers, replacement_path="standardized_headers.jso
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
 	read_txt("bin/decklist.txt")
-	# read_csv("audit_csv.csv", True, True)
+# read_csv("audit_csv.csv", True, True)
 
-# print(get_datetime_rounded())
-# print(get_yesterday())
-# print(get_epoch())
-# print(count_words('I met a traveller from an antique land, who said,\n"Two vast and trunkless legs of stone...'))
