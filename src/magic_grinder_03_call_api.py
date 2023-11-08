@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta
 
 import requests
 
@@ -38,3 +39,25 @@ def call_scryfall_03(request_url="https://api.scryfall.com/", endpoint=""):
 		print("Error contacting Scryfall!")
 		print(E)
 		return None
+
+
+def controller_get_upcoming_set_svgs():
+	all_sets = call_scryfall_03("https://api.scryfall.com/sets/")
+	for set in all_sets["data"]:
+		# print(f"{set['icon_svg_uri']}")
+		set_release = datetime.fromisoformat(set["released_at"])
+
+		if set_release > datetime.now():
+			time.sleep(.1)
+			r = requests.get(set["icon_svg_uri"])
+			if r.status_code == 200:
+				svg = r.text
+				print(svg)
+				filename = "csvs\\" + set["code"] + datetime.now().strftime("%Y%m%d") + ".svg"
+				f = open(filename, "a")
+				f.write(svg)
+				f.close()
+
+
+if __name__ == '__main__':
+	controller_get_upcoming_set_svgs()
