@@ -122,7 +122,7 @@ if __name__ == '__main__':
 	                                 do_output_count=False)
 
 	for card in all_sort_cards:
-		print(f"Sorting card {card['name']}")
+		# print(f"Sorting card {card['name']}")
 		SortAudit.add_card(card)
 
 	# print(SortAudit)

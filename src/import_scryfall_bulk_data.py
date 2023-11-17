@@ -1,6 +1,6 @@
 import os
 import shared_methods_io
-
+import datetime
 
 # Imports the latest full Scryfall download file containing each printing of each card.
 def import_scryfall_full():
@@ -77,6 +77,26 @@ def sort_cards_by_set(data):
 		all_sorted_cards[this_set].append(card)
 
 	return all_sorted_cards
+
+
+# For a given dataset, sorts each card by set.
+# Returns a dictionary
+def sort_cards_by_original_printing(data):
+	all_original_cards = []
+	for card in data:
+		if not card["reprint"]:
+			all_original_cards.append(card)
+
+	return all_original_cards
+
+
+def controller_get_original_printings():
+	# then = datetime.now().timestamp()
+	data = import_scryfall_full()
+	print("Imported cards!")
+	original_printings =sort_cards_by_original_printing(data)
+	print("Sorted cards by original printing")
+	return original_printings
 
 
 if __name__ == '__main__':

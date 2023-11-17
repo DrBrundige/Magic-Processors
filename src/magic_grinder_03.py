@@ -31,6 +31,8 @@ class NewCard:
 
 		if has_name and has_set and has_set_num:
 			return self.match_self_full(data)
+		elif has_name:
+			return self.match_self_abridged(data)
 
 	def match_self_full(self, data):
 		try:
@@ -49,6 +51,25 @@ class NewCard:
 			else:
 				print(f"Could not find card: '{self.name}' in set '{self.set}'")
 				return False
+		except Exception as E:
+			print("Errant operation matching card")
+			print(E)
+			return False
+
+	def match_self_abridged(self, data):
+		try:
+			matched_card = next(
+				(item for item in data if unidecode(item['name']) == unidecode(self.name)), None)
+
+			if matched_card is not None:
+				self.scryfall_card = matched_card
+				self.set = matched_card["set"]
+				self.collector_number = matched_card["collector_number"]
+				return True
+			else:
+				print(f"Could not find card: '{self.name}'")
+				return False
+
 		except Exception as E:
 			print("Errant operation matching card")
 			print(E)
@@ -254,17 +275,25 @@ def match_cards_03(data_sorted, all_cards, match_fields_raw):
 
 
 # For the given filename, runs match_cards_03 where the match fields are the same as the csv columns
-def controller_process_cards_in_file(filename):
+def controller_process_cards_in_file(filename, data, match_fields=None):
+	if match_fields is None:
+		match_fields = []
 	print("Matching cards to audit data")
 
 	# data = import_scryfall_abridged()
-	data = read_csv(filename, True, True)
-	match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+	all_cards = read_csv(filename, True, True)
 
-	audit_rows = match_cards_03(controller_get_sorted_data(), data, match_fields)
+	if len(match_fields) == 0:
+		match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+
+	audit_rows = match_cards_03(data, all_cards, match_fields)
 
 	audit_rows_with_headers = []
-	audit_rows_with_headers.append(read_csv_get_headers(name=filename))
+	if len(match_fields) > 0:
+		audit_rows_with_headers.append(match_fields)
+	else:
+		audit_rows_with_headers.append(read_csv_get_headers(name=filename))
+
 	for audit_row in audit_rows:
 		audit_rows_with_headers.append(audit_row)
 
@@ -311,11 +340,16 @@ def do_process_cards_from_api(request_url, match_fields, audit_rows):
 
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
-	# filename = "audit_csv.csv"
+	filename = "all_unique_mv_cards.csv"
+
+	# data = controller_get_sorted_data()
+	# data = import_scryfall_abridged()
+	data = controller_get_original_printings()
+
 	# filename = "all_audit_cards.csv"
 	# match_fields = ["name", "set", "set_num", "frame", "value"]
-	match_fields = ["name", "flavor_name", "set", "set_num", "rarity", "released_at"]
+	match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
 	# search_url = "https://api.scryfall.com/cards/search?q=set%3A2x2+r%3Ac+new%3Ararity"
-	search_url = "https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+f%3Avintage&unique=art"
-	controller_process_cards_from_api(search_url, match_fields)
-# controller_process_cards_in_file(filename)
+	# search_url = "https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost"
+	# controller_process_cards_from_api(search_url, match_fields)
+	controller_process_cards_in_file(filename, data, match_fields)
