@@ -1,19 +1,10 @@
 from shared_methods_io import read_json, read_csv, write_data, read_csv_get_headers
-from magic_grinder_02_match_data import match_bulk_data, controller_get_sorted_data
-from magic_grinder_02_match_data_processors import get_audit_row
-from magic_grinder_02_match_data_match_methods import standard_match_full
 from shared_methods_grinder import format_cards_for_audit_sheet
-from magic_grinder_03 import match_cards_03
+from magic_grinder_03 import *
+from import_scryfall_bulk_data import controller_get_sorted_data
 
 
-# TODO: Add an error box that gets generated automatically.
-#    Cards that throw errors in the add_card stage are assigned here
-#    On output_cards, they are output at the end and not assigned a new_id
-
-
-# Man, I'm glad this shit works because if anything breaks on it,
-#     I do NOT remember enough about how it functions to fix it.
-class MagicSorterTrie:
+class MagicSorterTrie03:
 	# This dictionary contains instructions to sort each box.
 	sorter_logic = {}
 	# Each card is assigned to a box based on the home_box field. Each box has different criteria for sorting
@@ -31,26 +22,24 @@ class MagicSorterTrie:
 		self.total_cards = 0
 		self.all_boxes = {}
 		for box in self.sorter_logic["all_box_names"]:
-			new_box = BoxNode(box, self.sorter_logic["box_logic"][box])
+			new_box = BoxNode03(box, self.sorter_logic["box_logic"][box])
 			# print(new_box)
 			self.all_boxes[box] = new_box
 
 	def __str__(self):
 		return f"Magic Sorter | Boxes: {len(self.all_boxes)}, Total cards: {self.total_cards}"
 
-	# Matches the keys in the sorter_logic["sort_codes"] against the keys in the given card
-	# Adds the results to new keys in the card dictionary
 	def add_sort_codes(self, card):
 		all_codes = self.sorter_logic["sort_codes"]
 		for key in all_codes.keys():
 			field = all_codes[key]["field"]
 			# print(card[field])
-			code = all_codes[key]["logic"][card[field]]
-			card[key] = code
+			code = all_codes[key]["logic"][card.try_get_field(field)]
+			card.sort_codes[key] = code
 
 	# Adds a card to a box using the recursive BoxNode.add_card method
 	def add_card(self, card):
-		matching_box = card["home_box"]
+		matching_box = card.try_get_field("home_box")
 		self.add_sort_codes(card)
 		self.all_boxes[matching_box].add_card(card)
 		self.total_cards += 1
@@ -65,7 +54,7 @@ class MagicSorterTrie:
 		return all_cards
 
 
-class BoxNode:
+class BoxNode03:
 	name = ""
 	logic = []
 
@@ -85,8 +74,6 @@ class BoxNode:
 		return f"{self.name}"
 
 	def add_card(self, card):
-		# If the list of logic is empty, adds card.
-		# Otherwise, creates a new node with the bottom element of the logic list removed. Recurses
 		if self.contains_cards and len(self.logic) == 0:
 			self.all_cards.append(card)
 			return True
@@ -94,7 +81,7 @@ class BoxNode:
 			next_node_name = card[self.logic[0].lower()]
 			if next_node_name not in self.all_sub_nodes:
 				new_logic = self.logic[1:len(self.logic)]
-				new_node = BoxNode(next_node_name, new_logic)
+				new_node = BoxNode03(next_node_name, new_logic)
 
 				self.all_sub_nodes[next_node_name] = new_node
 
@@ -122,33 +109,25 @@ class BoxNode:
 					self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
 
 
-# Processes the given cards using the magic_grinder_02 and sorts
-def controller_sort_02(sort_logic="sorter_logic.json", filename="audit_csv.csv"):
-	SortAudit = MagicSorterTrie(sort_logic)
+def controller_sort_03(sort_logic="sorter_logic.json", filename="audit_csv.csv", data=controller_get_sorted_data()):
+	SortAudit = MagicSorterTrie03(sort_logic)
+	# Import cards from filename
+	all_cards = read_csv(filename, True, True)
+	all_new_cards = []
 
-	all_cards = read_csv(filename, do_snake_case_names=True, do_standardize_header_names=True)
-	all_sort_cards = match_bulk_data(controller_get_sorted_data(), all_cards, standard_match_full, get_audit_row,
-	                                 do_output_count=False)
+	# Create NewCard objects for each card
+	for card in all_cards:
+		this_card = NewCard(card)
 
-	for card in all_sort_cards:
-		# print(f"Sorting card {card['name']}")
-		SortAudit.add_card(card)
-
-	# print(SortAudit)
-	all_sorted_cards = SortAudit.output_cards()
-	print(len(all_sorted_cards))
-	new_id = 1
-	for card in all_sorted_cards:
-		card["id"] = new_id
-		new_id += 1
-
-	format_cards_for_audit_sheet(all_sorted_cards)
-	write_data(all_sorted_cards, "reorder")
+		if this_card.try_match_self(data):
+			all_new_cards.append(this_card)
 
 
-# Because this algorithm is intended to read directly from the audit sheet, it expects column names to be
-#    uncapitalized with spaces
-# Name,ID,New ID,Set,Set No,Is Foil,Home Box,Section,Card Type
+# Sort NewCard objects with MagicSorterTrie03 (it has been reworked to accept NewCard objects
+# Process cards in the manner of magic_grinder_03 (may have to move rearrange code to make it more modular)
+# Output, being sure that the original headers are maintained
+
+
 if __name__ == '__main__':
-	print("Sorting card collection")
-	controller_sort_02()
+	print("Sorting cards!")
+	controller_sort_03()

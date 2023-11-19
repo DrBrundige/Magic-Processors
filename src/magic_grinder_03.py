@@ -5,6 +5,7 @@ from shared_methods_grinder import *
 from import_scryfall_bulk_data import *
 from shared_methods_grinder_03 import get_usd_from_card_03, get_price_range_03
 from magic_grinder_03_call_api import call_scryfall_03
+from datetime import *
 
 
 class NewCard:
@@ -15,6 +16,9 @@ class NewCard:
 	set = ""
 	collector_number = ""
 	foil = False
+	# Extra fields used by the Sorter. I would love to take out sort_codes and have it calculated as-needed
+	sorter_id = 0
+	sort_codes = {}
 
 	def __init__(self, card):
 		self.reset_card(card)
@@ -23,6 +27,11 @@ class NewCard:
 		self.try_reset_set()
 		self.try_reset_collector_number()
 		self.try_reset_foil()
+		self.sorter_id = 0
+		self.sort_codes = {}
+
+	def __str__(self):
+		return self.name
 
 	def try_match_self(self, data):
 		has_name = len(self.name) > 0
@@ -149,7 +158,11 @@ class NewCard:
 					return "0"
 			# Fixes an amusing error where the logic would populate this field with the extremely long scryfall ID
 			elif field == "id":
-				return ""
+				return str(self.sorter_id)
+			# If you need the Scryfall ID field, you have to enter 'Scryfall_Id' because I've already established ID
+			#     as my ordering number and I'm not changing it
+			elif field == "scryfall_id":
+				return self.scryfall_card["id"]
 			elif field == "frame" or field == "variant":
 				return get_card_variant(self.scryfall_card)
 			elif field == "spc":
@@ -166,14 +179,14 @@ class NewCard:
 			elif field == "section":
 				return assign_default_section(self.scryfall_card)
 			elif field == "year":
-				year = str(datetime.today().year)
+				this_year = str(datetime.today().year)
 				if "year" in self.card:
 					if self.card["year"] is None or len(self.card["year"]) == 0:
-						return year
+						return this_year
 					else:
 						return self.card["year"]
 				else:
-					return year
+					return this_year
 			elif field == "input_code" or field == "code":
 				return f"{self.name} ({self.set}) {self.collector_number}"
 			elif field == "r" or field == "rarity":
@@ -283,16 +296,14 @@ def controller_process_cards_in_file(filename, data, match_fields=None):
 	# data = import_scryfall_abridged()
 	all_cards = read_csv(filename, True, True)
 
+	audit_rows_with_headers = []
 	if len(match_fields) == 0:
 		match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+		audit_rows_with_headers.append(read_csv_get_headers(name=filename))
+	else:
+		audit_rows_with_headers.append(match_fields)
 
 	audit_rows = match_cards_03(data, all_cards, match_fields)
-
-	audit_rows_with_headers = []
-	if len(match_fields) > 0:
-		audit_rows_with_headers.append(match_fields)
-	else:
-		audit_rows_with_headers.append(read_csv_get_headers(name=filename))
 
 	for audit_row in audit_rows:
 		audit_rows_with_headers.append(audit_row)
@@ -340,16 +351,16 @@ def do_process_cards_from_api(request_url, match_fields, audit_rows):
 
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
-	filename = "all_unique_mv_cards.csv"
+	filename = "audit_csv.csv"
 
-	# data = controller_get_sorted_data()
+	data = controller_get_sorted_data()
 	# data = import_scryfall_abridged()
-	data = controller_get_original_printings()
+	# data = controller_get_original_printings()
 
 	# filename = "all_audit_cards.csv"
 	# match_fields = ["name", "set", "set_num", "frame", "value"]
-	match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
+	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
 	# search_url = "https://api.scryfall.com/cards/search?q=set%3A2x2+r%3Ac+new%3Ararity"
 	# search_url = "https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost"
 	# controller_process_cards_from_api(search_url, match_fields)
-	controller_process_cards_in_file(filename, data, match_fields)
+	controller_process_cards_in_file(filename, data)

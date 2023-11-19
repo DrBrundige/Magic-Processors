@@ -124,21 +124,8 @@ def controller_get_card_basic_info(filename="all_decklist_cards.csv"):
 	print("Getting card info")
 
 	card_rows = match_bulk_data(import_scryfall_abridged(), read_csv(filename),
-	                             standard_match_abridged, get_basic_card_data)
+	                            standard_match_abridged, get_basic_card_data)
 	write_data(card_rows)
-
-
-# Returns the unabridged dataset sorted by set code
-def controller_get_sorted_data():
-	# Import each printing of each card
-	then = datetime.now().timestamp()
-	data = import_scryfall_full()
-	print("Imported cards!")
-	# Sorts all cards into a dictionary by set
-	data_sorted = sort_cards_by_set(data)
-	now = datetime.now().timestamp()
-	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now - then} seconds!")
-	return data_sorted
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import os
 import shared_methods_io
-import datetime
+from datetime import *
+
 
 # Imports the latest full Scryfall download file containing each printing of each card.
 def import_scryfall_full():
@@ -90,13 +91,37 @@ def sort_cards_by_original_printing(data):
 	return all_original_cards
 
 
-def controller_get_original_printings():
-	# then = datetime.now().timestamp()
+# Returns the unabridged dataset sorted by set code
+def controller_get_sorted_data():
+	# Import each printing of each card
+	then = datetime.now().timestamp()
 	data = import_scryfall_full()
 	print("Imported cards!")
-	original_printings =sort_cards_by_original_printing(data)
-	print("Sorted cards by original printing")
+	# Sorts all cards into a dictionary by set
+	data_sorted = sort_cards_by_set(data)
+	now = datetime.now().timestamp()
+	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now - then} seconds!")
+	return data_sorted
+
+
+def controller_get_original_printings():
+	# then = datetime.now().timestamp()
+	then = datetime.now().timestamp()
+	data = import_scryfall_full()
+	print("Imported cards!")
+	original_printings = sort_cards_by_original_printing(data)
+	now = datetime.now().timestamp()
+	print(f"Sorted cards by original printing! Imported and sorted {len(data)} cards in {now - then} seconds!")
 	return original_printings
+
+
+def controller_get_test_data():
+	print("Importing test data")
+	data = shared_methods_io.read_json("bin/all_khm_cards.json")
+	sorted_data = sort_cards_by_set(data)
+
+	print(f"Success! Imported and sorted {len(data)} cards!")
+	return sorted_data
 
 
 if __name__ == '__main__':
