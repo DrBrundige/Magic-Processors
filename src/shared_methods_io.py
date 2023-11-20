@@ -99,9 +99,9 @@ def write_data_list(data, filename="out"):
 
 
 # Writes a dictionary or perhaps list of dictionaries to a json file
-# Outputs to the CSV file even though it's a JSON. (I'm too lazy)
-def write_data_json(data, filename="out"):
-	filename = "csvs\\" + filename + datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+# Outputs filename in a slightly different format
+def write_data_json(data, filename="out", destination="bin"):
+	filename = f"{destination}\\{filename}-{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
 	try:
 		assert isinstance(data, list), "Parameter data must be a list"
 		assert len(data) > 0, "Parameter data has no rows!"

@@ -32,6 +32,15 @@ def import_scryfall_art():
 	return data
 
 
+# Imports the latest abridged Scryfall download file containing one printing for each unique card art.
+def import_scryfall_test():
+	path = get_latest_json("test-cards")
+	print("Importing Scryfall test card data at " + path)
+	data = shared_methods_io.read_json("downloads/" + path)
+	print(f"Success! Imported {len(data)} cards!")
+	return data
+
+
 # Parses all bulk download files in the downloads folder and returns the name of the most recent one as a string
 def get_latest_json(json_class):
 	# Identifies files in the downloads folder
@@ -80,23 +89,39 @@ def sort_cards_by_set(data):
 	return all_sorted_cards
 
 
-# For a given dataset, sorts each card by set.
-# Returns a dictionary
+# For a given dataset, filters out any card that is a reprint,
+#     returning the original printing for each card with the lowest set number
 def sort_cards_by_original_printing(data):
-	all_original_cards = []
+	all_original_cards = {}
+	# Iterates through parameterized data object
 	for card in data:
 		if not card["reprint"]:
-			all_original_cards.append(card)
+			card_name = card["name"]
+			# If the card is not in the dictionary, adds it
+			if card_name not in all_original_cards:
+				all_original_cards[card_name] = card
+			# If this card has a lower set number than the version currently in the dictionary, replaces it
+			elif all_original_cards[card_name]["collector_number"] > card["collector_number"]:
+				all_original_cards[card_name] = card
 
-	return all_original_cards
+	# Flattens dictionary into a list. Returns
+	all_cards_list = []
+	for key in all_original_cards:
+		all_cards_list.append(all_original_cards[key])
+
+	return all_cards_list
 
 
-# Returns the unabridged dataset sorted by set code
-def controller_get_sorted_data():
+# Returns the dataset at the given path sorted by set code
+def controller_get_sorted_data(path="default-cards"):
 	# Import each printing of each card
 	then = datetime.now().timestamp()
-	data = import_scryfall_full()
-	print("Imported cards!")
+
+	path = get_latest_json(path)
+	print("Importing Scryfall data at " + path)
+	# Parses JSON file at that location
+	data = shared_methods_io.read_json("downloads/" + path)
+
 	# Sorts all cards into a dictionary by set
 	data_sorted = sort_cards_by_set(data)
 	now = datetime.now().timestamp()
@@ -104,6 +129,7 @@ def controller_get_sorted_data():
 	return data_sorted
 
 
+# Returns the full dataset, with any reprints filtered out such that in affect it has the same cards the abridged data
 def controller_get_original_printings():
 	# then = datetime.now().timestamp()
 	then = datetime.now().timestamp()
@@ -111,7 +137,8 @@ def controller_get_original_printings():
 	print("Imported cards!")
 	original_printings = sort_cards_by_original_printing(data)
 	now = datetime.now().timestamp()
-	print(f"Sorted cards by original printing! Imported and sorted {len(data)} cards in {now - then} seconds!")
+	print(
+		f"Sorted cards by original printing! Imported and sorted {len(original_printings)} cards in {now - then} seconds!")
 	return original_printings
 
 

@@ -353,7 +353,7 @@ if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 	filename = "audit_csv.csv"
 
-	data = controller_get_sorted_data()
+	data = controller_get_sorted_data("test-cards")
 	# data = import_scryfall_abridged()
 	# data = controller_get_original_printings()
 
