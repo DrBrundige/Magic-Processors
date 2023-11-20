@@ -98,6 +98,29 @@ def write_data_list(data, filename="out"):
 		return True
 
 
+# Writes a dictionary or perhaps list of dictionaries to a json file
+# Outputs to the CSV file even though it's a JSON. (I'm too lazy)
+def write_data_json(data, filename="out"):
+	filename = "csvs\\" + filename + datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+	try:
+		assert isinstance(data, list), "Parameter data must be a list"
+		assert len(data) > 0, "Parameter data has no rows!"
+
+		data_string = json.dumps(data, indent=2)
+
+		f = open(filename, "w")
+		f.write(data_string)
+		f.close()
+
+	except Exception as E:
+		print("Errant operation writing JSON!")
+		print(E)
+		return False
+	else:
+		print(f"Success! Data written to file {filename}")
+		return True
+
+
 # Reads from a csv file returning as a list of dictionaries
 # do_snake_case_names - if True, puts header names into lower case with underscores
 # do_standardize_header_names - runs header names through a dictionary
@@ -208,4 +231,3 @@ if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
 	read_txt("bin/decklist.txt")
 # read_csv("audit_csv.csv", True, True)
-

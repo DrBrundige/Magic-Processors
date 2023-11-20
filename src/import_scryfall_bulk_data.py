@@ -125,4 +125,5 @@ def controller_get_test_data():
 
 
 if __name__ == '__main__':
-	print(get_latest_json("default-cards"))
+	print("Testing Import Scryfall methods")
+	controller_get_original_printings()
