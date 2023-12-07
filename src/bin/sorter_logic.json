@@ -10,6 +10,7 @@
   "box_logic": {
     "Set Boxes": [
       "released_at",
+      "set",
       "price_range",
       "collector_number",
       "foil"

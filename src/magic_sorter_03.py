@@ -109,7 +109,7 @@ class BoxNode03:
 					self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
 
 
-def controller_sort_03(sort_logic="sorter_logic.json", filename="audit_csv.csv", data=controller_get_sorted_data()):
+def controller_sort_03(data, sort_logic="sorter_logic.json", filename="audit_csv.csv"):
 	SortAudit = MagicSorterTrie03(sort_logic)
 	# Import cards from filename
 	all_cards = read_csv(filename, True, True)
@@ -130,4 +130,6 @@ def controller_sort_03(sort_logic="sorter_logic.json", filename="audit_csv.csv",
 
 if __name__ == '__main__':
 	print("Sorting cards!")
-	controller_sort_03()
+	data = controller_get_sorted_data(path="test-cards")
+
+	controller_sort_03(data=data)
