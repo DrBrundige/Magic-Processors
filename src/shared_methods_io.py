@@ -167,6 +167,7 @@ def read_csv_list(name="all_fields.csv"):
 
 # Reads from a csv file returning the first row as a list
 def read_csv_get_headers(name="record.csv", do_snake_case_names=False, do_standardize_header_names=False):
+	print("Accessing file to return header row")
 	with open(name, newline='') as csvfile:
 		reader = csv.reader(csvfile, delimiter=',', quotechar='"')
 		headers = reader.__next__()

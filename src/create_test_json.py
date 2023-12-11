@@ -12,8 +12,8 @@ def create_test_json(all_cards, data):
 	for card in all_cards:
 		new_card = NewCard(card)
 		if new_card.try_match_self(data):
-			print(new_card.name)
 			if new_card.scryfall_card["id"] not in all_unique_scryfall_ids:
+				print(new_card.name)
 				all_scryfall_cards.append(new_card.scryfall_card)
 				all_unique_scryfall_ids.add(new_card.scryfall_card["id"])
 		else:

@@ -1,0 +1,101 @@
+{
+  "all_box_names": {
+    "Set Boxes": 11,
+    "Commander": 21,
+    "Pauper": 22,
+    "Lands": 33,
+    "Misc": 34,
+    "Collection": 35
+  },
+  "box_logic": {
+    "Set Boxes": [
+      "released_at",
+      "set",
+      "price_range",
+      "collector_number",
+      "foil"
+    ],
+    "Commander": [
+      "section",
+      "color_id",
+      "card_type",
+      "name",
+      "released_at"
+    ],
+    "Pauper": [
+      "section",
+      "color_id",
+      "card_type",
+      "name",
+      "set"
+    ],
+    "Lands": [
+      "color_id",
+      "released_at",
+      "set",
+      "collector_number",
+      "foil"
+    ],
+    "Misc": [
+      "section",
+      "card_type",
+      "name"
+    ],
+    "Collection": [
+      "section",
+      "color_id",
+      "card_type",
+      "name"
+    ]
+  },
+  "custom_sort_orders": {
+    "color_id": [
+      "C",
+      "W",
+      "U",
+      "B",
+      "R",
+      "G",
+      "WU",
+      "UB",
+      "BR",
+      "RG",
+      "GW",
+      "WB",
+      "UR",
+      "BG",
+      "RW",
+      "GU",
+      "WUB",
+      "UBR",
+      "BRG",
+      "RGW",
+      "GWU",
+      "WBG",
+      "URW",
+      "BGU",
+      "RWB",
+      "BUR",
+      "WUBR",
+      "UBRG",
+      "BRGW",
+      "RGWU",
+      "GWUB",
+      "WUBRG"
+    ],
+    "card_type": [
+      "Planeswalker",
+      "Battle",
+      "Creature",
+      "Enchantment Creature",
+      "Artifact Creature",
+      "Artifact",
+      "Artifact Equipment",
+      "Enchantment",
+      "Sorcery",
+      "Instant",
+      "Land",
+      "Basic Land"
+    ]
+  }
+}

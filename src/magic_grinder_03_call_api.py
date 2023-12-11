@@ -41,6 +41,14 @@ def call_scryfall_03(request_url="https://api.scryfall.com/", endpoint=""):
 		return None
 
 
+def get_set_search_uri_from_set_code(set_code):
+	data = call_scryfall_03(f"https://api.scryfall.com/sets/{set_code}")
+	if data is not None:
+		return data["search_uri"]
+	else:
+		return ""
+
+
 def controller_get_upcoming_set_svgs():
 	all_sets = call_scryfall_03("https://api.scryfall.com/sets/")
 	for set in all_sets["data"]:
@@ -60,4 +68,5 @@ def controller_get_upcoming_set_svgs():
 
 
 if __name__ == '__main__':
-	controller_get_upcoming_set_svgs()
+	# controller_get_upcoming_set_svgs()
+	print(get_set_search_uri_from_set_code("woe"))
