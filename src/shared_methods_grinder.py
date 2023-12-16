@@ -164,7 +164,7 @@ def get_card_variant(scryfall_card):
 		return "Borderless"
 	elif is_frame_effects_in_card and "extendedart" in scryfall_card["frame_effects"]:
 		return "Extended Art"
-	elif is_finishes_in_card and "etched" in scryfall_card["finishes"]:
+	elif is_finishes_in_card and "etched" in scryfall_card["finishes"] and len(scryfall_card["finishes"]) == 1:
 		return "Foil Etched"
 	elif is_frame_effects_in_card and "showcase" in scryfall_card["frame_effects"]:
 		return "Showcase"

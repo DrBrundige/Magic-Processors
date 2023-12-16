@@ -450,146 +450,46 @@ def new_controller_process_cards_from_api(request_url, match_fields):
 	write_data_list(output_rows, "api_cards")
 
 
-# Processes the given card rows and match fields, duplicates for the print column as needed, then returns
-# def match_cards_03(data_sorted, all_cards, match_fields_raw, count_field=""):
-# 	output_cards = []
-# 	failed_cards = []
-#
-# 	match_fields = []
-# 	# If called from controller_process_over_cards_in_file, this information will already be sanitized.
-# 	#     But the code doesn't know that
-# 	for field in match_fields_raw:
-# 		match_fields.append(snake_case_parameter(field))
-#
-# 	standardize_header_names(headers=match_fields)
-#
-# 	# Iterates through each card in the all_cards list
-# 	for card in all_cards:
-# 		try:
-# 			# Some input files include a count row. If this row exists and is equal to 0, skips the card
-# 			if 'count' in card and int(card['count']) <= 0:
-# 				continue
-#
-# 			this_card = NewCard(card)
-# 			new_row = []
-#
-# 			if this_card.try_match_self(data_sorted):
-# 				# print("Found card!")
-# 				for match_field in match_fields:
-# 					new_row.append(this_card.try_get_field(match_field))
-#
-# 				if len(count_field) > 0:
-# 					count = this_card.try_get_field(count_field)
-# 					for i in range(int(count)):
-# 						output_cards.append(new_row)
-# 				else:
-# 					output_cards.append(new_row)
-# 			else:
-# 				failed_cards.append(card)
-#
-#
-# 		# print("Yearning 4 my bestie")
-# 		# print(this_card.scryfall_card["oracle_id"])
-#
-# 		except Exception as E:
-# 			print(f"Errant operation parsing card {card['name']}")
-# 			print(E)
-# 			failed_cards.append(card)
-#
-# 	# Outputs success / failure
-# 	if len(output_cards) > 0:
-# 		print(f"Success! Bound {len(output_cards)} cards")
-# 	else:
-# 		print("Failure! No cards bound!")
-#
-# 	if len(failed_cards) == 0:
-# 		print("No cards failed!")
-# 	else:
-# 		print(f"{len(failed_cards)} card(s) failed")
-# 	# print(failed_cards)
-#
-# 	return output_cards
+# A controller for my use only with no parameters. Takes multiple files and combines them.
+def controller_process_cards_from_multiple_files():
+	data = controller_get_sorted_data()
 
+	all_audit_cards = get_cards_from_file("audit_csv.csv",data)
+	all_test_cards = get_cards_from_file("audit_csv.csv", data)
 
-# For the given filename, runs match_cards_03 where the match fields are the same as the csv columns
-# def controller_process_cards_in_file(filename, data, match_fields=None, count_field=""):
-# 	if match_fields is None:
-# 		match_fields = []
-# 	print("Matching cards to audit data")
-#
-# 	# data = import_scryfall_abridged()
-# 	all_cards = read_csv(filename, True, True)
-#
-# 	audit_rows_with_headers = []
-# 	if len(match_fields) == 0:
-# 		match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
-# 		audit_rows_with_headers.append(read_csv_get_headers(name=filename))
-# 	else:
-# 		audit_rows_with_headers.append(match_fields)
-#
-# 	# Sends rows to match_cards_03 for processing
-# 	audit_rows = match_cards_03(data, all_cards, match_fields, snake_case_parameter(count_field))
-#
-# 	for audit_row in audit_rows:
-# 		audit_rows_with_headers.append(audit_row)
-#
-# 	write_data_list(audit_rows_with_headers, "audit")
+	all_new_cards = all_audit_cards
+	for card in all_test_cards:
+		all_new_cards.append(card)
 
-#
-# def controller_process_cards_from_api(request_url, match_fields_raw, display_fields=""):
-# 	print("Matching cards from API")
-#
-# 	match_fields = []
-# 	# If called from controller_process_over_cards_in_file, this information will already be sanitized.
-# 	#     But the code doesn't know that
-# 	for field in match_fields_raw:
-# 		match_fields.append(snake_case_parameter(field))
-#
-# 	# Assigns the first row of the output rows list to display fields if it exists. Otherwise the match fields
-# 	audit_rows = []
-# 	if len(display_fields) > 0:
-# 		audit_rows.append(display_fields)
-# 	else:
-# 		audit_rows.append(match_fields)
-#
-# 	do_process_cards_from_api(request_url, match_fields, audit_rows)
-#
-# 	write_data_list(audit_rows, "api_cards")
-#
-#
-# def do_process_cards_from_api(request_url, match_fields, audit_rows):
-# 	payload = call_scryfall_03(request_url=request_url)
-# 	for scryfall_card in payload["data"]:
-# 		card = {"name": scryfall_card["name"], "set": scryfall_card["set"],
-# 		        "collector_number": scryfall_card["collector_number"]}
-# 		this_card = NewCard(card)
-# 		this_card.try_assign_card(scryfall_card)
-# 		new_row = []
-# 		for match_field in match_fields:
-# 			new_row.append(this_card.try_get_field(match_field))
-#
-# 		audit_rows.append(new_row)
-#
-# 	if payload["has_more"]:
-# 		do_process_cards_from_api(payload["next_page"], match_fields, audit_rows)
+	all_new_cards = sort_all_cards(all_new_cards, "sorter_logic_03.json")
+
+	match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+	header_row = read_csv_get_headers(name=filename)
+
+	output_rows = output_bound_cards(all_new_cards, match_fields)
+
+	# Prepends output rows with header row and outputs to CSV
+	output_rows.insert(0, header_row)
+	write_data_list(output_rows, "combined")
 
 
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
 	# filename = "all_order_cards.csv"
-	# filename = "all_audit_cards.csv"
+	filename = "audit_csv.csv"
+	# filename = "all_test_cards.csv"
 
-	request_url = get_set_search_uri_from_set_code('woe')
+	# request_url = get_set_search_uri_from_set_code('woe')
 
 	# data = controller_get_sorted_data("default-cards")
 	# data = controller_get_sorted_data("test-cards")
 	# data = import_scryfall_abridged()
 	# data = controller_get_original_printings()
 
-	match_fields = ["name", "set", "set_num", "rarity", "card_type", "color", "frame", "value"]
+	# match_fields = ["name", "set", "set_num", "rarity", "card_type", "color", "frame", "value"]
 	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
-
-	# new_controller_process_cards_from_file(filename, data)
-	# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
-	new_controller_process_cards_from_api(request_url, match_fields)
+	controller_process_cards_from_multiple_files()
+	# new_controller_process_cards_from_file(filename, data, do_sort=True)
+# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
+# new_controller_process_cards_from_api(request_url, match_fields)

@@ -1,5 +1,5 @@
 from shared_methods_io import write_data, write_data_dictionary
-from shared_methods_grinder import get_all_creature_types
+# from shared_methods_grinder import get_all_creature_types
 from import_scryfall_bulk_data import *
 
 from magic_grinder_02_scanner_scan_methods import *
