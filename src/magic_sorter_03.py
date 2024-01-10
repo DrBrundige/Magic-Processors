@@ -11,10 +11,12 @@ class MagicSorterTrie03:
 	all_boxes = {}
 	total_cards = 0
 
-	# TODO: Think about having this accept the JSON itself rather than the file reference
-	def __init__(self, logic_file="sorter_logic.json"):
+	def __init__(self, logic_file="sorter_logic.json", logic_json=None):
 		# Reads the given json into the sorter_logic field
-		self.sorter_logic = read_json(f"bin/{logic_file}")
+		if logic_json is None:
+			self.sorter_logic = read_json(f"bin/{logic_file}")
+		else:
+			self.sorter_logic = logic_json
 		self.all_boxes = {}
 		self.reset_boxes()
 
@@ -142,6 +144,7 @@ class BoxNode03:
 			for sorted_key in sorted_keys:
 				self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
 
+
 #
 # # Using the MagicSorterTrie and NewCard class, sorts each card from the given file, processes, and prints
 # def controller_sort_03(data, sort_logic="sorter_logic_03.json", filename="audit_csv.csv"):
@@ -186,4 +189,4 @@ if __name__ == '__main__':
 	print("Sorting cards!")
 	data = controller_get_sorted_data(path="test-cards")
 
-	# controller_sort_03(data=data)
+# controller_sort_03(data=data)

@@ -42,7 +42,7 @@ def parse_text_decklist(all_decklist_cards):
 
 # Compares the deck histogram with the collection histogram to determine which cards are needed in what quantities
 def get_deck_upgrade(collection, decklist):
-	print("Comparing decklist to collection")
+	print("Comparing decklist to collection to find cards needed to upgrade")
 	upgrades = {}
 	for name in decklist.keys():
 		if name not in collection:
@@ -50,6 +50,23 @@ def get_deck_upgrade(collection, decklist):
 		else:
 			if decklist[name] > collection[name]:
 				upgrades[name] = decklist[name] - collection[name]
+	# print(name)
+
+	return upgrades
+
+
+# Reverses the get_deck_upgrade() algorithm returning the number of cards that ARE in the given collection
+def get_upgrades_in_collection(collection, decklist):
+	print("Comparing decklist to collection to find cards that are already in collection.")
+	upgrades = {}
+	for name in decklist.keys():
+		if name in collection:
+			# If more cards are needed than exist in the collection, return number in collection
+			if decklist[name] > collection[name]:
+				upgrades[name] = collection[name]
+			# If there are more cards in collection than cards needed, return cards needed
+			else:
+				upgrades[name] = decklist[name]
 	# print(name)
 
 	return upgrades
@@ -81,8 +98,25 @@ def controller_get_upgrades(collection_path="audit_csv.csv", decklist_path="bin/
 	return format_card_histogram(upgrades)
 
 
+# Ties the above three methods together
+# Returns a list of dictionaries
+def controller_get_upgrades_in_collection(collection_path="audit_csv.csv", decklist_path="bin/decklist.txt"):
+	all_cards = read_csv(name=collection_path, do_snake_case_names=True)
+	collection = get_audit_card_histogram(all_cards)
+
+	decklist = parse_text_decklist(read_txt(decklist_path))
+
+	# write_data_dictionary(decklist, "decklist")
+
+	found_upgrades = get_upgrades_in_collection(collection, decklist)
+	print("Complete!")
+
+	return format_card_histogram(found_upgrades)
+
+
 if __name__ == '__main__':
 	print("Comparing decklist against collection")
-	all_upgrade_cards = controller_get_upgrades()
+	# all_upgrade_cards = controller_get_upgrades()
+	all_upgrade_cards = controller_get_upgrades_in_collection()
 	print(all_upgrade_cards)
 	write_data(all_upgrade_cards)
