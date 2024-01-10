@@ -228,3 +228,5 @@ fabric.properties
 *.csv
 *.jpg
 src/csvs
+.idea/inspectionProfiles
+.idea/codeStyles

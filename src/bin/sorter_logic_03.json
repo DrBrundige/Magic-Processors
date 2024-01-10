@@ -17,19 +17,18 @@
     ],
     "Commander": [
       "section",
-      "color_id",
-      "card_type",
+      "archetype",
       "name",
       "released_at"
     ],
     "Pauper": [
       "section",
-      "color_id",
-      "card_type",
+      "archetype",
       "name",
       "set"
     ],
     "Lands": [
+      "card_type",
       "color_id",
       "released_at",
       "set",
@@ -95,7 +94,8 @@
       "Sorcery",
       "Instant",
       "Land",
-      "Basic Land"
+      "Basic Land",
+      "Snow Basic Land"
     ]
   }
 }

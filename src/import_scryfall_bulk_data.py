@@ -142,13 +142,13 @@ def controller_get_original_printings():
 	return original_printings
 
 
-def controller_get_test_data():
-	print("Importing test data")
-	data = shared_methods_io.read_json("bin/all_khm_cards.json")
-	sorted_data = sort_cards_by_set(data)
-
-	print(f"Success! Imported and sorted {len(data)} cards!")
-	return sorted_data
+# def controller_get_test_data():
+# 	print("Importing test data")
+# 	data = shared_methods_io.read_json("bin/all_khm_cards.json")
+# 	sorted_data = sort_cards_by_set(data)
+#
+# 	print(f"Success! Imported and sorted {len(data)} cards!")
+# 	return sorted_data
 
 
 if __name__ == '__main__':

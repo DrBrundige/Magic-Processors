@@ -220,6 +220,8 @@ class NewCard:
 				return get_price_range_03(value=value, rarity=rarity)
 			elif field == "section":
 				return assign_default_section(self.scryfall_card)
+			elif field == "archetype" or field == "card_archetype":
+				return get_card_archetype_from_type_line(self.scryfall_card["type_line"])
 			elif field == "year":
 				this_year = str(datetime.today().year)
 				if "year" in self.card:
@@ -356,7 +358,14 @@ def sort_all_cards(all_cards, sort_logic_filename):
 	for card in all_cards:
 		SortAudit.add_card(card)
 
-	return SortAudit.output_cards()
+	sorted_cards = SortAudit.output_cards()
+
+	i = 1
+	for card in sorted_cards:
+		card.sorter_id = i
+		i += 1
+
+	return sorted_cards
 
 
 # Process cards for the given match fields
@@ -454,7 +463,7 @@ def new_controller_process_cards_from_api(request_url, match_fields):
 def controller_process_cards_from_multiple_files():
 	data = controller_get_sorted_data()
 
-	all_audit_cards = get_cards_from_file("audit_csv.csv",data)
+	all_audit_cards = get_cards_from_file("audit_csv.csv", data)
 	all_test_cards = get_cards_from_file("audit_csv.csv", data)
 
 	all_new_cards = all_audit_cards
@@ -477,19 +486,19 @@ if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
 	# filename = "all_order_cards.csv"
-	filename = "audit_csv.csv"
+	# filename = "audit_csv.csv"
 	# filename = "all_test_cards.csv"
 
-	# request_url = get_set_search_uri_from_set_code('woe')
+	request_url = get_set_search_uri_from_set_code('thb')
 
 	# data = controller_get_sorted_data("default-cards")
-	# data = controller_get_sorted_data("test-cards")
+	data = controller_get_sorted_data("test-cards")
 	# data = import_scryfall_abridged()
 	# data = controller_get_original_printings()
 
-	# match_fields = ["name", "set", "set_num", "rarity", "card_type", "color", "frame", "value"]
+	match_fields = ["name", "count", "set", "set_num", "rarity", "color", "card_type"]
 	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
-	controller_process_cards_from_multiple_files()
+	# controller_process_cards_from_multiple_files()
 	# new_controller_process_cards_from_file(filename, data, do_sort=True)
-# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
-# new_controller_process_cards_from_api(request_url, match_fields)
+	# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
+	new_controller_process_cards_from_api(request_url, match_fields)
