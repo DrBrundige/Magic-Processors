@@ -1,4 +1,5 @@
 from shared_methods_io import read_csv, read_txt, write_data, write_data_dictionary
+from magic_grinder_03_call_api import call_scryfall_03
 
 
 # Processes a list of card objects into a dictionary histogram
@@ -40,6 +41,34 @@ def parse_text_decklist(all_decklist_cards):
 	return decklist
 
 
+# Accesses a list of cards from the Scryfall API and parses into a dictionary "histogram"
+# Accepts a string representing API URL. Returns a dictionary
+def get_decklist_from_api(request_url):
+	all_request_card_names = set()
+	do_get_request_card_names(request_url, all_request_card_names)
+
+	decklist = {}
+
+	for name in all_request_card_names:
+		decklist[name] = 4
+
+	return decklist
+
+
+# A recursive method that requests each page from a URL and returns each card name
+def do_get_request_card_names(request_url, all_reqest_card_names):
+	data = call_scryfall_03(request_url)
+	# print(data)
+	for object in data["data"]:
+		all_reqest_card_names.add(object["name"])
+
+	if data["has_more"]:
+		return do_get_request_card_names(data["next_page"], all_reqest_card_names)
+	else:
+		return True
+
+
+# CARDS NOT IN COLLECTION
 # Compares the deck histogram with the collection histogram to determine which cards are needed in what quantities
 def get_deck_upgrade(collection, decklist):
 	print("Comparing decklist to collection to find cards needed to upgrade")
@@ -55,6 +84,7 @@ def get_deck_upgrade(collection, decklist):
 	return upgrades
 
 
+# CARDS THAT ARE IN COLLECTION
 # Reverses the get_deck_upgrade() algorithm returning the number of cards that ARE in the given collection
 def get_upgrades_in_collection(collection, decklist):
 	print("Comparing decklist to collection to find cards that are already in collection.")
@@ -114,9 +144,31 @@ def controller_get_upgrades_in_collection(collection_path="audit_csv.csv", deckl
 	return format_card_histogram(found_upgrades)
 
 
+def controller_get_api_upgrades_in_collection(collection_path="audit_csv.csv", request_url=""):
+	all_cards = read_csv(name=collection_path, do_snake_case_names=True)
+	collection = get_audit_card_histogram(all_cards)
+
+	decklist = get_decklist_from_api(request_url)
+
+	# write_data_dictionary(decklist, "decklist")
+
+	found_upgrades = get_upgrades_in_collection(collection, decklist)
+	print(f"Complete! Found {len(found_upgrades)} cards!")
+
+	return format_card_histogram(found_upgrades)
+
+
 if __name__ == '__main__':
 	print("Comparing decklist against collection")
-	# all_upgrade_cards = controller_get_upgrades()
-	all_upgrade_cards = controller_get_upgrades_in_collection()
+	# all_upgrade_cards = controller_get_upgrades(decklist_path="bin/cards.txt")
+	# all_upgrade_cards = controller_get_upgrades_in_collection(collection_path="all_audit_cards_new.csv",
+	#                                                           decklist_path="bin/new_cards.txt")
+	# print(all_upgrade_cards)
+	# write_data(all_upgrade_cards)
+	otag = "counter"
+	id = "u"
+	request_url = f"https://api.scryfall.com/cards/search?q=otag%3A{otag}+id%3A{id}&unique=cards&as=grid"
+	all_upgrade_cards = controller_get_api_upgrades_in_collection(collection_path="all_audit_cards_new.csv",
+	                                                              request_url=request_url)
 	print(all_upgrade_cards)
 	write_data(all_upgrade_cards)

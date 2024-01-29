@@ -59,7 +59,8 @@ class NewCard:
 			else:
 				matched_set = data[self.set]
 				for card in matched_set:
-					if unidecode(card["name"]) == unidecode(self.name) and card[
+					decoded_name = unidecode(card["name"]).casefold()
+					if decoded_name == unidecode(self.name).casefold() and card[
 						"collector_number"] == self.collector_number:
 						self.scryfall_card = card
 						self.set = card["set"]
@@ -67,21 +68,7 @@ class NewCard:
 						return True
 				print(f"Errant operation! Could not find card {self.name} in set {self.set}")
 				return False
-		# if self.set not in data.keys():
-		# 	print(f"Errant operation! Could not find set {self.set} for card {self.name}")
-		# 	return False
-		#
-		# matched_card = next(
-		# 	(item for item in data[self.set] if
-		# 	 unidecode(item['name']) == unidecode(self.name)
-		# 	 and item['collector_number'] == self.collector_number), None)
-		#
-		# if matched_card is not None:
-		# 	self.scryfall_card = matched_card
-		# 	return True
-		# else:
-		# 	print(f"Could not find card: '{self.name}' in set '{self.set}'")
-		# 	return False
+
 		except Exception as E:
 			print("Errant operation matching card")
 			print(E)
@@ -115,7 +102,8 @@ class NewCard:
 				matched_set = data[self.set]
 				frame = self.card["frame"]
 				for card in matched_set:
-					if unidecode(card["name"]) == unidecode(self.name):
+					decoded_name = unidecode(card["name"]).casefold()
+					if decoded_name == unidecode(self.name).casefold():
 						card_frame = get_card_variant(card)
 						if card_frame == frame:
 							self.scryfall_card = card
@@ -143,7 +131,8 @@ class NewCard:
 				cards_with_name = 0
 
 				for card in matched_set:
-					if unidecode(card["name"]) == unidecode(self.name):
+					decoded_name = unidecode(card["name"]).casefold()
+					if decoded_name == unidecode(self.name).casefold():
 						cards_with_name += 1
 						if len(lowest_card) == 0:
 							lowest_card = card
@@ -523,13 +512,16 @@ def controller_process_cards_from_multiple_files():
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
-	controller_process_cards_from_multiple_files()
+	# controller_process_cards_from_multiple_files()
 
 	# filename = "all_order_cards.csv"
-	# filename = "audit_csv.csv"
+	filename = "all_audit_cards_new.csv"
 	# filename = "all_sort_cards_mid.csv"
 
-	# match_fields = ["name", "count", "set", "set_num", "rarity", "color", "card_type"]
+	match_fields = ["Name", "ID", "Set", "Set No", "Is Foil", "Variant", "Spc.", "Home Box", "Current Location",
+	                "Price Range", "Section", "Archetype", "Year", "Input Code", "Rarity", "Card Type", "Color", "C ID",
+	                "Value", "Released At"]
+	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
 
 	# all_sets = ["woe", "mom", "one", "bro", "dmu", "snc", "neo", "vow", "mid", "afr", "stx", "khm", "znr", "mh2", "2x2",
 	#             "clb", "cmr", "ktk", "dtk"]
@@ -541,14 +533,13 @@ if __name__ == '__main__':
 
 	# request_url = "https://api.scryfall.com/cards/search?q=art%3Akaldheim+game%3Apaper+-is%3Amemorabilia"
 
-	# data = controller_get_sorted_data("default-cards")
+	data = controller_get_sorted_data("default-cards")
+
 	# data = controller_get_sorted_data("test-cards")
 	# data = import_scryfall_abridged()
 	# data = controller_get_original_printings()
 
-	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
-
 	# controller_process_cards_from_multiple_files()
-	# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True, match_fields=match_fields)
+	new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True, match_fields=match_fields)
 # new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
 # new_controller_process_cards_from_api(request_url, match_fields)
