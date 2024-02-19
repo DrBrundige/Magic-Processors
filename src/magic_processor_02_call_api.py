@@ -1,8 +1,8 @@
 import time
 
 import requests
-from magic_grinder_02_match_data_processors import *
-from shared_methods_io import write_data
+from magic_processor_02_match_data_processors import *
+from common_methods_io import write_data
 
 
 # Don't get me wrong - my search methods work,

@@ -1,5 +1,5 @@
 from unidecode import unidecode
-from shared_methods_grinder import get_card_variant, scrub_card_name
+from common_methods_grinder import get_card_variant, scrub_card_name
 
 
 # The standard matching algorithm for full bulk data. Matches by set, then name and set number

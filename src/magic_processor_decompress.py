@@ -1,4 +1,4 @@
-from shared_methods_io import read_csv, write_data, snake_case_parameter
+from common_methods_io import read_csv, write_data, snake_case_parameter
 
 
 # I don't know if I ever wrote a dedicated method for this process, but if I did, I can't find it.

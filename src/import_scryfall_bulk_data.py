@@ -1,5 +1,5 @@
 import os
-import shared_methods_io
+import common_methods_io
 from datetime import *
 
 
@@ -9,7 +9,7 @@ def import_scryfall_full():
 	path = get_latest_json("default-cards")
 	print("Importing full Scryfall data at " + path)
 	# Parses JSON file at that location
-	data = shared_methods_io.read_json("downloads/" + path)
+	data = common_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -18,7 +18,7 @@ def import_scryfall_full():
 def import_scryfall_abridged():
 	path = get_latest_json("oracle-cards")
 	print("Importing abridged Scryfall data at " + path)
-	data = shared_methods_io.read_json("downloads/" + path)
+	data = common_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -27,7 +27,7 @@ def import_scryfall_abridged():
 def import_scryfall_art():
 	path = get_latest_json("unique-artwork")
 	print("Importing Scryfall unique art data at " + path)
-	data = shared_methods_io.read_json("downloads/" + path)
+	data = common_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -36,7 +36,7 @@ def import_scryfall_art():
 def import_scryfall_test():
 	path = get_latest_json("test-cards")
 	print("Importing Scryfall test card data at " + path)
-	data = shared_methods_io.read_json("downloads/" + path)
+	data = common_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
 	return data
 
@@ -120,7 +120,7 @@ def controller_get_sorted_data(path="default-cards"):
 	path = get_latest_json(path)
 	print("Importing Scryfall data at " + path)
 	# Parses JSON file at that location
-	data = shared_methods_io.read_json("downloads/" + path)
+	data = common_methods_io.read_json("downloads/" + path)
 
 	# Sorts all cards into a dictionary by set
 	data_sorted = sort_cards_by_set(data)
@@ -144,7 +144,7 @@ def controller_get_original_printings():
 
 def controller_get_test_data():
 	print("Importing test data")
-	data = shared_methods_io.read_json("bin/all_khm_cards.json")
+	data = common_methods_io.read_json("bin/all_khm_cards.json")
 	sorted_data = sort_cards_by_set(data)
 
 	print(f"Success! Imported and sorted {len(data)} cards!")

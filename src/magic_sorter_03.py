@@ -1,5 +1,5 @@
-from shared_methods_io import read_json, read_csv, write_data, read_csv_get_headers
-from shared_methods_grinder import format_cards_for_audit_sheet
+from common_methods_io import read_json, read_csv, write_data, read_csv_get_headers
+from common_methods_grinder import format_cards_for_audit_sheet
 # from magic_grinder_03 import *
 from import_scryfall_bulk_data import controller_get_sorted_data
 

@@ -1,8 +1,8 @@
-from shared_methods_io import read_json, read_csv, write_data, read_csv_get_headers
-from magic_grinder_02_match_data import match_bulk_data, controller_get_sorted_data
-from magic_grinder_02_match_data_processors import get_audit_row
-from magic_grinder_02_match_data_match_methods import standard_match_full
-from shared_methods_grinder import format_cards_for_audit_sheet
+from common_methods_io import read_json, read_csv, write_data, read_csv_get_headers
+from magic_processor_02_match_data import match_bulk_data, controller_get_sorted_data
+from magic_processor_02_match_data_processors import get_audit_row
+from magic_processor_02_match_data_match_methods import standard_match_full
+from common_methods_grinder import format_cards_for_audit_sheet
 # from magic_grinder_03 import match_cards_03
 
 

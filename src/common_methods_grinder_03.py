@@ -1,4 +1,4 @@
-from shared_methods_grinder import get_card_variant
+from common_methods_grinder import get_card_variant
 
 
 def get_usd_from_card_03(card, scryfall_card):

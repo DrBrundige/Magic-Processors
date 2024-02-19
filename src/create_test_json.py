@@ -1,6 +1,6 @@
-from magic_grinder_03 import NewCard
+from magic_processor_03 import NewCard
 from import_scryfall_bulk_data import controller_get_sorted_data
-from shared_methods_io import read_csv, write_data_json
+from common_methods_io import read_csv, write_data_json
 
 
 # Creates a JSON file similar to the bulk downloads file but orders of magnitude smaller

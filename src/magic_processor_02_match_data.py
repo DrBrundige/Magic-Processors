@@ -1,12 +1,12 @@
-from shared_methods_io import write_data, read_csv, snake_case_parameter
-from shared_methods_grinder import format_cards_for_audit_sheet
+from common_methods_io import write_data, read_csv, snake_case_parameter
+from common_methods_grinder import format_cards_for_audit_sheet
 from import_scryfall_bulk_data import *
 # from sort_card_data import sort_cards_by_set
 
-from magic_grinder_02_match_data_processors import *
-from magic_grinder_02_match_data_match_methods import *
-from shared_methods_io_requests import get_image_from_uri
-from extra_stuff import clean_word
+from magic_processor_02_match_data_processors import *
+from magic_processor_02_match_data_match_methods import *
+from common_methods_io_requests import get_image_from_uri
+from common_methods import clean_word
 
 
 # Data - Requires the full default-cards dataset sorted with the sort_cards_by_set

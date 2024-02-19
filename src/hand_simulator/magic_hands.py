@@ -1,5 +1,5 @@
 import random
-from src.shared_methods_io import read_csv, write_data_dictionary
+from src.common_methods_io import read_csv, write_data_dictionary
 from enum import Enum, auto
 
 

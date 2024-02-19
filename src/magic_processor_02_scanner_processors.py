@@ -1,4 +1,4 @@
-from shared_methods_grinder import *
+from common_methods_grinder import *
 
 
 # Creates a simple list of all cards.

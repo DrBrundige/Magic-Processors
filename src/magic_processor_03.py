@@ -1,9 +1,9 @@
 from unidecode import unidecode
-from shared_methods_io import *
-from shared_methods_grinder import *
+from common_methods_io import *
+from common_methods_grinder import *
 from import_scryfall_bulk_data import *
-from shared_methods_grinder_03 import get_usd_from_card_03, get_price_range_03
-from magic_grinder_03_call_api import call_scryfall_03, get_set_search_uri_from_set_code
+from common_methods_grinder_03 import get_usd_from_card_03, get_price_range_03
+from magic_processor_03_call_api import call_scryfall_03, get_set_search_uri_from_set_code
 from datetime import *
 from magic_sorter_03 import MagicSorterTrie03
 

@@ -1,4 +1,4 @@
-from shared_methods_io import read_json
+from common_methods_io import read_json
 import os
 from unidecode import unidecode
 

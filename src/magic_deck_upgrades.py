@@ -1,5 +1,5 @@
-from shared_methods_io import read_csv, read_txt, write_data, write_data_dictionary
-from magic_grinder_03_call_api import call_scryfall_03
+from common_methods_io import read_csv, read_txt, write_data, write_data_dictionary
+from magic_processor_03_call_api import call_scryfall_03
 
 
 # Processes a list of card objects into a dictionary histogram
@@ -165,10 +165,12 @@ if __name__ == '__main__':
 	#                                                           decklist_path="bin/new_cards.txt")
 	# print(all_upgrade_cards)
 	# write_data(all_upgrade_cards)
-	otag = "counter"
-	id = "u"
-	request_url = f"https://api.scryfall.com/cards/search?q=otag%3A{otag}+id%3A{id}&unique=cards&as=grid"
-	all_upgrade_cards = controller_get_api_upgrades_in_collection(collection_path="all_audit_cards_new.csv",
+	otag = "aura"
+	id = "w"
+	# collection_path = "audit_csv.csv"
+	collection_path = "all_audit_cards_new.csv"
+	request_url = f"https://api.scryfall.com/cards/search?q=type%3A{otag}+id%3A{id}+f%3APauper&unique=cards&as=grid"
+	all_upgrade_cards = controller_get_api_upgrades_in_collection(collection_path=collection_path,
 	                                                              request_url=request_url)
 	print(all_upgrade_cards)
 	write_data(all_upgrade_cards)
