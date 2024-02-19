@@ -69,7 +69,7 @@ def process_cards_from_blocks(all_blocks):
 
 				# Assigns rarity to the previous value. Sorry?
 				this_card = {"name": matched_card["name"], "mana_cost": matched_card["mana_cost"],
-				             "color": get_color_code_from_colors(matched_card["colors"]),
+				             "color": get_color_code_from_colors(matched_card["colors"]), "cmc": matched_card["cmc"],
 				             "type_line": matched_card["type_line"], "rarity": block["rarity"],
 				             "rules": ""}
 				rules = matched_card["oracle_text"]
@@ -80,7 +80,8 @@ def process_cards_from_blocks(all_blocks):
 				all_cards.append(this_card)
 
 			else:
-				this_card = {"name": "", "mana_cost": "", "color": "", "type_line": "", "rarity": "", "rules": ""}
+				this_card = {"name": "", "mana_cost": "", "color": "", "cmc": "", "type_line": "", "rarity": "",
+				             "rules": ""}
 				if len(block["body"]) < 3:
 					# print(f"'Card' ({name}) contains too few lines!")
 					continue
@@ -95,6 +96,7 @@ def process_cards_from_blocks(all_blocks):
 					if mana_cost[0] != "(":
 						this_card["mana_cost"] = mana_cost
 					this_card["color"] = process_colors_from_mana_cost(mana_cost)
+					this_card["cmc"] = process_mana_value_from_mana_cost(mana_cost)
 					joined_name = " ".join(first_line)
 					this_card["name"] = joined_name
 
@@ -135,6 +137,25 @@ def process_colors_from_mana_cost(mana_cost):
 			card_colors.append(char)
 
 	return get_color_code_from_colors(card_colors)
+
+
+# An extremely lazy way of calculating mana value. Does not take into account split or hybrid mana
+# TODO: This doesn't work with lands. I'm not sure if it's the fault of this method or the logic that invokes it.
+def process_mana_value_from_mana_cost(mana_cost):
+	all_colors = ["W", "U", "B", "R", "G", "C"]
+	colors = 0
+	generic = ""
+
+	for char in mana_cost:
+		if char in all_colors:
+			colors += 1
+		elif char.isdigit():
+			generic += char
+
+	mana_value = colors
+	if len(generic) > 0:
+		mana_value += int(generic)
+	return mana_value
 
 
 def controller_import_custom_card_sheet(filename):
