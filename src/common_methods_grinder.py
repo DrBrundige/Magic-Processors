@@ -174,6 +174,19 @@ def get_card_variant(scryfall_card):
 		return scryfall_card["frame"] + " Frame"
 
 
+# I would love to find a way to easily determine whether a card is a real card that can be added to a standard
+#     Magic deck or some other item such as a token or art card. However, it seems no such logic exists -
+#    indeed, the definition is highly malleable.
+#    This method doesn't allow previewed cards that will become eternal once released, but it's close enough.
+#    In any case, probably better to be too exclusive
+# Accepts a scryfall_card object. Returns a bool
+def get_card_is_eternal(scryfall_card):
+	if "legalities" not in scryfall_card:
+		return False
+	else:
+		return scryfall_card["legalities"]["vintage"] != "not_legal"
+
+
 # # # # # # # # # # # # #
 # # #     DATA      # # #
 # # # # # # # # # # # # #

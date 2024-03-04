@@ -42,6 +42,7 @@ class NewCard:
 		has_frame = "frame" in self.card and len(self.card["frame"]) > 0
 
 		# TODO: Defaults to match_self_abridged if data is abridged
+		# TODO: Attempts next match type if one fails?
 		if has_name and has_set and has_set_num:
 			return self.match_self_full(data)
 		elif has_name and has_set and has_frame:
@@ -279,6 +280,10 @@ class NewCard:
 				return f"{self.set.upper()}|{self.collector_number}"
 			elif field == "value" or field == "price":
 				return self.try_get_field_value()
+			elif field == "reprint" or field == "is_reprint":
+				return str(self.scryfall_card["reprint"])
+			elif field == "eternal" or field == "is_eternal":
+				return str(get_card_is_eternal(self.scryfall_card))
 
 			# Checks if field is in scryfall object. If so, returns that field
 			scryfall_card_field = str(get_field_from_card(scryfall_card=self.scryfall_card, field=field))
@@ -377,6 +382,43 @@ def do_get_new_cards_from_api(request_url, output_cards):
 		return None
 
 
+# Receives a bulk data file. Gets all cards from that file
+# # Returns list of bound NewCard objects
+def get_all_cards_from_data_file(data):
+	print(f"Importing cards from data!")
+
+	output_cards = []
+
+	# If data is unsorted, iterates through each card in the list.
+	# Otherwise breaks down by set and iterates through each
+	if type(data) is list:
+		do_get_cards_from_data_file(data, output_cards)
+	else:
+		for set in data:
+			do_get_cards_from_data_file(data[set], output_cards)
+
+	return output_cards
+
+
+# Creates card objects from a given list of cards and appends to output_cards
+def do_get_cards_from_data_file(all_cards, output_cards):
+	try:
+		# Using a process quite similar to do_get_new_cards_from_api, creates a card object for each scryfall card
+		for scryfall_card in all_cards:
+			card = {"name": scryfall_card["name"], "set": scryfall_card["set"],
+			        "collector_number": scryfall_card["collector_number"]}
+			this_card = NewCard(card)
+			this_card.try_assign_card(scryfall_card)
+
+			output_cards.append(this_card)
+
+		return output_cards
+	except Exception as E:
+		print("Errant operation parsing bulk data!")
+		print(E)
+		return None
+
+
 # Receives a list of bound NewCard objects. Sorts them using magic_grinder_03 and the given sort logic file
 # Returns the same NewCard objects in a sorted order
 def sort_all_cards(all_cards, sort_logic_filename):
@@ -443,6 +485,12 @@ def output_bound_cards(all_cards, match_fields_raw, count_field=""):
 	return output_rows
 
 
+# Matches cards from a given file to scryfall_card objects in a given data file, then matches the given fields
+# filename - string - a reference to the csv file containing the cards to import
+# data - dictionary - a bulk data file sorted by set. Obtained from controller_get_sorted_data()
+# match_fields - list of strings - the fields to output. If none if provided, reads header row of file instead
+# count_field - string - if provided, will duplicate each row for the value of that field
+# do_sort - boolean - if True, will sort data before outputting. Defaults to False.
 def new_controller_process_cards_from_file(filename, data, match_fields=None, count_field="", do_sort=False):
 	# Imports all cards from given filename
 	all_new_cards = get_cards_from_file(filename, data)
@@ -468,6 +516,10 @@ def new_controller_process_cards_from_file(filename, data, match_fields=None, co
 
 
 # Processes cards from a given API endpoint with the given fields. Unlike process_from_file, match fields is required
+# request_url - string - url address to obtain data. Probably won't work unless it references the Scryfall.com API,
+#     but it occurs to me that the logic doesn't actually check
+# match_fields - list of strings - the fields to output.
+# output_name - string - name to prepend to output filename
 def new_controller_process_cards_from_api(request_url, match_fields, output_name="api_cards"):
 	all_new_cards = get_cards_from_api(request_url)
 
@@ -480,7 +532,21 @@ def new_controller_process_cards_from_api(request_url, match_fields, output_name
 	write_data_list(output_rows, output_name)
 
 
+# Processes all cards from a given data file with the given fields. Unlike process_from_file, match fields is required
+# data - dictionary - a bulk data file. Can be sorted or unsorted
+# match_fields - list of strings - the fields to output.
+# output_name - string - name to prepend to output filename
+def new_controller_process_all_cards_in_data_file(data, match_fields, output_name="all_cards"):
+	all_new_cards = get_all_cards_from_data_file(data)
+
+	output_rows = output_bound_cards(all_new_cards, match_fields)
+
+	output_rows.insert(0, match_fields)
+	write_data_list(output_rows, output_name)
+
+
 # A controller for my use only with no parameters. Takes multiple files and combines them.
+# The different files are hard-coded to this method. Do not use this method.
 def controller_process_cards_from_multiple_files():
 	data = controller_get_sorted_data()
 	all_filenames = ["all_sort_cards_cmr.csv", "all_sort_cards_dmu.csv", "all_sort_cards_mid.csv",
@@ -515,21 +581,13 @@ if __name__ == '__main__':
 	# controller_process_cards_from_multiple_files()
 
 	# filename = "all_order_cards.csv"
-	filename = "all_audit_cards_new.csv"
+	# filename = "audit_csv.csv"
 	# filename = "all_sort_cards_mid.csv"
 
-	match_fields = ["Name", "ID", "Set", "Set No", "Is Foil", "Variant", "Spc.", "Home Box", "Current Location",
-	                "Price Range", "Section", "Archetype", "Year", "Input Code", "Rarity", "Card Type", "Color", "C ID",
-	                "Value", "Released At"]
-	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
-
-	# all_sets = ["woe", "mom", "one", "bro", "dmu", "snc", "neo", "vow", "mid", "afr", "stx", "khm", "znr", "mh2", "2x2",
-	#             "clb", "cmr", "ktk", "dtk"]
-
-	# set = '2X2'
-	# for set in all_sets:
-	# request_url = get_set_search_uri_from_set_code(set)
-	# new_controller_process_cards_from_api(request_url, match_fields, output_name=set)
+	# match_fields = ["Name", "ID", "Set", "Set No", "Is Foil", "Variant", "Spc.", "Home Box", "Current Location",
+	#                 "Price Range", "Section", "Archetype", "Year", "Input Code", "Rarity", "Card Type", "Color", "C ID",
+	#                 "Value", "Released At"]
+	match_fields = ["name", "set", "set_num", "mana_cost", "released_at", "is_reprint", "set_type", "is_eternal"]
 
 	# request_url = "https://api.scryfall.com/cards/search?q=art%3Akaldheim+game%3Apaper+-is%3Amemorabilia"
 
@@ -537,9 +595,9 @@ if __name__ == '__main__':
 
 	# data = controller_get_sorted_data("test-cards")
 	# data = import_scryfall_abridged()
-	# data = controller_get_original_printings()
-
-	# controller_process_cards_from_multiple_files()
-	new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True, match_fields=match_fields)
+# data = controller_get_original_printings()
+	new_controller_process_all_cards_in_data_file(data, match_fields)
+# controller_process_cards_from_multiple_files()
+# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True, match_fields=match_fields)
 # new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
 # new_controller_process_cards_from_api(request_url, match_fields)
