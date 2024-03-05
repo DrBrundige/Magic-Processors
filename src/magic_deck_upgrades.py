@@ -1,5 +1,5 @@
 from common_methods_io import read_csv, read_txt, write_data, write_data_dictionary
-from magic_processor_03_call_api import call_scryfall_03
+from common_methods_call_scryfall import call_scryfall_03
 
 
 # Processes a list of card objects into a dictionary histogram

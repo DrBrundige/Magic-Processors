@@ -3,7 +3,7 @@ from common_methods_io import *
 from common_methods_grinder import *
 from import_scryfall_bulk_data import *
 from common_methods_grinder_03 import get_usd_from_card_03, get_price_range_03
-from magic_processor_03_call_api import call_scryfall_03, get_set_search_uri_from_set_code
+from common_methods_call_scryfall import call_scryfall_03, get_set_search_uri_from_set_code
 from datetime import *
 from magic_sorter_03 import MagicSorterTrie03
 
@@ -510,6 +510,10 @@ def new_controller_process_cards_from_file(filename, data, match_fields=None, co
 
 	output_rows = output_bound_cards(all_new_cards, match_fields, snake_case_parameter(count_field))
 
+	if len(output_rows) == 0:
+		print("No rows to output! Aborting")
+		return False
+
 	# Prepends output rows with header row and outputs to CSV
 	output_rows.insert(0, header_row)
 	write_data_list(output_rows, "audit")
@@ -578,26 +582,4 @@ def controller_process_cards_from_multiple_files():
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
-	# controller_process_cards_from_multiple_files()
-
-	# filename = "all_order_cards.csv"
-	# filename = "audit_csv.csv"
-	# filename = "all_sort_cards_mid.csv"
-
-	# match_fields = ["Name", "ID", "Set", "Set No", "Is Foil", "Variant", "Spc.", "Home Box", "Current Location",
-	#                 "Price Range", "Section", "Archetype", "Year", "Input Code", "Rarity", "Card Type", "Color", "C ID",
-	#                 "Value", "Released At"]
-	match_fields = ["name", "set", "set_num", "mana_cost", "released_at", "is_reprint", "set_type", "is_eternal"]
-
-	# request_url = "https://api.scryfall.com/cards/search?q=art%3Akaldheim+game%3Apaper+-is%3Amemorabilia"
-
-	data = controller_get_sorted_data("default-cards")
-
-	# data = controller_get_sorted_data("test-cards")
-	# data = import_scryfall_abridged()
-# data = controller_get_original_printings()
-	new_controller_process_all_cards_in_data_file(data, match_fields)
-# controller_process_cards_from_multiple_files()
-# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True, match_fields=match_fields)
-# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
 # new_controller_process_cards_from_api(request_url, match_fields)
