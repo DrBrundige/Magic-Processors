@@ -1,8 +1,10 @@
 import re
 
-from common_methods_io import read_txt, write_data
+from common_methods_io import read_txt, write_data, write_data_list
+from common_methods_call_scryfall import call_scryfall_03
 from common_methods_grinder import get_color_code_from_colors
 from import_scryfall_bulk_data import import_scryfall_abridged
+from process_custom_card_sheet import process_colors_from_mana_cost, process_mana_value_from_mana_cost
 
 REGEX_REPRINT = re.compile("\(Reprint\)")  # Validates that the string is the word (Reprint)
 REGEX_PT = re.compile("(^.{1,2}/.{1,2}$)")  # Validates that the string is power / toughness
@@ -10,10 +12,11 @@ REGEX_FLAVOR = re.compile("(^-{4,9}$)")  # Validates that the string is the unde
 REGEX_COLOR = re.compile("(^\(.*\)$)")
 REGEX_SYMBOL = re.compile("(^\{.*\}$)")
 
+
 class CustomCard:
 	card_header = ""
-	block = [""]
 	rarity = ""
+	block = [""]
 
 	def __init__(self, card_header, block, rarity):
 		self.card_header = card_header
@@ -31,16 +34,64 @@ class CustomCard:
 				body = self.block.copy()
 				body.pop(0)
 				body.pop(0)
-				return body
+				return "\n".join(body)
+			elif field == "rarity":
+				return self.try_get_rarity()
+			elif field == "flavor":
+				return self.try_get_flavor()
+
+			else:
+				return ""
+		# Returns an error string if any part in the process throws an error.
+		except Exception as E:
+			print(f"Errant operation calculating field {field} for card {self.card_header}")
+			print(E)
+			return f"ERROR | {E}"
+
+	def try_get_flavor(self):
+		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
+		if flavor_row > -1:
+			return self.block[flavor_row + 1:len(self.block)]
+		else:
+			return ""
+
+	def try_get_rarity(self):
+		split_type = self.block[1].split("|")
+		if len(split_type) > 1:
+			return str.strip(split_type[1])[0]
+		else:
+			return self.rarity
+
+
+class CustomCardSheet(CustomCard):
+
+	def __init__(self, card_header, block, rarity):
+		super().__init__(card_header, block, rarity)
+
+	def try_get_field(self, field):
+		try:
+			return_text = super().try_get_field(field=field)
+			if len(return_text) > 0:
+				return return_text
 
 			elif field == "name":
 				return self.try_get_name()
 			elif field == "type_line":
 				return self.try_get_type_line()
-			elif field == "rarity":
-				return self.try_get_rarity()
 			elif field == "mana_cost":
 				return self.try_get_mana_cost()
+			elif field == "cmc":
+				return self.try_get_cmc()
+			elif field == "color" or field == "color_identity":
+				return self.try_get_color()
+			elif field == "rules":
+				return self.try_get_rules()
+			elif field == "pt":
+				return self.try_get_pt()
+			elif field == "power":
+				return self.try_get_power()
+			elif field == "toughness":
+				return self.try_get_toughness()
 			else:
 				return ""
 
@@ -50,7 +101,7 @@ class CustomCard:
 			print(E)
 			return f"ERROR | {E}"
 
-	# Perhaps some day I can start putting the correct notation for mana in the cost section but I'm too lazy right now
+	# Perhaps some day I can start putting the correct notation for mana in the cost section, but I'm too lazy right now
 	def try_get_name(self):
 		split_name = self.card_header.split()
 		split_name.pop(-1)
@@ -67,17 +118,116 @@ class CustomCard:
 		else:
 			return cost
 
-	def try_get_rarity(self):
-		split_type = self.block[1].split("|")
-		if len(split_type) > 1:
-			return str.strip(split_type[1])[0]
+	def try_get_cmc(self):
+		split_name = self.card_header.split()
+		cost = split_name.pop()
+
+		m = REGEX_COLOR.fullmatch(cost)
+		if m is not None:
+			return ""
 		else:
-			return self.rarity
+			return str(process_mana_value_from_mana_cost(cost))
 
 	def try_get_type_line(self):
 		split_type = self.block[1].split("|")
 
 		return str.strip(split_type[0])
+
+	def try_get_color(self):
+		split_name = self.card_header.split()
+		cost = split_name.pop()
+
+		return process_colors_from_mana_cost(cost)
+
+	def try_get_rules(self):
+		pt_row = find_regex_in_list(self.block, REGEX_PT)
+		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
+		if pt_row > -1:
+			if flavor_row > -1:
+				# Both pt and flavor found. Return whichever is smaller
+				if pt_row > flavor_row:
+					# It occurs to me there is basically no reason why a pt would come after the flavor... but for robustness
+					return "\n".join(self.block[2:flavor_row])
+				else:
+					return "\n".join(self.block[2:pt_row])
+			else:
+				return "\n".join(self.block[2:pt_row])
+		else:
+			# No pt found, but flavor was found. Return until flavor
+			if flavor_row > -1:
+				return "\n".join(self.block[2:flavor_row])
+			else:
+				# Neither pt nor flavor bar found. Return until end
+				return "\n".join(self.block[2:len(self.block)])
+
+	def try_get_pt(self):
+		pt_row = find_regex_in_list(self.block, REGEX_PT)
+		if pt_row > -1:
+			return self.block[pt_row]
+		else:
+			return ""
+
+	# Originally I wasn't going to add these, but then I realized that Excel auto-formats the PT as a date LMAO FFS.
+	def try_get_power(self):
+		pt = self.try_get_pt()
+		if len(pt) > 0:
+			pt_list = pt.split("/")
+			return pt_list[0]
+		else:
+			return ""
+
+	def try_get_toughness(self):
+		pt = self.try_get_pt()
+		if len(pt) > 0:
+			pt_list = pt.split("/")
+			return pt_list[1]
+		else:
+			return ""
+
+
+class CustomCardReprint(CustomCard):
+	scryfall_object = {}
+
+	def __init__(self, card_header, block, rarity):
+		super().__init__(card_header, block, rarity)
+		self.try_get_card_from_scryfall()
+
+	# Retrieves a card with the same name from the Scryfall API.
+	# I assumed this would be faster than importing the full bulk data, but I forgot how many reprints I have in my set.
+	def try_get_card_from_scryfall(self):
+		split_name = self.card_header.split()
+		split_name.pop(-1)
+		name_without_mana = "+".join(split_name)
+		data = call_scryfall_03(endpoint=f'cards/search?q=%21"{name_without_mana}"')
+		if data is not None:
+			if data["total_cards"] > 0:
+				print("Found card <3")
+				self.scryfall_object = data["data"][0]
+				return True
+			else:
+				return False
+		else:
+			return False
+
+	def try_get_field(self, field):
+		try:
+			return_text = super().try_get_field(field=field)
+			if len(return_text) > 0:
+				return return_text
+			elif field == "rules":
+				return self.scryfall_object["oracle_text"]
+			elif field == "color" or field == "color_identity":
+				return get_color_code_from_colors(self.scryfall_object["color_identity"])
+			elif field in self.scryfall_object:
+				return str(self.scryfall_object[field])
+			else:
+				return ""
+
+		# Returns an error string if any part in the process throws an error.
+		except Exception as E:
+			print(f"Errant operation calculating field {field} for card {self.card_header}")
+			print(E)
+			return f"ERROR | {E}"
 
 
 def read_blocks_from_sheet(filename):
@@ -116,9 +266,10 @@ def create_cards_from_blocks(all_blocks):
 		body = block["body"]
 		is_reprint = find_regex_in_list(body, REGEX_REPRINT)
 		if is_reprint > 0:
-			print("Card is reprint! I'll deal with this later")
+			new_custom_card = CustomCardReprint(body[0], body, block["rarity"])
+			all_custom_cards.append(new_custom_card)
 		elif len(body) > 2:
-			new_custom_card = CustomCard(body[0], body, block["rarity"])
+			new_custom_card = CustomCardSheet(body[0], body, block["rarity"])
 			all_custom_cards.append(new_custom_card)
 
 	return all_custom_cards
@@ -144,7 +295,8 @@ def controller_import_custom_card_sheet(filename, output_fields):
 	all_custom_cards = create_cards_from_blocks(all_blocks)
 	output_rows = process_fields_from_cards(all_custom_cards, output_fields)
 
-	return output_rows
+	output_rows.insert(0, output_fields)
+	write_data_list(output_rows)
 
 
 def find_regex_in_list(block, r):
@@ -161,12 +313,11 @@ def find_regex_in_list(block, r):
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
 	filename = "bin/baol.txt"
-	output_fields = ["name", "mana_cost"]
+	output_fields = ["name", "mana_cost", "color_identity", "type_line", "rarity", "rules", "power", "toughness",
+	                 "flavor"]
+	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
-	all_rows = controller_import_custom_card_sheet(filename, output_fields)
-
-	for row in all_rows:
-		print(row)
+	controller_import_custom_card_sheet(filename, output_fields)

@@ -228,3 +228,4 @@ fabric.properties
 *.csv
 *.jpg
 src/csvs
+/src/bin
