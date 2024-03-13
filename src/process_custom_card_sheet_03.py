@@ -1,6 +1,6 @@
 import re
 
-from common_methods_io import read_txt, write_data, write_data_list
+from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt
 from common_methods_call_scryfall import call_scryfall_03
 from common_methods_grinder import get_color_code_from_colors
 from import_scryfall_bulk_data import import_scryfall_abridged
@@ -17,6 +17,8 @@ class CustomCard:
 	card_header = ""
 	rarity = ""
 	block = [""]
+
+	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare"}
 
 	def __init__(self, card_header, block, rarity):
 		self.card_header = card_header
@@ -47,6 +49,47 @@ class CustomCard:
 			print(f"Errant operation calculating field {field} for card {self.card_header}")
 			print(E)
 			return f"ERROR | {E}"
+
+	def try_get_field_mse(self, field):
+		return_string = ""
+
+		if field == "name":
+			return_string = self.try_get_field("name")
+		elif field == "casting_cost":
+			return_string = self.try_get_field("mana_cost")
+		elif field == "super_type":
+			type_line = self.try_get_field("type_line")
+			split_types = type_line.split("-")
+			return_string = split_types[0].strip()
+		elif field == "sub_type":
+			type_line = self.try_get_field("type_line")
+			split_types = type_line.split("-")
+			if len(split_types) > 1:
+				return_string = split_types[1].strip()
+		elif field == "rarity":
+			return_string = self.try_get_field("rarity")
+			if return_string in self.rarities:
+				return_string = self.rarities[return_string]
+
+		elif field == "rule_text":
+			return_string = self.try_get_field("rules")
+			# Clears any brackets from the rules text. MSE can parse the symbols automatically
+			return_string = return_string.replace("{", "")
+			return_string = return_string.replace("}", "")
+			if "\n" in return_string:
+				return_string = return_string.replace("\n", "\n\t\t")
+				return f"\t{field}:\n\t\t{return_string}"
+		elif field == "power":
+			return_string = self.try_get_field("power")
+		elif field == "toughness":
+			return_string = self.try_get_field("toughness")
+		elif field == "flavor_text":
+			return_string = " ".join(self.try_get_field("flavor"))
+
+		if len(return_string) > 0:
+			return f"\t{field}: {return_string}"
+		else:
+			return ""
 
 	def try_get_flavor(self):
 		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
@@ -288,6 +331,21 @@ def process_fields_from_cards(all_custom_cards, output_fields):
 	return output_rows
 
 
+def process_fields_from_cards_to_mse(all_custom_cards, output_fields):
+	output_rows = []
+
+	for custom_card in all_custom_cards:
+		output_rows.append("card:")
+		for field in output_fields:
+			output_row = custom_card.try_get_field_mse(field)
+			if len(output_row) > 0:
+				output_rows.append(output_row)
+		# print(output_row)
+	# output_rows.append(new_row)
+
+	return output_rows
+
+
 def controller_import_custom_card_sheet(filename, output_fields):
 	print(f"Importing from {filename}")
 	all_blocks = read_blocks_from_sheet(filename)
@@ -297,6 +355,21 @@ def controller_import_custom_card_sheet(filename, output_fields):
 
 	output_rows.insert(0, output_fields)
 	write_data_list(output_rows)
+
+
+def controller_import_custom_card_sheet_to_mse(filename):
+	print(f"Importing from {filename}")
+
+	output_fields = ["name", "casting_cost", "super_type", "sub_type", "rarity", "rule_text", "power", "toughness",
+	                 "flavor_text"]
+
+	all_blocks = read_blocks_from_sheet(filename)
+
+	all_custom_cards = create_cards_from_blocks(all_blocks)
+	output_rows = process_fields_from_cards_to_mse(all_custom_cards, output_fields)
+
+	# output_rows.insert(0, output_fields)
+	write_data_to_txt(output_rows)
 
 
 def find_regex_in_list(block, r):
@@ -313,8 +386,7 @@ def find_regex_in_list(block, r):
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
 	filename = "bin/baol.txt"
-	output_fields = ["name", "mana_cost", "color_identity", "type_line", "rarity", "rules", "power", "toughness",
-	                 "flavor"]
+	output_fields = ["name", "mana_cost", "color_identity", "cmc", "type_line", "rarity", "rules"]
 	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
