@@ -235,6 +235,13 @@ def read_txt(path):
 		return text
 
 
+def snake_case_parameter_list(all_headers):
+	cleaned_headers = []
+	for header in all_headers:
+		cleaned_headers.append(snake_case_parameter(header))
+	return cleaned_headers
+
+
 # No I/O is happening here, but these methods are necessary to support read_csv
 def snake_case_parameter(name):
 	name = name.lower()
