@@ -1,6 +1,6 @@
 import re
 
-from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt
+from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt, snake_case_parameter_list
 from common_methods_call_scryfall import call_scryfall_03
 from common_methods_grinder import get_color_code_from_colors
 from import_scryfall_bulk_data import import_scryfall_abridged
@@ -40,7 +40,7 @@ class CustomCard:
 			elif field == "rarity":
 				return self.try_get_rarity()
 			elif field == "flavor":
-				return self.try_get_flavor()
+				return " ".join(self.try_get_flavor())
 
 			else:
 				return ""
@@ -276,7 +276,7 @@ class CustomCardReprint(CustomCard):
 def read_blocks_from_sheet(filename):
 	card_list = read_txt(filename)
 
-	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares"]
+	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands"]
 	last_rarity = "C"
 	current_block_length = 0
 	current_block = []
@@ -386,7 +386,7 @@ def find_regex_in_list(block, r):
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
 	filename = "bin/baol.txt"
-	output_fields = ["name", "mana_cost", "color_identity", "cmc", "type_line", "rarity", "rules"]
+	output_fields = ["Name", "Set", "Slot", "Num", "Rarity", "Mana cost", "Color", "CMC", "type_line"]
 	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
