@@ -60,8 +60,9 @@ def get_latest_json(json_class):
 			try:
 				all_timestamps.append(int(json[len(json_class) + 1:-5]))
 			except Exception as E:
-				print("Errant operation converting timestamp to int")
-				print(E)
+				pass
+				# print("Errant operation converting timestamp to int")
+				# print(E)
 
 	# Sorts timestamps
 	if len(all_timestamps) == 0:

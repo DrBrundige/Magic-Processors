@@ -53,7 +53,7 @@ def controller_create_test_json(filename="audit_csv.csv"):
 	data = controller_get_sorted_data()
 	all_cards = read_csv(filename, True, True)
 
-	all_scryfall_cards = create_test_json(all_cards, data)
+	create_test_json(all_cards, data)
 
 
 # write_data_json(all_scryfall_cards, filename="test-cards", destination="downloads")
@@ -66,5 +66,5 @@ def controller_create_test_json_from_set(set='woe'):
 
 if __name__ == '__main__':
 	print("Creating JSON of all cards in collection.")
-	controller_create_test_json_from_set("plst")
-	# controller_create_test_json()
+	# controller_create_test_json_from_set("plst")
+	controller_create_test_json()
