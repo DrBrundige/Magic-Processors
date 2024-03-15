@@ -428,7 +428,14 @@ def sort_all_cards(all_cards, sort_logic_filename):
 	for card in all_cards:
 		SortAudit.add_card(card)
 
-	return SortAudit.output_cards()
+	all_sorted_cards = SortAudit.output_cards()
+
+	i = 1
+	for card in all_sorted_cards:
+		card.sorter_id = i
+		i += 1
+
+	return all_sorted_cards
 
 
 # Process cards for the given match fields
@@ -582,4 +589,12 @@ def controller_process_cards_from_multiple_files():
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
-# new_controller_process_cards_from_api(request_url, match_fields)
+	# request_url = get_set_search_uri_from_set_code("NEO")
+	# match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
+
+	# new_controller_process_cards_from_api(request_url, match_fields)
+
+	# data = controller_get_sorted_data()
+	data = controller_get_sorted_data(path="test-cards")
+	filename = "audit_csv.csv"
+	new_controller_process_cards_from_file(filename, data, do_sort=True)

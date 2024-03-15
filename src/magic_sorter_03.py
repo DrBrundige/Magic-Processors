@@ -112,11 +112,22 @@ class BoxNode03:
 			# In the future, I may make this smarter, but it's fine for this purpose
 			if this_logic == "collector_number":
 				sorted_keys_ints = []
+				sorted_keys_strs = []
+
 				for key in self.all_sub_nodes.keys():
-					sorted_keys_ints.append(int(key))
+					if key.isdigit():
+						sorted_keys_ints.append(int(key))
+					else:
+						sorted_keys_strs.append(key)
+
 				sorted_keys_ints.sort()
+				sorted_keys_strs.sort()
+
 				for sorted_int in sorted_keys_ints:
 					sorted_keys.append(str(sorted_int))
+
+				for sorted_str in sorted_keys_strs:
+					sorted_keys.append(sorted_str)
 
 			# Categories such as color_id and card_type get special logic.
 			#   The sorter_logic contains a custom order that this algorith attempts to replicate
@@ -189,4 +200,4 @@ if __name__ == '__main__':
 	print("Sorting cards!")
 	data = controller_get_sorted_data(path="test-cards")
 
-# controller_sort_03(data=data)
+	# controller_sort_03(data=data)
