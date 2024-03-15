@@ -230,3 +230,4 @@ src/csvs/*.csv
 src/csvs/*.txt
 src/downloads/*.json
 /src/bin
+/.idea

@@ -14,39 +14,36 @@ REGEX_SYMBOL = re.compile("(^\{.*\}$)")
 
 
 class CustomCard:
-	card_header = ""
-	rarity = ""
-	block = [""]
+	# The card name
+	name = ""
+	slot = "0"
+	set_code = ""
 
-	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare"}
+	# All potential rarities. Used for MSE shit
+	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare", "L": "land"}
 
-	def __init__(self, card_header, block, rarity):
-		self.card_header = card_header
-		self.block = block
-		self.rarity = rarity
+	def __init__(self, name, slot=0, set_code=""):
+		self.name = name
+		self.slot = str(slot)
+		self.set_code = set_code
 
 	def __str__(self):
-		return self.card_header
+		return self.name
 
+	# Tries to return a field of the given name
 	def try_get_field(self, field):
 		try:
-			if field == "header":
-				return self.card_header
-			elif field == "card_body":
-				body = self.block.copy()
-				body.pop(0)
-				body.pop(0)
-				return "\n".join(body)
-			elif field == "rarity":
-				return self.try_get_rarity()
-			elif field == "flavor":
-				return " ".join(self.try_get_flavor())
-
+			if field == "name":
+				return self.name
+			if field == "slot":
+				return self.slot
+			if field == "set":
+				return self.set_code
 			else:
 				return ""
 		# Returns an error string if any part in the process throws an error.
 		except Exception as E:
-			print(f"Errant operation calculating field {field} for card {self.card_header}")
+			print(f"Errant operation calculating field {field} for card {self.name}")
 			print(E)
 			return f"ERROR | {E}"
 
@@ -91,25 +88,23 @@ class CustomCard:
 		else:
 			return ""
 
-	def try_get_flavor(self):
-		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
-		if flavor_row > -1:
-			return self.block[flavor_row + 1:len(self.block)]
-		else:
-			return ""
 
-	def try_get_rarity(self):
-		split_type = self.block[1].split("|")
-		if len(split_type) > 1:
-			return str.strip(split_type[1])[0]
-		else:
-			return self.rarity
+class CustomCardText(CustomCard):
+	# A representation of a text-based description of a card.
+	# The first line of the card, containing name and mana cost
+	card_header = ""
+	# Each text line of the card as a list of strings
+	block = [""]
+	# Because the rarity is not printed on each card, stores the rarity here.
+	# If the rarity is printed, that rarity wins.
+	rarity = ""
 
-
-class CustomCardSheet(CustomCard):
-
-	def __init__(self, card_header, block, rarity):
-		super().__init__(card_header, block, rarity)
+	def __init__(self, card_header, block, rarity, slot=0, set_code=""):
+		self.card_header = card_header
+		self.block = block
+		self.rarity = rarity
+		name = self.try_get_name_from_header()
+		super().__init__(name, slot, set_code)
 
 	def try_get_field(self, field):
 		try:
@@ -117,10 +112,17 @@ class CustomCardSheet(CustomCard):
 			if len(return_text) > 0:
 				return return_text
 
-			elif field == "name":
-				return self.try_get_name()
+			elif field == "header":
+				return self.card_header
+			elif field == "card_body":
+				body = self.block.copy()
+				body.pop(0)
+				body.pop(0)
+				return "\n".join(body)
 			elif field == "type_line":
 				return self.try_get_type_line()
+			elif field == "rarity":
+				return self.try_get_rarity()
 			elif field == "mana_cost":
 				return self.try_get_mana_cost()
 			elif field == "cmc":
@@ -135,22 +137,25 @@ class CustomCardSheet(CustomCard):
 				return self.try_get_power()
 			elif field == "toughness":
 				return self.try_get_toughness()
+			elif field == "flavor":
+				return " ".join(self.try_get_flavor())
 			else:
 				return ""
 
 		# Returns an error string if any part in the process throws an error.
 		except Exception as E:
-			print(f"Errant operation calculating field {field} for card {self.card_header}")
+			print(f"Errant operation calculating field {field} for card {self.name}")
 			print(E)
 			return f"ERROR | {E}"
 
 	# Perhaps some day I can start putting the correct notation for mana in the cost section, but I'm too lazy right now
-	def try_get_name(self):
+	def try_get_name_from_header(self):
 		split_name = self.card_header.split()
 		split_name.pop(-1)
 		name_without_mana = " ".join(split_name)
 		return name_without_mana
 
+	# Tries to get the mana cost, which should be the last word of the first line.
 	def try_get_mana_cost(self):
 		split_name = self.card_header.split()
 		cost = split_name.pop()
@@ -161,27 +166,21 @@ class CustomCardSheet(CustomCard):
 		else:
 			return cost
 
+	# Tries to get the CMC, derived from the mana cost
 	def try_get_cmc(self):
-		split_name = self.card_header.split()
-		cost = split_name.pop()
+		return str(process_mana_value_from_mana_cost(self.try_get_mana_cost()))
 
-		m = REGEX_COLOR.fullmatch(cost)
-		if m is not None:
-			return ""
-		else:
-			return str(process_mana_value_from_mana_cost(cost))
-
+	# Tries to get the type line, which should be the second line of the block
 	def try_get_type_line(self):
 		split_type = self.block[1].split("|")
 
 		return str.strip(split_type[0])
 
+	# Tries to get the color which as far as this logic can tell, is derived from the mana cost
 	def try_get_color(self):
-		split_name = self.card_header.split()
-		cost = split_name.pop()
+		return process_colors_from_mana_cost(self.try_get_mana_cost())
 
-		return process_colors_from_mana_cost(cost)
-
+	# Tries to get the rules text, which should be between the type line and either the PT or a bar
 	def try_get_rules(self):
 		pt_row = find_regex_in_list(self.block, REGEX_PT)
 		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
@@ -203,6 +202,7 @@ class CustomCardSheet(CustomCard):
 				# Neither pt nor flavor bar found. Return until end
 				return "\n".join(self.block[2:len(self.block)])
 
+	# Tries to get the power / toughness, which should be two digits separated by a slash
 	def try_get_pt(self):
 		pt_row = find_regex_in_list(self.block, REGEX_PT)
 		if pt_row > -1:
@@ -227,19 +227,35 @@ class CustomCardSheet(CustomCard):
 		else:
 			return ""
 
+	# Tries to get the flavor text, which is any text after four dashes "----"
+	def try_get_flavor(self):
+		flavor_row = find_regex_in_list(self.block, REGEX_FLAVOR)
+		if flavor_row > -1:
+			return self.block[flavor_row + 1:len(self.block)]
+		else:
+			return ""
 
-class CustomCardReprint(CustomCard):
+	# Tries to get the printed rarity if any exists. Otherwise returns the default
+	def try_get_rarity(self):
+		split_type = self.block[1].split("|")
+		if len(split_type) > 1:
+			return str.strip(split_type[1])[0]
+		else:
+			return self.rarity
+
+
+class CustomCardReprint(CustomCardText):
 	scryfall_object = {}
 
-	def __init__(self, card_header, block, rarity):
-		super().__init__(card_header, block, rarity)
+	def __init__(self, card_header, block, rarity, slot=0, set_code=""):
+		super().__init__(card_header, block, rarity, slot, set_code)
 		self.try_get_card_from_scryfall()
 
 	# Retrieves a card with the same name from the Scryfall API.
 	# I assumed this would be faster than importing the full bulk data, but I forgot how many reprints I have in my set.
 	def try_get_card_from_scryfall(self):
-		split_name = self.card_header.split()
-		split_name.pop(-1)
+		split_name = self.name.split()
+		# split_name.pop(-1)
 		name_without_mana = "+".join(split_name)
 		data = call_scryfall_03(endpoint=f'cards/search?q=%21"{name_without_mana}"')
 		if data is not None:
@@ -254,23 +270,31 @@ class CustomCardReprint(CustomCard):
 
 	def try_get_field(self, field):
 		try:
-			return_text = super().try_get_field(field=field)
-			if len(return_text) > 0:
-				return return_text
-			elif field == "rules":
+			if field == "rules":
 				return self.scryfall_object["oracle_text"]
 			elif field == "color" or field == "color_identity":
 				return get_color_code_from_colors(self.scryfall_object["color_identity"])
+			elif field == "rarity":
+				return self.try_get_rarity()
+			if field == "set":
+				return self.set_code
 			elif field in self.scryfall_object:
 				return str(self.scryfall_object[field])
 			else:
-				return ""
+				return super().try_get_field(field=field)
 
 		# Returns an error string if any part in the process throws an error.
 		except Exception as E:
-			print(f"Errant operation calculating field {field} for card {self.card_header}")
+			print(f"Errant operation calculating field {field} for card {self.name}")
 			print(E)
 			return f"ERROR | {E}"
+
+
+# class CustomCardSpreadsheet(CustomCard):
+# 	card_object = {}
+#
+# 	def __init__(self, card_header, block, rarity):
+# 		super().__init__(card_header, block, rarity)
 
 
 def read_blocks_from_sheet(filename):
@@ -299,21 +323,29 @@ def read_blocks_from_sheet(filename):
 				current_block.append(line)
 				current_block_length += 1
 
+	if current_block_length > 0:
+		new_card = {"rarity": last_rarity, "body": current_block}
+		all_blocks.append(new_card)
+
 	return all_blocks
 
 
-def create_cards_from_blocks(all_blocks):
+def create_cards_from_blocks(all_blocks, set_code=""):
 	all_custom_cards = []
+
+	slot = 1
 
 	for block in all_blocks:
 		body = block["body"]
 		is_reprint = find_regex_in_list(body, REGEX_REPRINT)
 		if is_reprint > 0:
-			new_custom_card = CustomCardReprint(body[0], body, block["rarity"])
+			new_custom_card = CustomCardReprint(body[0], body, block["rarity"], slot=slot, set_code=set_code)
 			all_custom_cards.append(new_custom_card)
+			slot += 1
 		elif len(body) > 2:
-			new_custom_card = CustomCardSheet(body[0], body, block["rarity"])
+			new_custom_card = CustomCardText(body[0], body, block["rarity"], slot=slot, set_code=set_code)
 			all_custom_cards.append(new_custom_card)
+			slot += 1
 
 	return all_custom_cards
 
@@ -340,21 +372,26 @@ def process_fields_from_cards_to_mse(all_custom_cards, output_fields):
 			output_row = custom_card.try_get_field_mse(field)
 			if len(output_row) > 0:
 				output_rows.append(output_row)
-		# print(output_row)
+	# print(output_row)
 	# output_rows.append(new_row)
 
 	return output_rows
 
 
-def controller_import_custom_card_sheet(filename, output_fields):
+def controller_import_custom_card_sheet(filename, output_fields, set_code=""):
 	print(f"Importing from {filename}")
 	all_blocks = read_blocks_from_sheet(filename)
 
-	all_custom_cards = create_cards_from_blocks(all_blocks)
+	output_fields = snake_case_parameter_list(output_fields)
+
+	all_custom_cards = create_cards_from_blocks(all_blocks, set_code=set_code)
 	output_rows = process_fields_from_cards(all_custom_cards, output_fields)
 
-	output_rows.insert(0, output_fields)
-	write_data_list(output_rows)
+	if len(output_rows) > 0:
+		output_rows.insert(0, output_fields)
+		write_data_list(output_rows)
+	else:
+		print("Errant operation! No cards output")
 
 
 def controller_import_custom_card_sheet_to_mse(filename):
@@ -386,10 +423,10 @@ def find_regex_in_list(block, r):
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
 	filename = "bin/baol.txt"
-	output_fields = ["Name", "Set", "Slot", "Num", "Rarity", "Mana cost", "Color", "CMC", "type_line"]
+	output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "type_line"]
 	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
-	controller_import_custom_card_sheet(filename, output_fields)
+	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")

@@ -96,6 +96,13 @@
       "Instant",
       "Land",
       "Basic Land"
+    ],
+    "rarity": [
+      "c",
+      "u",
+      "r",
+      "m",
+      "l"
     ]
   }
 }
