@@ -2,9 +2,9 @@ import re
 
 from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt, snake_case_parameter_list
 from common_methods_call_scryfall import call_scryfall_03
-from common_methods_grinder import get_color_code_from_colors
-from import_scryfall_bulk_data import import_scryfall_abridged
-from process_custom_card_sheet import process_colors_from_mana_cost, process_mana_value_from_mana_cost
+from common_methods_processor import get_color_code_from_colors, get_card_type_from_type_line
+# from import_scryfall_bulk_data import import_scryfall_abridged
+from common_methods_custom_cards import process_colors_from_mana_cost, process_mana_value_from_mana_cost
 
 REGEX_REPRINT = re.compile("\(Reprint\)")  # Validates that the string is the word (Reprint)
 REGEX_PT = re.compile("(^.{1,2}/.{1,2}$)")  # Validates that the string is power / toughness
@@ -81,7 +81,8 @@ class CustomCard:
 		elif field == "toughness":
 			return_string = self.try_get_field("toughness")
 		elif field == "flavor_text":
-			return_string = " ".join(self.try_get_field("flavor"))
+			# return_string = " ".join(self.try_get_field("flavor"))
+			return_string = self.try_get_field("flavor")
 
 		if len(return_string) > 0:
 			return f"\t{field}: {return_string}"
@@ -121,6 +122,8 @@ class CustomCardText(CustomCard):
 				return "\n".join(body)
 			elif field == "type_line":
 				return self.try_get_type_line()
+			elif field == "type":
+				return get_card_type_from_type_line(self.try_get_type_line())
 			elif field == "rarity":
 				return self.try_get_rarity()
 			elif field == "mana_cost":
@@ -289,6 +292,8 @@ class CustomCardReprint(CustomCardText):
 			print(E)
 			return f"ERROR | {E}"
 
+	def try_get_type_line(self):
+		return self.scryfall_object["type_line"]
 
 # class CustomCardSpreadsheet(CustomCard):
 # 	card_object = {}
@@ -423,10 +428,14 @@ def find_regex_in_list(block, r):
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
 	filename = "bin/baol.txt"
-	output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "type_line"]
+	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type", "Rarity", "Rules", "Power", "Toughness"]
+
+	# Output for Card Type Breakdowns sheet
+	output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type"]
 	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
+	# controller_import_custom_card_sheet_to_mse(filename)
 	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
