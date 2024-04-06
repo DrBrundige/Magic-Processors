@@ -44,8 +44,10 @@ class NewCard:
 		# TODO: Defaults to match_self_abridged if data is abridged
 		if has_name and has_set and has_set_num:
 			return self.match_self_full(data)
-		if has_name and has_set and has_frame:
+		elif has_name and has_set and has_frame:
 			return self.match_self_frame(data)
+		elif has_name and has_set:
+			return self.match_self_first_printing(data)
 		elif has_name:
 			return self.match_self_abridged(data)
 
@@ -64,6 +66,7 @@ class NewCard:
 						self.collector_number = card["collector_number"]
 						return True
 				print(f"Errant operation! Could not find card {self.name} in set {self.set}")
+				return False
 		# if self.set not in data.keys():
 		# 	print(f"Errant operation! Could not find set {self.set} for card {self.name}")
 		# 	return False
@@ -120,6 +123,44 @@ class NewCard:
 							self.collector_number = card["collector_number"]
 							return True
 				print(f"Errant operation! Could not find card {self.name} in set {self.set}")
+				return False
+
+		except Exception as E:
+			print("Errant operation matching card")
+			print(E)
+			return False
+
+	# Matches the card with the same set and name. If there are multiple printings, takes the version with the
+	# lowest set number. Some potential for inaccuracy, but takes the default probably 90% of the time.
+	def match_self_first_printing(self, data):
+		try:
+			if self.set not in data.keys():
+				print(f"Errant operation! Could not find set {self.set} for card {self.name}")
+				return False
+			else:
+				matched_set = data[self.set]
+				lowest_card = {}
+				cards_with_name = 0
+
+				for card in matched_set:
+					if unidecode(card["name"]) == unidecode(self.name):
+						cards_with_name += 1
+						if len(lowest_card) == 0:
+							lowest_card = card
+						elif card["collector_number"] < lowest_card["collector_number"]:
+							lowest_card = card
+
+				if cards_with_name > 1:
+					print(f"Possible ambiguity for card {self.name}")
+
+				if len(lowest_card) == 0:
+					print(f"Errant operation! Could not find card {self.name} in set {self.set}")
+					return False
+				else:
+					self.scryfall_card = lowest_card
+					self.set = lowest_card["set"]
+					self.collector_number = lowest_card["collector_number"]
+					return True
 
 		except Exception as E:
 			print("Errant operation matching card")
@@ -287,7 +328,7 @@ def get_cards_from_file(filename, data):
 	for card in all_cards:
 		try:
 			# Some input files include a count row. If this row exists and is equal to 0, skips the card
-			if 'count' in card and int(card['count']) <= 0:
+			if 'count' in card and (len(card['count']) <= 0 or int(card['count']) <= 0):
 				continue
 
 			this_card = NewCard(card)
@@ -447,7 +488,7 @@ def new_controller_process_cards_from_file(filename, data, match_fields=None, co
 
 
 # Processes cards from a given API endpoint with the given fields. Unlike process_from_file, match fields is required
-def new_controller_process_cards_from_api(request_url, match_fields):
+def new_controller_process_cards_from_api(request_url, match_fields, output_name="api_cards"):
 	all_new_cards = get_cards_from_api(request_url)
 
 	# if do_sort:
@@ -456,49 +497,39 @@ def new_controller_process_cards_from_api(request_url, match_fields):
 	output_rows = output_bound_cards(all_new_cards, match_fields)
 
 	output_rows.insert(0, match_fields)
-	write_data_list(output_rows, "api_cards")
+	write_data_list(output_rows, output_name)
 
 
 # A controller for my use only with no parameters. Takes multiple files and combines them.
-def controller_process_cards_from_multiple_files():
-	data = controller_get_sorted_data()
-
-	all_audit_cards = get_cards_from_file("audit_csv.csv", data)
-	all_test_cards = get_cards_from_file("audit_csv.csv", data)
-
-	all_new_cards = all_audit_cards
-	for card in all_test_cards:
-		all_new_cards.append(card)
-
-	all_new_cards = sort_all_cards(all_new_cards, "sorter_logic_03.json")
-
-	match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
-	header_row = read_csv_get_headers(name=filename)
-
-	output_rows = output_bound_cards(all_new_cards, match_fields)
-
-	# Prepends output rows with header row and outputs to CSV
-	output_rows.insert(0, header_row)
-	write_data_list(output_rows, "combined")
+# def controller_process_cards_from_multiple_files():
+# 	data = controller_get_sorted_data()
+# 	all_filenames = ["all_sort_cards_cmr.csv", "all_sort_cards_dmu.csv", "all_sort_cards_mid.csv",
+# 	                 "all_sort_cards_mom.csv", "all_sort_cards_neo.csv", "all_sort_cards_one.csv",
+# 	                 "all_sort_cards_thb.csv", "all_sort_cards_vow.csv"]
+# 	all_new_cards = []
+# 	all_audit_cards = get_cards_from_file("audit_csv.csv", data)
+# 	all_test_cards = get_cards_from_file("audit_csv.csv", data)
+#
+# 	for filename in all_filenames:
+# 		all_filename_cards = get_cards_from_file(filename, data)
+#
+# 		for card in all_filename_cards:
+# 			all_new_cards.append(card)
+#
+# 	all_sorted_cards = sort_all_cards(all_new_cards, "sorter_logic_03.json")
+#
+# 	# match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+# 	# header_row = read_csv_get_headers(name=filename)
+# 	match_fields = ["Name", "ID", "Set", "Set No", "Variant", "Spc", "Home Box", "Current Location", "Price Range",
+# 	                "Section", "Year", "Scryfall ID", "Input Code", "Rarity", "Card Type", "Color", "C ID", "Value",
+# 	                "Release Date"]
+#
+# 	output_rows = output_bound_cards(all_sorted_cards, match_fields, count_field="count")
+#
+# 	# Prepends output rows with header row and outputs to CSV
+# 	output_rows.insert(0, match_fields)
+# 	write_data_list(output_rows, "combined")
 
 
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
-
-	# filename = "all_order_cards.csv"
-	# filename = "audit_csv.csv"
-	# filename = "all_test_cards.csv"
-
-	request_url = get_set_search_uri_from_set_code('thb')
-
-	# data = controller_get_sorted_data("default-cards")
-	data = controller_get_sorted_data("test-cards")
-	# data = import_scryfall_abridged()
-	# data = controller_get_original_printings()
-
-	match_fields = ["name", "count", "set", "set_num", "rarity", "color", "card_type"]
-	# match_fields = ["name", "set", "set_num", "mana_cost", "released_at"]
-	# controller_process_cards_from_multiple_files()
-	# new_controller_process_cards_from_file(filename, data, do_sort=True)
-	# new_controller_process_cards_from_file(filename, data, count_field="count", do_sort=True)
-	new_controller_process_cards_from_api(request_url, match_fields)
