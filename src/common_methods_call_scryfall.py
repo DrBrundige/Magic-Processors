@@ -1,4 +1,6 @@
+import shutil
 import time
+
 from datetime import datetime, timedelta
 
 import requests
@@ -38,6 +40,21 @@ def call_scryfall_03(request_url="https://api.scryfall.com/", endpoint=""):
 	except Exception as E:
 		print("Error contacting Scryfall!")
 		print(E)
+		return None
+
+
+def get_image_from_uri(uri, file_name):
+	time.sleep(.1)
+	r = requests.get(url=uri, stream=True)
+
+	if r.status_code == 200:
+
+		with open(f"images/{file_name}", 'wb') as f:
+			shutil.copyfileobj(r.raw, f)
+
+		print('Image sucessfully Downloaded: ', file_name)
+	else:
+		print('Request failed, error code: ' + str(r.status_code) + ' | ' + r.reason)
 		return None
 
 

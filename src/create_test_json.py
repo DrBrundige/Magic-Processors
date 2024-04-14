@@ -1,6 +1,7 @@
-from magic_grinder_03 import NewCard
+from magic_processor_03 import NewCard
 from import_scryfall_bulk_data import controller_get_sorted_data
-from shared_methods_io import read_csv, write_data_json
+from common_methods_io import read_csv, write_data_json
+from common_methods_call_scryfall import get_set_search_uri_from_set_code, call_scryfall_03
 
 
 # Creates a JSON file similar to the bulk downloads file but orders of magnitude smaller
@@ -19,7 +20,31 @@ def create_test_json(all_cards, data):
 		else:
 			print("Failed to match card!")
 
-	return all_scryfall_cards
+	write_data_json(all_scryfall_cards, filename="test-cards", destination="downloads")
+
+	return True
+
+
+def create_test_json_from_api(request_url, filename="test-cards-api"):
+	output_rows = []
+	do_get_json(request_url, output_rows)
+
+	write_data_json(output_rows, filename=filename, destination="downloads")
+
+
+def do_get_json(request_url, output_rows):
+	try:
+		payload = call_scryfall_03(request_url=request_url)
+		for card_object in payload['data']:
+			output_rows.append(card_object)
+
+		if payload["has_more"]:
+			return do_get_json(payload["next_page"], output_rows)
+		else:
+			return output_rows
+	except Exception as E:
+		print(f"Errant operation getting test data from API!")
+		print(E)
 
 
 # Reads card information for a given filename, retrieves the latest bulk data file,
@@ -28,10 +53,18 @@ def controller_create_test_json(filename="audit_csv.csv"):
 	data = controller_get_sorted_data()
 	all_cards = read_csv(filename, True, True)
 
-	all_scryfall_cards = create_test_json(all_cards, data)
-	write_data_json(all_scryfall_cards, filename="test-cards", destination="downloads")
+	create_test_json(all_cards, data)
+
+
+# write_data_json(all_scryfall_cards, filename="test-cards", destination="downloads")
+
+
+def controller_create_test_json_from_set(set='woe'):
+	set_url = get_set_search_uri_from_set_code(set)
+	create_test_json_from_api(set_url, filename=f"test-cards-{set}")
 
 
 if __name__ == '__main__':
 	print("Creating JSON of all cards in collection.")
+	# controller_create_test_json_from_set("plst")
 	controller_create_test_json()

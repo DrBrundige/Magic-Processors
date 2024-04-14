@@ -1,8 +1,6 @@
-from shared_methods_grinder import *
+from common_methods_grinder import *
 from datetime import datetime, timedelta
 
-
-# TODO: Change these to update a parameterized card object and return True / False
 
 # Outputs largely the same information plus price data
 # name - input

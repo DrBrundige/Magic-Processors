@@ -1,5 +1,5 @@
-from shared_methods_io import read_json, read_csv, write_data, read_csv_get_headers
-from shared_methods_grinder import format_cards_for_audit_sheet
+from common_methods_io import read_json, read_csv, write_data, read_csv_get_headers
+from common_methods_processor import format_cards_for_audit_sheet
 # from magic_grinder_03 import *
 from import_scryfall_bulk_data import controller_get_sorted_data
 
@@ -11,10 +11,12 @@ class MagicSorterTrie03:
 	all_boxes = {}
 	total_cards = 0
 
-	# TODO: Think about having this accept the JSON itself rather than the file reference
-	def __init__(self, logic_file="sorter_logic.json"):
+	def __init__(self, logic_file="sorter_logic.json", logic_json=None):
 		# Reads the given json into the sorter_logic field
-		self.sorter_logic = read_json(f"bin/{logic_file}")
+		if logic_json is None:
+			self.sorter_logic = read_json(f"bin/{logic_file}")
+		else:
+			self.sorter_logic = logic_json
 		self.all_boxes = {}
 		self.reset_boxes()
 
@@ -110,11 +112,22 @@ class BoxNode03:
 			# In the future, I may make this smarter, but it's fine for this purpose
 			if this_logic == "collector_number":
 				sorted_keys_ints = []
+				sorted_keys_strs = []
+
 				for key in self.all_sub_nodes.keys():
-					sorted_keys_ints.append(int(key))
+					if key.isdigit():
+						sorted_keys_ints.append(int(key))
+					else:
+						sorted_keys_strs.append(key)
+
 				sorted_keys_ints.sort()
+				sorted_keys_strs.sort()
+
 				for sorted_int in sorted_keys_ints:
 					sorted_keys.append(str(sorted_int))
+
+				for sorted_str in sorted_keys_strs:
+					sorted_keys.append(sorted_str)
 
 			# Categories such as color_id and card_type get special logic.
 			#   The sorter_logic contains a custom order that this algorith attempts to replicate
@@ -141,6 +154,7 @@ class BoxNode03:
 			# Recurses through each box in the sorted order
 			for sorted_key in sorted_keys:
 				self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
+
 
 #
 # # Using the MagicSorterTrie and NewCard class, sorts each card from the given file, processes, and prints

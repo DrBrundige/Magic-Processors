@@ -1,4 +1,4 @@
-from shared_methods_io import read_json
+from common_methods_io import read_json
 import os
 from unidecode import unidecode
 
@@ -24,10 +24,7 @@ def get_card_type_from_type_line(type_line):
 	if type_line.find("Token") > -1:
 		return "Token"
 	elif type_line.find("Basic") > -1:
-		if type_line.find("Snow") > -1:
-			return "Snow Basic Land"
-		else:
-			return "Basic Land"
+		return "Basic Land"
 	elif type_line.find("Land") > -1:
 		return "Land"
 	elif type_line.find("Creature") > -1:
@@ -58,34 +55,6 @@ def get_card_type_from_type_line(type_line):
 			return type_line
 		else:
 			return type_line[0:i - 1]
-
-
-# A simplified version of card type, sorts cards into creature, spell, land, or other
-def get_card_archetype_from_type_line(type_line):
-	try:
-		# Only gets type line from front face
-		is_double_faced = type_line.find(" // ")
-		if is_double_faced > -1:
-			type_line = type_line[0: is_double_faced]
-
-		# I've never sorted a token in the audit sheet, but the logic is here if I ever do.
-		if type_line.find("Token") > -1:
-			return "50 - Token"
-		elif type_line.find("Land") > -1:
-			return "40 - Land"
-		elif type_line.find("Creature") > -1:
-			return "10 - Creature"
-		elif type_line.find("Instant") > -1:
-			return "20 - Spell"
-		elif type_line.find("Sorcery") > -1:
-			return "20 - Spell"
-		else:
-			return "30 - Noncreature Permanent"
-
-	except Exception as E:
-		print("Errant operation assigning default archetype!")
-		print(E)
-		return ""
 
 
 # A string of logic to return the formatted color combination for a list of colors
@@ -203,6 +172,19 @@ def get_card_variant(scryfall_card):
 		return "Inverted"
 	else:
 		return scryfall_card["frame"] + " Frame"
+
+
+# I would love to find a way to easily determine whether a card is a real card that can be added to a standard
+#     Magic deck or some other item such as a token or art card. However, it seems no such logic exists -
+#    indeed, the definition is highly malleable.
+#    This method doesn't allow previewed cards that will become eternal once released, but it's close enough.
+#    In any case, probably better to be too exclusive
+# Accepts a scryfall_card object. Returns a bool
+def get_card_is_eternal(scryfall_card):
+	if "legalities" not in scryfall_card:
+		return False
+	else:
+		return scryfall_card["legalities"]["vintage"] != "not_legal"
 
 
 # # # # # # # # # # # # #
@@ -346,10 +328,8 @@ def assign_default_section(scryfall_card):
 			else:
 				return "42 - Artifact (Utility Artifact)"
 		elif "Land" in card_type:
-			if card_type == "Basic Land" or card_type == "Snow _Basic Land":
+			if card_type == "Basic Land":
 				return "51 - Land (Basic)"
-			# if card_type == "Snow Basic Land":
-			# 	return "52 - Land (Snow Basic)"
 			elif len(produced_mana) > 1:
 				return "52 - Lands (Color Fixing)"
 			else:

@@ -98,6 +98,37 @@ def write_data_list(data, filename="out"):
 		return True
 
 
+# Writes a list to a csv
+def write_data_to_txt(data, filename="out"):
+	filename = "csvs\\" + filename + datetime.now().strftime("%Y%m%d-%H%M%S") + ".txt"
+
+	try:
+		assert isinstance(data, list), "Parameter data must be a list"
+		assert len(data) > 0, "Parameter data has no rows!"
+
+		f = open(filename, "w")
+
+		# For each row in data, writes values to file
+		for row in data:
+			if isinstance(row, list):
+				# for i in range(len(row)):
+				# 	row[i] = unidecode(row[i])
+
+				f.writelines(f"{row[0]}\n")
+			else:
+				f.writelines(f"{row}\n")
+
+		f.close()
+
+	except Exception as e:
+		print("Errant operation writing data!")
+		print(e)
+		return False
+	else:
+		print(f"Success! Data written to file {filename}")
+		return True
+
+
 # Writes a dictionary or perhaps list of dictionaries to a json file
 # Outputs filename in a slightly different format
 def write_data_json(data, filename="out", destination="bin"):
@@ -204,6 +235,13 @@ def read_txt(path):
 		return text
 
 
+def snake_case_parameter_list(all_headers):
+	cleaned_headers = []
+	for header in all_headers:
+		cleaned_headers.append(snake_case_parameter(header))
+	return cleaned_headers
+
+
 # No I/O is happening here, but these methods are necessary to support read_csv
 def snake_case_parameter(name):
 	name = name.lower()
@@ -230,5 +268,8 @@ def standardize_header_names(headers, replacement_path="standardized_headers.jso
 
 if __name__ == '__main__':
 	print("Brundige's Cool Stuff")
-	read_txt("bin/decklist.txt")
+	data = ["Light 1W", "Sorcery ", "Destroy target creature with toughness 4 or greater. ", "//", "Heat 1R", "Sorcery",
+	        "Fury deals 3 damage to target creature."]
+	write_data_to_txt(data)
+# read_txt("bin/decklist.txt")
 # read_csv("audit_csv.csv", True, True)

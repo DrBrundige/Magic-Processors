@@ -1,8 +1,8 @@
 import time
 
 import requests
-from magic_grinder_02_match_data_processors import *
-from shared_methods_io import write_data
+from magic_processor_02_match_data_processors import *
+from common_methods_io import write_data
 
 
 # Don't get me wrong - my search methods work,
@@ -140,8 +140,8 @@ if __name__ == '__main__':
 	print("Calling Scryfall API")
 	# call_scryfall("bingus")
 	# print(controller_get_scryfall_creature_types())
-	# controller_get_set_sheet_from_scryfall("sets/woe")
+	controller_get_set_sheet_from_scryfall("sets/woe")
 	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?order=name&q=set%3Awoe+is%3Abooster")
-	controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost")
+	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=otag%3Aunique-mana-cost")
 	# controller_get_cards_from_api_query("https://api.scryfall.com/cards/search?q=art%3Aexternal-ip+game%3Apaper")
 	# controller_get_set_data()
