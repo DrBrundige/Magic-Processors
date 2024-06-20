@@ -126,7 +126,7 @@ class CustomCardText(CustomCard):
 				return get_card_type_from_type_line(self.try_get_type_line())
 			elif field == "rarity":
 				return self.try_get_rarity()
-			elif field == "mana_cost":
+			elif field == "mana_cost" or field == "cost":
 				return self.try_get_mana_cost()
 			elif field == "cmc":
 				return self.try_get_cmc()
@@ -136,9 +136,9 @@ class CustomCardText(CustomCard):
 				return self.try_get_rules()
 			elif field == "pt":
 				return self.try_get_pt()
-			elif field == "power":
+			elif field == "power" or field == "p":
 				return self.try_get_power()
-			elif field == "toughness":
+			elif field == "toughness" or field == "t":
 				return self.try_get_toughness()
 			elif field == "flavor":
 				return " ".join(self.try_get_flavor())
@@ -427,8 +427,10 @@ def find_regex_in_list(block, r):
 
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
-	filename = "bin/baol.txt"
-	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type", "Rarity", "Rules", "Power", "Toughness"]
+	filename = "bin/shitty_cards_ideas.txt"
+
+	# Set Slots sheet
+	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
 	output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type"]

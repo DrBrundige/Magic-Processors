@@ -230,3 +230,4 @@ fabric.properties
 src/csvs
 .idea/inspectionProfiles
 .idea/codeStyles
+/.idea

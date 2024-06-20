@@ -160,17 +160,17 @@ def controller_get_api_upgrades_in_collection(collection_path="audit_csv.csv", r
 
 if __name__ == '__main__':
 	print("Comparing decklist against collection")
-	# all_upgrade_cards = controller_get_upgrades(decklist_path="bin/cards.txt")
+	# all_upgrade_cards = controller_get_upgrades(decklist_path="bin/common_cube.txt", collection_path="audit_csv.csv")
 	# all_upgrade_cards = controller_get_upgrades_in_collection(collection_path="all_audit_cards_new.csv",
 	#                                                           decklist_path="bin/new_cards.txt")
 	# print(all_upgrade_cards)
 	# write_data(all_upgrade_cards)
-	otag = "creature"
+	otag = "ramp"
 	id = "g"
 	# collection_path = "audit_csv.csv"
-	collection_path = "audit_csv.csv"
-	# request_url = f"https://api.scryfall.com/cards/search?q=type%3A{otag}+id%3A{id}+f%3APauper&unique=cards&as=grid"
-	request_url = "https://api.scryfall.com/cards/search?q=f%3Apauper+cmc%3A1+c%3Ag+type%3Acreature"
+	collection_path = "audit_csv_h.csv"
+	request_url = f"https://api.scryfall.com/cards/search?q=otag%3A{otag}+id%3A{id}+f%3APauper&unique=cards&as=grid"
+	# request_url = "https://api.scryfall.com/cards/search?q=f%3Apauper+cmc%3A1+c%3Ag+type%3Acreature"
 	all_upgrade_cards = controller_get_api_upgrades_in_collection(collection_path=collection_path,
 	                                                              request_url=request_url)
 	print(all_upgrade_cards)

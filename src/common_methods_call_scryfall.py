@@ -66,6 +66,16 @@ def get_set_search_uri_from_set_code(set_code):
 		return ""
 
 
+# Controller. Calls call_scryfall() to retrieve each creature type and returns as list of strings
+def controller_get_scryfall_creature_types():
+	# r = requests.get('https://api.scryfall.com/catalog/creature-types')
+	r = call_scryfall_03(endpoint="catalog/creature-types")
+	if r is not None:
+		return r["data"]
+	else:
+		return {}
+
+
 def controller_get_upcoming_set_svgs():
 	all_sets = call_scryfall_03("https://api.scryfall.com/sets/")
 	for set in all_sets["data"]:

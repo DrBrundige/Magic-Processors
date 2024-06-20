@@ -176,7 +176,7 @@ def get_card_variant(scryfall_card):
 
 # I would love to find a way to easily determine whether a card is a real card that can be added to a standard
 #     Magic deck or some other item such as a token or art card. However, it seems no such logic exists -
-#    indeed, the definition is highly malleable.
+#    indeed, the definition is highly malleable. What about previewed cards? Or funny cards?
 #    This method doesn't allow previewed cards that will become eternal once released, but it's close enough.
 #    In any case, probably better to be too exclusive
 # Accepts a scryfall_card object. Returns a bool
@@ -185,6 +185,14 @@ def get_card_is_eternal(scryfall_card):
 		return False
 	else:
 		return scryfall_card["legalities"]["vintage"] != "not_legal"
+
+
+# Returns whether the card is available in paper
+def get_card_is_paper(scryfall_card):
+	if "games" not in scryfall_card:
+		return False
+	else:
+		return "paper" in scryfall_card["games"]
 
 
 # # # # # # # # # # # # #
@@ -268,6 +276,26 @@ def get_usd_from_card(card, scryfall_card, output_price_type=False):
 		print("Errant operation calculating price")
 		print(E)
 		return False
+
+
+# Separates cards based on the broadest possible card types. Not used in any sorting logic right now.
+def get_card_archetype_from_type_line(type_line):
+	is_double_faced = type_line.find(" // ")
+	if is_double_faced > -1:
+		type_line = type_line[0: is_double_faced]
+
+	if type_line.find("Token") > -1:
+		return "Token"
+	elif type_line.find("Creature") > -1:
+		return "10 - Creature"
+	elif type_line.find("Instant") > -1:
+		return "20 - Spell"
+	elif type_line.find("Sorcery") > -1:
+		return "20 - Spell"
+	elif type_line.find("Land") > -1:
+		return "40 - Land"
+	else:
+		return "30 - Noncreature Permanent"
 
 
 # Handles the verbose logic to assign a card a default section for the audit sheet

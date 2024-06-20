@@ -33,8 +33,8 @@ def import_scryfall_art():
 
 
 # Imports the latest abridged Scryfall download file containing one printing for each unique card art.
-def import_scryfall_test():
-	path = get_latest_json("test-cards")
+def import_scryfall(json_prefix="test-cards"):
+	path = get_latest_json(json_prefix)
 	print("Importing Scryfall test card data at " + path)
 	data = common_methods_io.read_json("downloads/" + path)
 	print(f"Success! Imported {len(data)} cards!")
@@ -42,7 +42,7 @@ def import_scryfall_test():
 
 
 # Parses all bulk download files in the downloads folder and returns the name of the most recent one as a string
-def get_latest_json(json_class):
+def get_latest_json(json_class="oracle-cards"):
 	# Identifies files in the downloads folder
 	all_files = os.listdir("downloads")
 	all_files = [f for f in all_files if os.path.isfile("downloads" + '/' + f)]

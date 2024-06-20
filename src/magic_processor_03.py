@@ -284,6 +284,8 @@ class NewCard:
 				return str(self.scryfall_card["reprint"])
 			elif field == "eternal" or field == "is_eternal":
 				return str(get_card_is_eternal(self.scryfall_card))
+			elif field == "paper" or field == "is_paper":
+				return str(get_card_is_paper(self.scryfall_card))
 			elif field == "release_date":
 				return self.try_get_field("released_at")
 
@@ -559,7 +561,7 @@ def new_controller_process_all_cards_in_data_file(data, match_fields, output_nam
 
 
 # A controller for my use only with no parameters. Takes multiple files and combines them.
-# The different files are hard-coded to this method. Do not use this method.
+# The different files are hard-coded to this method. This is terrible. Do not use this method.
 def controller_process_cards_from_multiple_files():
 	data = controller_get_sorted_data()
 	all_filenames = ["all_sort_cards_cmr.csv", "all_sort_cards_dmu.csv", "all_sort_cards_mid.csv",
@@ -588,15 +590,46 @@ def controller_process_cards_from_multiple_files():
 	write_data_list(output_rows, "combined")
 
 
+# I'm not sure if I've written a method with this same output before. In any case, here it is again.
+def controller_get_all_sets(match_fields=None):
+	if match_fields is None:
+		match_fields = ["name", "released_at", "code", "set_type"]
+	output_rows = []
+	output_rows.append(match_fields)
+
+	all_sets = call_scryfall_03("https://api.scryfall.com/sets/")
+	for set in all_sets["data"]:
+		new_row = []
+		for field in match_fields:
+			new_row.append(set[field])
+		output_rows.append(new_row)
+
+	write_data_list(output_rows, "sets")
+
+
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
-	match_fields = ["name", "set", "set_num", "release_date"]
-	# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
-	request_url = "https://api.scryfall.com/cards/search?" \
-	              "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
-	# request_url = get_set_search_uri_from_set_code("NEO")
-	new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
+	match_fields = ["name", "set", "set_num", "released_at", "mana_cost"]
+	data = import_scryfall_abridged()
+	new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
+
+	# match_fields = read_csv_get_headers("audit_csv.csv")
+	# data = controller_get_sorted_data()
+	# new_controller_process_cards_from_file(filename="all_order_cards.csv", match_fields=match_fields, data=data,
+	#                                        count_field="count", do_sort=True)
+
+# controller_get_all_sets()
+
+# match_fields = ["name", "set", "set_num", "color", "cmc"]
+# data = import_scryfall_abridged()
+# filename = "all_cube_cards.csv"
+# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
+# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
+# request_url = "https://api.scryfall.com/cards/search?" \
+#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
+# request_url = get_set_search_uri_from_set_code("NEO")
+# new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
 
 # match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
 # request_url = get_set_search_uri_from_set_code("NEO")

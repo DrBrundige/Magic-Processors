@@ -64,7 +64,15 @@ def controller_create_test_json_from_set(set='woe'):
 	create_test_json_from_api(set_url, filename=f"test-cards-{set}")
 
 
+# Do not use this. Use new_controller_process_all_cards_in_data_file to create a CSV with all cards in it,
+#   manipulate as needed, then create a test JSON with controller_create_test_json instead.
+def controller_create_test_json_from_format_cards(format="vintage"):
+	request_url = f"https://api.scryfall.com/cards/search?q=f%3A{format}&unique=cards&order=name"
+	create_test_json_from_api(request_url, filename=format)
+
+
 if __name__ == '__main__':
 	print("Creating JSON of all cards in collection.")
-	# controller_create_test_json_from_set("plst")
-	controller_create_test_json()
+	# controller_create_test_json_from_set("OTJ")
+	controller_create_test_json(filename="all_eternal_cards.csv")
+	# controller_create_test_json_from_format_cards()
