@@ -95,6 +95,8 @@ def sort_cards_by_set(data):
 def sort_cards_by_original_printing(data):
 	all_original_cards = {}
 	# Iterates through parameterized data object
+
+	# TODO: This returns tokens with the same name as cards which is annoying
 	for card in data:
 		if not card["reprint"]:
 			card_name = card["name"]
@@ -102,6 +104,7 @@ def sort_cards_by_original_printing(data):
 			if card_name not in all_original_cards:
 				all_original_cards[card_name] = card
 			# If this card has a lower set number than the version currently in the dictionary, replaces it
+			# TODO: This doesn't work for Bone Shards from MH2 and possibly others as well
 			elif all_original_cards[card_name]["collector_number"] > card["collector_number"]:
 				all_original_cards[card_name] = card
 
