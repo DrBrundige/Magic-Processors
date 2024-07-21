@@ -284,6 +284,8 @@ class NewCard:
 				return str(self.scryfall_card["reprint"])
 			elif field == "eternal" or field == "is_eternal":
 				return str(get_card_is_eternal(self.scryfall_card))
+			elif field == "archetype" or field == "card_archetype":
+				return get_card_archetype_from_type_line(self.try_get_field("type_line"))
 			elif field == "paper" or field == "is_paper":
 				return str(get_card_is_paper(self.scryfall_card))
 			elif field == "release_date":
@@ -610,14 +612,19 @@ def controller_get_all_sets(match_fields=None):
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
-	match_fields = ["name", "set", "set_num", "released_at", "mana_cost"]
-	data = import_scryfall_abridged()
-	new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
-
-	# match_fields = read_csv_get_headers("audit_csv.csv")
+	# match_fields = read_csv_get_headers("audit_csv.csv", True, True)
 	# data = controller_get_sorted_data()
-	# new_controller_process_cards_from_file(filename="all_order_cards.csv", match_fields=match_fields, data=data,
-	#                                        count_field="count", do_sort=True)
+	# filename = "all_order_cards.csv"
+	# new_controller_process_cards_from_file(filename=filename, data=data, match_fields=match_fields, count_field="Count")
+
+	# match_fields = ["name", "set", "set_num", "released_at", "mana_cost"]
+	# data = import_scryfall_abridged()
+	# new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
+
+	# data = controller_get_sorted_data()
+	data = controller_get_sorted_data(path="test-cards")
+	filename = "audit_csv.csv"
+	new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
 
 # controller_get_all_sets()
 

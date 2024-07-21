@@ -272,26 +272,8 @@ def get_card_archetype_from_type_line(type_line):
 def assign_default_section(scryfall_card):
 	try:
 		# Logic for basic lands
-		card_type = get_card_type_from_type_line(scryfall_card["type_line"])
-		# if card_type == "Basic Land":
-		# 	# Maybe someday I can make a section for snow lands. IDK
-		# 	# Retrieves color ID. Normally I like to sort by color rather than ID,
-		# 	#    but since lands are colorless it's a bit easier to do it this way
-		# 	id = get_color_code_from_colors(scryfall_card["color_identity"])
-		# 	if id == "W":
-		# 		return "201 - White"
-		# 	elif id == "U":
-		# 		return "202 - Blue"
-		# 	elif id == "B":
-		# 		return "203 - Black"
-		# 	elif id == "R":
-		# 		return "204 - Red"
-		# 	elif id == "G":
-		# 		return "205 - Green"
-		# 	else:
-		# 		return "501 - Land (Basic)"
-
-		# Most cards are sorted by color with some special rules for lands and artifacts
+		type_line = get_field_from_card("type_line", scryfall_card)
+		card_type = get_card_type_from_type_line(type_line)
 		color = get_color_code_from_colors(get_field_from_card("colors", scryfall_card))
 
 		produced_mana = get_field_from_card("produced_mana", scryfall_card, not_found="none")
@@ -301,8 +283,8 @@ def assign_default_section(scryfall_card):
 			produced_mana = ""
 
 		if color != "C":
+			# If the length of the card's color is greater than one, then it is multicolor
 			if len(color) > 1:
-				# If the length of the card's color is greater than one, then it is multicolor
 				return "31 - Multicolor"
 			elif color == "W":
 				return "21 - White"
@@ -325,11 +307,14 @@ def assign_default_section(scryfall_card):
 				return "42 - Artifact (Utility Artifact)"
 		elif "Land" in card_type:
 			if card_type == "Basic Land":
-				return "51 - Land (Basic)"
+				if "Snow" in type_line:
+					return "52 - Land (Snow Basic)"
+				else:
+					return "51 - Land (Basic)"
 			elif len(produced_mana) > 1:
-				return "52 - Lands (Color Fixing)"
+				return "53 - Lands (Color Fixing)"
 			else:
-				return "53 - Lands (Utility Lands)"
+				return "54 - Lands (Utility Lands)"
 		else:
 			return "11 - Colorless"
 	except Exception as E:
