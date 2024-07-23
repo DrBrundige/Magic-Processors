@@ -1,7 +1,7 @@
 from magic_processor_03 import NewCard
 from import_scryfall_bulk_data import controller_get_sorted_data
 from common_methods_io import read_csv, write_data_json
-from common_methods_call_scryfall import get_set_search_uri_from_set_code, call_scryfall_03
+from common_methods_call_scryfall import get_set_search_uri_from_set_code, call_scryfall_03, get_download_from_uri
 
 
 # Creates a JSON file similar to the bulk downloads file but orders of magnitude smaller
@@ -47,6 +47,19 @@ def do_get_json(request_url, output_rows):
 		print(E)
 
 
+def download_latest_json_files(bulk_items=None):
+	if bulk_items is None:
+		bulk_items = ["oracle_cards", "unique_artwork", "default_cards"]
+	payload = call_scryfall_03(endpoint="bulk-data")
+	for bulk in payload["data"]:
+		if (bulk["type"]) in bulk_items:
+			# print(bulk["type"])
+			filename = bulk["download_uri"].split("/")[-1]
+			# print(filename)
+			get_download_from_uri(uri=bulk["download_uri"], file_name=f"downloads/{filename}")
+
+
+
 # Reads card information for a given filename, retrieves the latest bulk data file,
 #     processes that card information, and outputs
 def controller_create_test_json(filename="audit_csv.csv"):
@@ -74,5 +87,6 @@ def controller_create_test_json_from_format_cards(format="vintage"):
 if __name__ == '__main__':
 	print("Creating JSON of all cards in collection.")
 	# controller_create_test_json_from_set("OTJ")
-	controller_create_test_json(filename="all_eternal_cards.csv")
+	# controller_create_test_json(filename="all_eternal_cards.csv")
 	# controller_create_test_json_from_format_cards()
+	download_latest_json_files()

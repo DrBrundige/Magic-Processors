@@ -66,6 +66,19 @@ def get_set_search_uri_from_set_code(set_code):
 		return ""
 
 
+def get_download_from_uri(uri, file_name):
+	time.sleep(.1)
+	r = requests.get(url=uri, stream=True)
+	if r.status_code == 200:
+		with open(file_name, 'wb') as f:
+			for chunk in r.iter_content(chunk_size=8192):
+				f.write(chunk)
+			print('File sucessfully Downloaded: ', file_name)
+	else:
+		print('Request failed, error code: ' + str(r.status_code) + ' | ' + r.reason)
+		return None
+
+
 # Controller. Calls call_scryfall() to retrieve each creature type and returns as list of strings
 def controller_get_scryfall_creature_types():
 	# r = requests.get('https://api.scryfall.com/catalog/creature-types')
@@ -96,4 +109,5 @@ def controller_get_upcoming_set_svgs():
 
 if __name__ == '__main__':
 	# controller_get_upcoming_set_svgs()
-	print(get_set_search_uri_from_set_code("woe"))
+	# print(get_set_search_uri_from_set_code("woe"))
+	get_download_from_uri('https://data.scryfall.io/oracle-cards/oracle-cards-20240722090223.json')
