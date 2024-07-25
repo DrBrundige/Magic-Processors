@@ -110,4 +110,4 @@ def controller_get_upcoming_set_svgs():
 if __name__ == '__main__':
 	# controller_get_upcoming_set_svgs()
 	# print(get_set_search_uri_from_set_code("woe"))
-	get_download_from_uri('https://data.scryfall.io/oracle-cards/oracle-cards-20240722090223.json')
+	get_download_from_uri('https://data.scryfall.io/oracle-cards/oracle-cards-20240722090223.json', "downloads/oracle-cards")

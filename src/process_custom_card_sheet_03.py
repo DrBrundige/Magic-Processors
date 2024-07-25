@@ -1,7 +1,7 @@
 import re
 
 from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt, snake_case_parameter_list
-from common_methods_call_scryfall import call_scryfall_03
+from common_methods_requests import call_scryfall_03
 from common_methods_processor import get_color_code_from_colors, get_card_type_from_type_line
 # from import_scryfall_bulk_data import import_scryfall_abridged
 from common_methods_custom_cards import process_colors_from_mana_cost, process_mana_value_from_mana_cost

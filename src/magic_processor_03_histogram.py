@@ -1,9 +1,9 @@
 from magic_processor_03 import get_all_cards_from_data_file, get_cards_from_api, get_cards_from_file
 from common_methods_io import *
 from common_methods_processor import *
-from import_scryfall_bulk_data import *
+from bulk_data_import import *
 from common_methods_processor_03 import get_usd_from_card_03, get_price_range_03, get_all_creature_types
-from common_methods_call_scryfall import *
+from common_methods_requests import *
 from datetime import *
 from magic_sorter_03 import MagicSorterTrie03
 

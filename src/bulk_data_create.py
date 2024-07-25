@@ -1,7 +1,8 @@
 from magic_processor_03 import NewCard
-from import_scryfall_bulk_data import controller_get_sorted_data
+from bulk_data_import import controller_get_sorted_data
 from common_methods_io import read_csv, write_data_json
-from common_methods_call_scryfall import get_set_search_uri_from_set_code, call_scryfall_03, get_download_from_uri
+from common_methods_requests import get_set_search_uri_from_set_code, call_scryfall_03, get_download_from_uri
+import os
 
 
 # Creates a JSON file similar to the bulk downloads file but orders of magnitude smaller
@@ -47,17 +48,46 @@ def do_get_json(request_url, output_rows):
 		print(E)
 
 
-def download_latest_json_files(bulk_items=None):
-	if bulk_items is None:
-		bulk_items = ["oracle_cards", "unique_artwork", "default_cards"]
+def download_latest_json_files(bulk_names=None):
+	if bulk_names is None:
+		bulk_names = ["oracle_cards", "unique_artwork", "default_cards"]
 	payload = call_scryfall_03(endpoint="bulk-data")
+
+	valid_names = check_existing_json_files(payload, bulk_names)
+
+	if len(valid_names) == 0:
+		print("No valid names!")
+		return False
+
 	for bulk in payload["data"]:
-		if (bulk["type"]) in bulk_items:
-			# print(bulk["type"])
+		if (bulk["type"]) in valid_names:
+			print(f"Attempting to download bulk file with type: {bulk['type']}")
 			filename = bulk["download_uri"].split("/")[-1]
-			# print(filename)
 			get_download_from_uri(uri=bulk["download_uri"], file_name=f"downloads/{filename}")
 
+	return True
+
+
+# Using a process similar to bulk_data_import.get_latest_json,
+# checks to see if bulk files are already in downloads folder
+def check_existing_json_files(payload, bulk_names):
+	valid_names = []
+
+	# Loops through each item in the data payload. We will look for items with the same type field as the bulk names
+	for bulk_item in payload["data"]:
+		if (bulk_item["type"]) in bulk_names:
+			uri_endpoint = bulk_item["download_uri"].split("/").pop()
+
+			all_files = os.listdir("downloads")
+			all_files = [f for f in all_files if os.path.isfile("downloads" + '/' + f)]
+
+			# for file in all_files:
+			if uri_endpoint in all_files:
+				print(f"Bulk data file {bulk_item['type']} already downloaded!")
+			else:
+				valid_names.append(bulk_item["type"])
+
+	return valid_names
 
 
 # Reads card information for a given filename, retrieves the latest bulk data file,
