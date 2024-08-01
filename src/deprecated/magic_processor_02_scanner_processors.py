@@ -85,7 +85,6 @@ def histogram_count_card_names(scryfall_card, histogram):
 		return False
 
 
-# TODO: Make this modular with a parameterized field
 # Counts each mana value
 # Histogram - empty dictionary
 def histogram_sort_mana_costs(scryfall_card, histogram):

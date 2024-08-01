@@ -5,12 +5,6 @@ from src.deprecated.magic_processor_02_match_data_match_methods import standard_
 from common_methods_grinder import format_cards_for_audit_sheet
 # from magic_grinder_03 import match_cards_03
 
-
-# TODO: Add an error box that gets generated automatically.
-#    Cards that throw errors in the add_card stage are assigned here
-#    On output_cards, they are output at the end and not assigned a new_id
-
-
 # Man, I'm glad this shit works because if anything breaks on it,
 #     I do NOT remember enough about how it functions to fix it.
 class MagicSorterTrie:
