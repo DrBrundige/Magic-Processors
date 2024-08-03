@@ -91,7 +91,9 @@ def check_existing_json_files(payload, bulk_names):
 
 
 # Reads card information for a given filename, retrieves the latest bulk data file,
-#     processes that card information, and outputs
+#     processes that card information, and outputs,
+#     This creates a JSON file that contains the exact cards from the named file,
+#     that can later be imported much faster for testing purposes
 def controller_create_test_json(filename="audit_csv.csv"):
 	data = controller_get_sorted_data()
 	all_cards = read_csv(filename, True, True)
@@ -119,4 +121,5 @@ if __name__ == '__main__':
 	# controller_create_test_json_from_set("OTJ")
 	# controller_create_test_json(filename="all_eternal_cards.csv")
 	# controller_create_test_json_from_format_cards()
-	download_latest_json_files()
+	# download_latest_json_files()
+	controller_create_test_json()

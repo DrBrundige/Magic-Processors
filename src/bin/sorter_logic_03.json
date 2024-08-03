@@ -11,10 +11,10 @@
   },
   "box_logic": {
     "Set Boxes": [
-      "released_at",
+      "released_at|reverse",
       "set",
       "price_range",
-      "collector_number",
+      "collector_number|ints",
       "foil"
     ],
     "Commander": [
@@ -36,7 +36,7 @@
       "produced_mana",
       "released_at",
       "set",
-      "collector_number",
+      "collector_number|ints",
       "foil"
     ],
     "Nonbasic Lands": [

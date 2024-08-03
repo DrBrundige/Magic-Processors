@@ -59,7 +59,7 @@ class MagicSorterTrie03:
 
 class BoxNode03:
 	name = ""
-	logic = []
+	logic = None
 	# I'm not sure whether its OK for a subclass to have a reference to its parent.
 	#   In any case, each BoxNode has a reference to the custom_sort_orders logic
 	custom_sort_orders = {}
@@ -72,10 +72,21 @@ class BoxNode03:
 		self.all_sub_nodes = {}
 		self.all_cards = []
 		self.name = name
-		self.logic = logic
+		self.logic = []
+
+		for logic_item in logic:
+			if type(logic_item) == str:
+				self.logic.append(Logic03(logic_item))
+			else:
+				self.logic.append(logic_item)
+
 		self.custom_sort_orders = custom_sort_orders
 		if len(logic) == 0:
 			self.contains_cards = True
+
+	def __copy__(self):
+		new_box = BoxNode03(self.name, self.logic, self.custom_sort_orders)
+		return new_box
 
 	def __str__(self):
 		return f"{self.name}"
@@ -86,7 +97,7 @@ class BoxNode03:
 			return True
 		else:
 			# next_node_name = card[self.logic[0].lower()]
-			next_node_name = card.try_get_field(self.logic[0].lower())
+			next_node_name = card.try_get_field(self.logic[0].name)
 			if next_node_name not in self.all_sub_nodes:
 				new_logic = self.logic[1:len(self.logic)]
 				new_node = BoxNode03(next_node_name, new_logic, self.custom_sort_orders)
@@ -107,10 +118,31 @@ class BoxNode03:
 			# Sorts the sub boxes in the current box and recurses through each
 			sorted_keys = []
 			this_logic = self.logic[0]
+			logic_tags = this_logic.tags
 
-			# Collector number gets special logic to sort by integer value.
-			# In the future, I may make this smarter, but it's fine for this purpose
-			if this_logic == "collector_number":
+			# Sorts by integer value instead of string
+			if this_logic in self.custom_sort_orders:
+				custom_sort_order = self.custom_sort_orders[this_logic]
+
+				# Iterates through the custom order. If it finds a matching key, adds it to the sorted_keys list
+				for custom_sort in custom_sort_order:
+					if custom_sort in self.all_sub_nodes:
+						sorted_keys.append(custom_sort)
+
+				# This shouldn't ever get used, but in case there are any keys not in the sort logic,
+				#   they will be added be added here.
+				for key in self.all_sub_nodes.keys():
+					if key not in sorted_keys:
+						sorted_keys.append(key)
+			else:
+				# The 'standard' method of sorting keys. Adds each key to a list and sorts alphabetically
+				for key in self.all_sub_nodes.keys():
+					sorted_keys.append(key)
+				sorted_keys.sort()
+
+			# Applies special tags, even though some of these tags completely overrides previous sort logic lol
+			if "ints" in logic_tags:
+				sorted_keys = []
 				sorted_keys_ints = []
 				sorted_keys_strs = []
 
@@ -129,75 +161,38 @@ class BoxNode03:
 				for sorted_str in sorted_keys_strs:
 					sorted_keys.append(sorted_str)
 
+			if "reverse" in logic_tags:
+				sorted_keys.reverse()
+
 			# Categories such as color_id and card_type get special logic.
 			#   The sorter_logic contains a custom order that this algorith attempts to replicate
-			elif this_logic in self.custom_sort_orders:
-				custom_sort_order = self.custom_sort_orders[this_logic]
-
-				# Iterates through the custom order. If it finds a matching key, adds it to the sorted_keys list
-				for custom_sort in custom_sort_order:
-					if custom_sort in self.all_sub_nodes:
-						sorted_keys.append(custom_sort)
-
-				# This shouldn't ever get used, but in case there are any keys not in the sort logic,
-				#   they will be added be added here.
-				for key in self.all_sub_nodes.keys():
-					if key not in sorted_keys:
-						sorted_keys.append(key)
-
-			else:
-				# The 'standard' method of sorting keys. Adds each key to a list and sorts alphabetically
-				for key in self.all_sub_nodes.keys():
-					sorted_keys.append(key)
-				sorted_keys.sort()
 
 			# Recurses through each box in the sorted order
 			for sorted_key in sorted_keys:
 				self.all_sub_nodes[sorted_key].output_branch_cards(box_cards)
 
 
-#
-# # Using the MagicSorterTrie and NewCard class, sorts each card from the given file, processes, and prints
-# def controller_sort_03(data, sort_logic="sorter_logic_03.json", filename="audit_csv.csv"):
-# 	SortAudit = MagicSorterTrie03(sort_logic)
-# 	# Import cards from filename
-# 	all_cards = read_csv(filename, True, True)
-# 	audit_rows = []
-#
-# 	# Create NewCard objects for each card
-# 	for card in all_cards:
-# 		this_card = NewCard(card)
-#
-# 		if this_card.try_match_self(data):
-# 			SortAudit.add_card(this_card)
-# 	# all_new_cards.append(this_card)
-#
-# 	all_sorted_cards = SortAudit.output_cards()
-#
-# 	match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True,
-# 	                                    do_snake_case_names=True)
-# 	audit_rows.append(read_csv_get_headers(name=filename))
-#
-# 	i = 1
-# 	for this_card in all_sorted_cards:
-# 		new_row = []
-# 		this_card.sorter_id = i
-# 		for match_field in match_fields:
-# 			new_row.append(this_card.try_get_field(match_field))
-#
-# 		audit_rows.append(new_row)
-# 		i += 1
-#
-# 	write_data_list(audit_rows, "sorted")
-#
+class Logic03:
+	name = ""
+	tags = []
+	name_str = ""
+	has_tags = False
 
-# Sort NewCard objects with MagicSorterTrie03 (it has been reworked to accept NewCard objects
-# Process cards in the manner of magic_grinder_03 (may have to move rearrange code to make it more modular)
-# Output, being sure that the original headers are maintained
+	def __init__(self, name_str):
+		self.name_str = name_str
+		split_name = name_str.split("|")
+		self.name = split_name.pop(0).lower()
+		self.tags = split_name
+		self.has_tags = len(self.tags) > 0
+
+	def __str__(self):
+		return self.name_str
+
+
+def controller_test_sorter():
+	SortAudit = MagicSorterTrie03("sorter_logic_03.json")
 
 
 if __name__ == '__main__':
 	print("Sorting cards!")
-	data = controller_get_sorted_data(path="test-cards")
-
-	# controller_sort_03(data=data)
+	controller_test_sorter()

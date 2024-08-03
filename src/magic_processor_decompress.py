@@ -7,9 +7,13 @@ from common_methods_io import read_csv, write_data, snake_case_parameter
 def decompress_set_sheet(all_rows, count_col):
 	all_decompressed_rows = []
 	for row in all_rows:
-		r = range(int(row[count_col]))
-		for x in r:
-			all_decompressed_rows.append(row)
+		try:
+			if row[count_col].isdigit():
+				r = range(int(row[count_col]))
+				for x in r:
+					all_decompressed_rows.append(row)
+		except Exception as E:
+			pass
 
 	return all_decompressed_rows
 
