@@ -75,3 +75,45 @@ def get_all_creature_types():
 	        "Triskelavite", "Troll", "Turtle", "Tyranid", "Unicorn", "Vampire", "Varmint", "Vedalken", "Volver", "Wall",
 	        "Walrus", "Warlock", "Warrior", "Weird", "Werewolf", "Whale", "Wizard", "Wolf", "Wolverine", "Wombat",
 	        "Worm", "Wraith", "Wurm", "Yeti", "Zombie", "Zubera", "Time Lord"]
+
+
+def sort_cards_by_set_num(all_cards):
+	sorted_cards = []
+	sorted_nums_ints = []
+	sorted_keys_strs = []
+
+	for card in all_cards:
+		# in_card = 'collect_number' in card
+		# num_is_digit = card["collector_number"].isdigit()
+		# num = card["collector_number"]
+		if card["collector_number"].isdigit():
+			sorted_nums_ints.append(card)
+		else:
+			sorted_keys_strs.append(card)
+
+	sorted_nums_ints.sort(key=sort_set_num_int)
+	sorted_keys_strs.sort(key=sort_set_num_str)
+
+	for sorted_int in sorted_nums_ints:
+		sorted_cards.append(sorted_int)
+
+	for sorted_str in sorted_keys_strs:
+		sorted_cards.append(sorted_str)
+
+	return sorted_cards
+
+
+def sort_set_num_str(card):
+	# if "collect_number" in card:
+	return card["collector_number"]
+
+
+# else:
+# 	return ""
+
+
+def sort_set_num_int(card):
+	# if "collect_number" in card.keys():
+	return int(card["collector_number"])
+# else:
+# 	return 0

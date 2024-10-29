@@ -1,6 +1,7 @@
 import os
 import common_methods_io
 from datetime import *
+from common_methods_processor_03 import sort_cards_by_set_num
 
 
 # Imports the latest full Scryfall download file containing each printing of each card.
@@ -61,8 +62,8 @@ def get_latest_json(json_class="oracle-cards"):
 				all_timestamps.append(int(json[len(json_class) + 1:-5]))
 			except Exception as E:
 				pass
-				# print("Errant operation converting timestamp to int")
-				# print(E)
+	# print("Errant operation converting timestamp to int")
+	# print(E)
 
 	# Sorts timestamps
 	if len(all_timestamps) == 0:
@@ -90,30 +91,64 @@ def sort_cards_by_set(data):
 	return all_sorted_cards
 
 
+# For a given dataset, sorts each card by a given field. Defaults to name
+# Returns a dictionary
+def sort_cards_by_field(data, field="name"):
+	all_sorted_cards = {}
+	for card in data:
+		this_field = card[field]
+		if this_field not in all_sorted_cards:
+			all_sorted_cards[this_field] = []
+
+		all_sorted_cards[this_field].append(card)
+
+	return all_sorted_cards
+
+
+# For a given dataset, filters out any card that is a reprint,
+#     returning the original printing for each card with the lowest set number
+# def sort_cards_by_original_printing(data):
+# 	all_original_cards = {}
+# 	# Iterates through parameterized data object
+#
+# 	for card in data:
+# 		if not card["reprint"]:
+# 			card_name = card["name"]
+# 			# If the card is not in the dictionary, adds it
+# 			if card_name not in all_original_cards:
+# 				all_original_cards[card_name] = card
+# 			# If this card has a lower set number than the version currently in the dictionary, replaces it
+# 			elif all_original_cards[card_name]["collector_number"] > card["collector_number"]:
+# 				all_original_cards[card_name] = card
+#
+# 	# Flattens dictionary into a list. Returns
+# 	all_cards_list = []
+# 	for key in all_original_cards:
+# 		all_cards_list.append(all_original_cards[key])
+#
+# 	return all_cards_list
+
 # For a given dataset, filters out any card that is a reprint,
 #     returning the original printing for each card with the lowest set number
 def sort_cards_by_original_printing(data):
-	all_original_cards = {}
-	# Iterates through parameterized data object
-
-	# TODO: This returns tokens with the same name as cards which is annoying
-	for card in data:
-		if not card["reprint"]:
-			card_name = card["name"]
-			# If the card is not in the dictionary, adds it
-			if card_name not in all_original_cards:
-				all_original_cards[card_name] = card
-			# If this card has a lower set number than the version currently in the dictionary, replaces it
-			# TODO: This doesn't work for Bone Shards from MH2 and possibly others as well
-			elif all_original_cards[card_name]["collector_number"] > card["collector_number"]:
-				all_original_cards[card_name] = card
-
-	# Flattens dictionary into a list. Returns
+	data_sorted = sort_cards_by_field(data, "name")
 	all_cards_list = []
-	for key in all_original_cards:
-		all_cards_list.append(all_original_cards[key])
+
+	for card_name in data_sorted:
+		sorted_card_details = sort_cards_by_set_num(data_sorted[card_name])
+		sorted_card_details.sort(key=sort_set)
+		sorted_card_details.sort(key=sort_release)
+		all_cards_list.append(sorted_card_details[0])
 
 	return all_cards_list
+
+
+def sort_release(card):
+	return card["released_at"]
+
+
+def sort_set(card):
+	return card["set"]
 
 
 # Returns the dataset at the given path sorted by set code
@@ -130,6 +165,23 @@ def controller_get_sorted_data(path="default-cards"):
 	data_sorted = sort_cards_by_set(data)
 	now = datetime.now().timestamp()
 	print(f"Sorted cards! Imported and sorted {len(data)} cards in {now - then} seconds!")
+	return data_sorted
+
+
+# Returns the dataset at the given path sorted by set code
+def controller_get_sorted_data_by_field(path="default-cards", field="name"):
+	# Import each printing of each card
+	then = datetime.now().timestamp()
+
+	path = get_latest_json(path)
+	print("Importing Scryfall data at " + path)
+	# Parses JSON file at that location
+	data = common_methods_io.read_json("downloads/" + path)
+
+	# Sorts all cards into a dictionary by set
+	data_sorted = sort_cards_by_field(data, field)
+	now = datetime.now().timestamp()
+	print(f"Sorted cards! Imported and sorted {len(data)} cards by {field} in {now - then} seconds!")
 	return data_sorted
 
 
