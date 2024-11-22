@@ -115,5 +115,21 @@ def sort_set_num_str(card):
 def sort_set_num_int(card):
 	# if "collect_number" in card.keys():
 	return int(card["collector_number"])
+
+
 # else:
 # 	return 0
+
+# Returns true if the card is in an expansion or core set released on or after Return to Ravnica
+def card_is_pioneer_legal_set(scryfall_card):
+	is_expansion_or_core = "set_type" in scryfall_card and (
+			scryfall_card["set_type"] == "expansion" or scryfall_card["set_type"] == "core")
+	is_after_rtr = "released_at" in scryfall_card and scryfall_card["released_at"] >= "2012-10-05"
+	return is_after_rtr and is_expansion_or_core
+
+
+# Despite my efforts, I have not been able to identify an API or some such to return the current standard sets.
+# So this will have to be hard-coded.
+def card_is_standard_legal_set(scryfall_card):
+	standard_sets = ["dmu", "bro", "one", "mom", "mat", "woe", "lci", "mkm", "otj", "blb", "dsk"]
+	return "set" in scryfall_card and scryfall_card["set"] in standard_sets

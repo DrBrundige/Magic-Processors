@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
+
+
 # Various small algorithms I carry with me from project to project. Most of them aren't even used here.
 
 
-# For a given word, returns that word in upper case with all non-letter characters removed
+# For a given word, returns that word in upper case with all non-letter, non-space characters removed
 def clean_word(word):
 	cleaned = ""
 	for char in word.upper():
-		if 65 <= ord(char) <= 90:
+		if (65 <= ord(char) <= 90) or ord(char) == 32:
 			cleaned += char
 	return cleaned
 

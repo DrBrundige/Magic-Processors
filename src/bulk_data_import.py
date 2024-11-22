@@ -96,11 +96,14 @@ def sort_cards_by_set(data):
 def sort_cards_by_field(data, field="name"):
 	all_sorted_cards = {}
 	for card in data:
-		this_field = card[field]
-		if this_field not in all_sorted_cards:
-			all_sorted_cards[this_field] = []
+		if field in card:
+			this_field = card[field]
+			if this_field not in all_sorted_cards:
+				all_sorted_cards[this_field] = []
 
-		all_sorted_cards[this_field].append(card)
+			all_sorted_cards[this_field].append(card)
+		# else:
+		# 	print("Could not sort card")
 
 	return all_sorted_cards
 

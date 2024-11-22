@@ -187,6 +187,14 @@ def get_card_is_eternal(scryfall_card):
 		return scryfall_card["legalities"]["vintage"] != "not_legal"
 
 
+# Almost identical to the above logic, but accepts a parameterized format
+def get_card_is_in_format(scryfall_card, format):
+	if "legalities" not in scryfall_card:
+		return False
+	else:
+		return format in scryfall_card["legalities"] and scryfall_card["legalities"][format] != "not_legal"
+
+
 # Returns whether the card is available in paper
 def get_card_is_paper(scryfall_card):
 	if "games" not in scryfall_card:

@@ -427,17 +427,17 @@ def find_regex_in_list(block, r):
 
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
-	filename = "bin/shitty_cards_ideas.txt"
+	filename = "bin/baol.txt"
 
 	# Set Slots sheet
 	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
-	output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type"]
+	# output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type","Rules"]
 	# output_fields = ["name"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
-	# controller_import_custom_card_sheet_to_mse(filename)
-	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
+	controller_import_custom_card_sheet_to_mse(filename)
+	# controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
