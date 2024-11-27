@@ -45,7 +45,7 @@ def parse_text_decklist(all_decklist_cards):
 # Accepts a string representing API URL. Returns a dictionary
 def get_decklist_from_api(request_url):
 	all_request_card_names = set()
-	do_get_request_card_names(request_url, all_request_card_names)
+	do_get_request_card_names_set(request_url, all_request_card_names)
 
 	decklist = {}
 
@@ -56,14 +56,14 @@ def get_decklist_from_api(request_url):
 
 
 # A recursive method that requests each page from a URL and returns each card name
-def do_get_request_card_names(request_url, all_reqest_card_names):
+def do_get_request_card_names_set(request_url, all_reqest_card_names):
 	data = call_scryfall_03(request_url)
 	# print(data)
 	for object in data["data"]:
 		all_reqest_card_names.add(object["name"])
 
 	if data["has_more"]:
-		return do_get_request_card_names(data["next_page"], all_reqest_card_names)
+		return do_get_request_card_names_set(data["next_page"], all_reqest_card_names)
 	else:
 		return True
 
@@ -130,7 +130,7 @@ def controller_get_upgrades(collection_path="audit_csv.csv", decklist_path="bin/
 
 # Ties the above three methods together
 # Returns a list of dictionaries
-def controller_get_upgrades_in_collection(collection_path="audit_csv.csv", decklist_path="bin/decklist.txt"):
+def controller_get_decklist_upgrades_in_collection(collection_path="audit_csv.csv", decklist_path="bin/decklist.txt"):
 	all_cards = read_csv(name=collection_path, do_snake_case_names=True)
 	collection = get_audit_card_histogram(all_cards)
 
@@ -165,11 +165,12 @@ if __name__ == '__main__':
 	#                                                           decklist_path="bin/new_cards.txt")
 	# print(all_upgrade_cards)
 	# write_data(all_upgrade_cards)
+	format = "commander"
 	otag = "ramp"
-	id = "g"
-	# collection_path = "audit_csv.csv"
-	collection_path = "audit_csv_h.csv"
-	request_url = f"https://api.scryfall.com/cards/search?q=otag%3A{otag}+id%3A{id}+f%3APauper&unique=cards&as=grid"
+	id = "gu"
+	collection_path = "audit_csv.csv"
+	# collection_path = "audit_csv_h.csv"
+	request_url = f"https://api.scryfall.com/cards/search?q=otag%3A{otag}+id%3A{id}+f%3A{format}&unique=cards&as=grid"
 	# request_url = "https://api.scryfall.com/cards/search?q=f%3Apauper+cmc%3A1+c%3Ag+type%3Acreature"
 	all_upgrade_cards = controller_get_api_upgrades_in_collection(collection_path=collection_path,
 	                                                              request_url=request_url)
