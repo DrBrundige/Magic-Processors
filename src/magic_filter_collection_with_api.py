@@ -41,12 +41,19 @@ def get_query_from_terms(terms):
 	combined_terms = []
 
 	for key, value in terms.items():
-		this_term = f"{key}%3A{value}"
+		this_term = f"{key}%3A{process_multiple_words(value)}"
 		combined_terms.append(this_term)
 
 	terms_string = "+".join(combined_terms)
 	# print(terms_string)
 	return f"https://api.scryfall.com/cards/search?q={terms_string}&unique=cards&as=grid"
+
+
+def process_multiple_words(value):
+	if " " in value:
+		return f"\'{value.replace(' ', '+')}\'"
+	else:
+		return value
 
 
 # Calls API and returns all cards as a single list of dictionaries.
@@ -83,6 +90,7 @@ def controller_filter_collection_with_api(filename, terms, match_fields):
 if __name__ == '__main__':
 	print("Filtering decklist by API call")
 	filename = "audit_csv.csv"
-	terms = {"id": "gu", "otag": "untapper-creature", "f": "commander"}
+	# terms = {"id": "gu", "otag": "untapper-creature", "f": "commander"}
+	terms = {"artist": "Magali Villeneuve"}
 	match_fields = ["name", "set", "type", "home_box", "2024_audit", "edhrec_rank", "mana_cost", "oracle_text"]
 	controller_filter_collection_with_api(filename=filename, terms=terms, match_fields=match_fields)

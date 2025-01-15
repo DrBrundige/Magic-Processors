@@ -3,6 +3,9 @@ from common_methods_processor import format_cards_for_audit_sheet
 # from magic_grinder_03 import *
 from bulk_data_import import controller_get_sorted_data
 
+# TODO: Throws error and crashes completely if a card does not have a home box
+# TODO: Needs to catch exception when card can't be sorted
+
 
 class MagicSorterTrie03:
 	# This dictionary contains instructions to sort each box.

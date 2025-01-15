@@ -127,6 +127,42 @@ def controller_find_pioneer_cards_not_on_arena(format="pioneer", game="arena"):
 	return all_scryfall_cards
 
 
+# Finds cards with only a single art. There may be a way to handle this with the histogram, but I hate that method
+def controller_find_cards_with_single_artist():
+	data = import_scryfall_art()
+
+	card_histogram = {}
+
+	# Creates a histogram counting the appearances of each card
+	for scryfall_card in data:
+		if "oracle_id" in scryfall_card and "paper" in scryfall_card["games"]:
+			card_name = scryfall_card["oracle_id"]
+			if card_name in card_histogram:
+				card_histogram[card_name] = card_histogram[card_name] + 1
+			else:
+				card_histogram[card_name] = 1
+
+	identified_cards = []
+
+	# Loops through data again looking for cards with only one entry
+	# lmao I think this is actually the most efficient way to do this
+	for scryfall_card in data:
+		if "oracle_id" in scryfall_card:
+			card_name = scryfall_card["oracle_id"]
+			if card_name in card_histogram and card_histogram[card_name] == 1:
+				# print(card_name)
+				identified_cards.append(scryfall_card)
+
+	# Send identified_cards to processor_03 to process as a bulk data file with given fields
+	all_new_cards = get_all_cards_from_data_file(identified_cards)
+
+	match_fields = ["name", "set", "set_num", "released_at", "mana_cost", "artist", "edhrec_rank"]
+	output_rows = output_bound_cards(all_new_cards, match_fields)
+
+	output_rows.insert(0, match_fields)
+	write_data_list(output_rows, "single_artist")
+
+
 def get_first_printing_in_list(all_cards, all_valid_sets):
 	sorted_card_details = sort_cards_by_set_num(all_cards)
 	sorted_card_details.sort(key=sort_set)
@@ -180,4 +216,5 @@ if __name__ == '__main__':
 	print("Processing Magic cards to find complex information.")
 	# controller_find_cards_without_real_magic_printing()
 	# controller_find_crossovers_with_real_magic_reprint()
-	controller_find_pioneer_cards_not_on_arena()
+	# controller_find_pioneer_cards_not_on_arena()
+	controller_find_cards_with_single_artist()
