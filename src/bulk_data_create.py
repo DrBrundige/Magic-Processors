@@ -1,5 +1,5 @@
 from magic_processor_03 import NewCard
-from bulk_data_import import controller_get_sorted_data
+from bulk_data_import import controller_get_sorted_data, controller_get_original_printings
 from common_methods_io import read_csv, write_data_json
 from common_methods_requests import get_set_search_uri_from_set_code, call_scryfall_03, get_download_from_uri
 import os
@@ -31,6 +31,18 @@ def create_test_json_from_api(request_url, filename="test-cards-api"):
 	do_get_json(request_url, output_rows)
 
 	write_data_json(output_rows, filename=filename, destination="downloads")
+
+
+def create_test_json_from_format(data, format="vintage"):
+	print(f"Processing cards in format: {format}")
+	all_scryfall_cards = []
+
+	for scryfall_card in data:
+		if "legalities" in scryfall_card and scryfall_card["legalities"][format] != "not_legal":
+			all_scryfall_cards.append(scryfall_card)
+
+	print(f"Identified {len(all_scryfall_cards)} cards")
+	write_data_json(all_scryfall_cards, filename=f"test-cards-{format}", destination="downloads")
 
 
 def do_get_json(request_url, output_rows):
@@ -112,14 +124,18 @@ def controller_create_test_json_from_set(set='woe'):
 # Do not use this. Use new_controller_process_all_cards_in_data_file to create a CSV with all cards in it,
 #   manipulate as needed, then create a test JSON with controller_create_test_json instead.
 def controller_create_test_json_from_format_cards(format="vintage"):
-	request_url = f"https://api.scryfall.com/cards/search?q=f%3A{format}&unique=cards&order=name"
-	create_test_json_from_api(request_url, filename=format)
+	print(f"Creating JSON of cards in format: {format}")
+	# request_url = f"https://api.scryfall.com/cards/search?q=f%3A{format}&unique=cards&order=name"
+	# create_test_json_from_api(request_url, filename=format)
+	data = controller_get_original_printings()
+	create_test_json_from_format(data, format)
 
 
 if __name__ == '__main__':
-	print("Creating JSON of all cards in collection.")
+	print("Creating new JSON download files.")
 	# controller_create_test_json_from_set("OTJ")
 	# controller_create_test_json(filename="all_eternal_cards.csv")
-	# controller_create_test_json_from_format_cards()
-	# download_latest_json_files()
-	controller_create_test_json()
+	controller_create_test_json_from_format_cards(format="standard")
+# create_test_json_from_api("https://api.scryfall.com/cards/search?q=year%3A2023","test-cards-2023")
+# download_latest_json_files()
+# controller_create_test_json()

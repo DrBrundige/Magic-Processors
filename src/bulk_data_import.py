@@ -33,7 +33,7 @@ def import_scryfall_art():
 	return data
 
 
-# Imports the latest abridged Scryfall download file containing one printing for each unique card art.
+# Imports the latest Scryfall download file with the given name
 def import_scryfall(json_prefix="test-cards"):
 	path = get_latest_json(json_prefix)
 	print("Importing Scryfall test card data at " + path)
@@ -200,14 +200,14 @@ def controller_get_original_printings():
 		f"Sorted cards by original printing! Imported and sorted {len(original_printings)} cards in {now - then} seconds!")
 	return original_printings
 
-
-def controller_get_test_data():
-	print("Importing test data")
-	data = common_methods_io.read_json("bin/all_khm_cards.json")
-	sorted_data = sort_cards_by_set(data)
-
-	print(f"Success! Imported and sorted {len(data)} cards!")
-	return sorted_data
+#
+# def controller_get_test_data():
+# 	print("Importing test data")
+# 	data = common_methods_io.read_json("bin/all_khm_cards.json")
+# 	sorted_data = sort_cards_by_set(data)
+#
+# 	print(f"Success! Imported and sorted {len(data)} cards!")
+# 	return sorted_data
 
 
 if __name__ == '__main__':
