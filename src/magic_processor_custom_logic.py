@@ -127,7 +127,35 @@ def controller_find_pioneer_cards_not_on_arena(format="pioneer", game="arena"):
 	return all_scryfall_cards
 
 
-# Finds cards with only a single art. There may be a way to handle this with the histogram, but I hate that method
+# Finds cards unavailable in paper for a given frame
+def controller_find_cards_with_no_frame_printing(frame="2015"):
+	data = controller_get_sorted_data_by_field(path="default-cards", field="oracle_id", do_order_by_release=True)
+
+	card_details = []
+
+	for card_oracle in data:
+		card_has_frame_printing = False
+		for scryfall_card in data[card_oracle]:
+			# print(scryfall_card["frame"])
+			if "frame" in scryfall_card and scryfall_card["frame"] == frame and "paper" in scryfall_card["games"]:
+				# print("Found frame")
+				card_has_frame_printing = True
+				continue
+
+		if not card_has_frame_printing:
+			card_details.append(data[card_oracle][0])
+
+	print("Identified a number of cards")
+
+	card_objects = get_all_cards_from_data_file(card_details)
+	match_fields = ["name", "set", "set_num", "released_at", "mana_cost", "frame", "edhrec_rank"]
+	output_rows = output_bound_cards(card_objects, match_fields)
+	output_rows.insert(0, match_fields)
+	write_data_list(output_rows, "no_modern_printing")
+	return card_details
+
+
+# Finds cards with only a single art. There may be a way to handle this with the histogram, but I hate the histogram
 def controller_find_cards_with_single_artist():
 	data = import_scryfall_art()
 
@@ -217,4 +245,7 @@ if __name__ == '__main__':
 	# controller_find_cards_without_real_magic_printing()
 	# controller_find_crossovers_with_real_magic_reprint()
 	# controller_find_pioneer_cards_not_on_arena()
-	controller_find_cards_with_single_artist()
+	# controller_find_cards_with_single_artist()
+	controller_find_cards_with_no_frame_printing()
+
+	print("<3")

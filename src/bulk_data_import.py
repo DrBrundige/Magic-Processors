@@ -102,8 +102,8 @@ def sort_cards_by_field(data, field="name"):
 				all_sorted_cards[this_field] = []
 
 			all_sorted_cards[this_field].append(card)
-		# else:
-		# 	print("Could not sort card")
+	# else:
+	# 	print("Could not sort card")
 
 	return all_sorted_cards
 
@@ -134,7 +134,7 @@ def sort_cards_by_field(data, field="name"):
 # For a given dataset, filters out any card that is a reprint,
 #     returning the original printing for each card with the lowest set number
 def sort_cards_by_original_printing(data):
-	data_sorted = sort_cards_by_field(data, "name")
+	data_sorted = sort_cards_by_field(data, "oracle_id")
 	all_cards_list = []
 
 	for card_name in data_sorted:
@@ -172,7 +172,7 @@ def controller_get_sorted_data(path="default-cards"):
 
 
 # Returns the dataset at the given path sorted by set code
-def controller_get_sorted_data_by_field(path="default-cards", field="name"):
+def controller_get_sorted_data_by_field(path="default-cards", field="name", do_order_by_release=False):
 	# Import each printing of each card
 	then = datetime.now().timestamp()
 
@@ -183,6 +183,23 @@ def controller_get_sorted_data_by_field(path="default-cards", field="name"):
 
 	# Sorts all cards into a dictionary by set
 	data_sorted = sort_cards_by_field(data, field)
+
+	# I should really go ahead and make this its own method. Eh.
+	if do_order_by_release:
+		print("Ordering data by release")
+		data_ordered = {}
+
+		for key in data_sorted:
+			unordered_list = data_sorted[key]
+
+			unordered_list = sort_cards_by_set_num(unordered_list)
+			unordered_list.sort(key=sort_set)
+			unordered_list.sort(key=sort_release)
+
+			data_ordered[key] = unordered_list
+
+		data_sorted = data_ordered
+
 	now = datetime.now().timestamp()
 	print(f"Sorted cards! Imported and sorted {len(data)} cards by {field} in {now - then} seconds!")
 	return data_sorted
@@ -196,9 +213,10 @@ def controller_get_original_printings():
 	print("Imported cards!")
 	original_printings = sort_cards_by_original_printing(data)
 	now = datetime.now().timestamp()
-	print(
-		f"Sorted cards by original printing! Imported and sorted {len(original_printings)} cards in {now - then} seconds!")
+	print(f"Sorted cards by original printing! "
+	      f"Imported and sorted {len(original_printings)} cards in {now - then} seconds!")
 	return original_printings
+
 
 #
 # def controller_get_test_data():
