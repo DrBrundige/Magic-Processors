@@ -283,13 +283,15 @@ class NewCard:
 			elif field == "reprint" or field == "is_reprint":
 				return str(self.scryfall_card["reprint"])
 			elif field == "eternal" or field == "is_eternal":
-				return str(get_card_is_eternal(self.scryfall_card))
+				return str(get_card_is_constructed_legal(self.scryfall_card))
 			elif field == "archetype" or field == "card_archetype":
 				return get_card_archetype_from_type_line(self.try_get_field("type_line"))
 			elif field == "paper" or field == "is_paper":
 				return str(get_card_is_paper(self.scryfall_card))
 			elif field == "release_date":
 				return self.try_get_field("released_at")
+			elif field == "is_pauper":
+				return str(self.scryfall_card["legalities"]["pauper"] == "legal")
 
 			# Checks if field is in scryfall object. If so, returns that field
 			scryfall_card_field = str(get_field_from_card(scryfall_card=self.scryfall_card, field=field))
@@ -617,15 +619,16 @@ if __name__ == '__main__':
 	# filename = "all_order_cards.csv"
 	# new_controller_process_cards_from_file(filename=filename, data=data, match_fields=match_fields, count_field="Count")
 
-	match_fields = ["name", "set", "set_num", "released_at", "mana_cost", "reprint", "spc"]
-	# data = controller_get_original_printings()
-	data = import_scryfall(json_prefix="test-cards-vintage")
+	match_fields = ["name", "set", "set_num", "released_at", "archetype", "colors", "mana_cost", "reprint", "spc",
+	                "value", "reserved", "edhrec_rank", "is_pauper"]
+	data = controller_get_cheapest_printing()
+	# data = import_scryfall(json_prefix="test-cards-vintage")
 	new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
 
-	# data = controller_get_sorted_data()
-	# data = controller_get_sorted_data(path="test-cards")
-	# filename = "audit_csv.csv"
-	# new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
+# data = controller_get_sorted_data()
+# data = controller_get_sorted_data(path="test-cards")
+# filename = "audit_csv.csv"
+# new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
 
 # controller_get_all_sets()
 

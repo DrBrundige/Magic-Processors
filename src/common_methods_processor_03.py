@@ -32,6 +32,43 @@ def get_usd_from_card_03(card, scryfall_card):
 		return f"Error|{E}"
 
 
+def get_cheapest_usd_from_scryfall_card(scryfall_card):
+	try:
+		all_prices = scryfall_card["prices"]
+		usd_values = []
+
+		if all_prices["usd"] is not None:
+			usd_values.append(float(all_prices["usd"]))
+		if all_prices["usd_foil"] is not None:
+			usd_values.append(float(all_prices["usd_foil"]))
+		if all_prices["usd_etched"] is not None:
+			usd_values.append(float(all_prices["usd_etched"]))
+
+		if len(usd_values) > 0:
+			usd_values.sort()
+
+			return usd_values[0]
+		else:
+			return False
+	except Exception as E:
+		print("Errant operation calculating price")
+		print(E)
+		return False
+
+
+# I agonized over how to tell if a card was legal for constructed or not,
+#   eventually deciding on checking the format legality. But guess what!
+#   The gold border cards are marked as vintage legal too! Aaaaigh! Checks format and set type
+# Accepts a scryfall_card object. Returns a bool
+def get_card_is_constructed_legal(scryfall_card):
+	if "legalities" not in scryfall_card or "set_type" not in scryfall_card:
+		return False
+	else:
+		is_vintage_legal = scryfall_card["legalities"]["vintage"] != "not_legal"
+		is_not_extra = scryfall_card["set_type"] != "memorabilia" and scryfall_card["set_type"] != "token"
+		return is_vintage_legal and is_not_extra
+
+
 # Gets the price range for the given card
 def get_price_range_03(value, rarity, high_value=2):
 	if float(value) > high_value:

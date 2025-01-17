@@ -1,7 +1,8 @@
 import os
 import common_methods_io
 from datetime import *
-from common_methods_processor_03 import sort_cards_by_set_num
+from common_methods_processor_03 import sort_cards_by_set_num, get_cheapest_usd_from_scryfall_card, \
+	get_card_is_constructed_legal
 
 
 # Imports the latest full Scryfall download file containing each printing of each card.
@@ -110,29 +111,6 @@ def sort_cards_by_field(data, field="name"):
 
 # For a given dataset, filters out any card that is a reprint,
 #     returning the original printing for each card with the lowest set number
-# def sort_cards_by_original_printing(data):
-# 	all_original_cards = {}
-# 	# Iterates through parameterized data object
-#
-# 	for card in data:
-# 		if not card["reprint"]:
-# 			card_name = card["name"]
-# 			# If the card is not in the dictionary, adds it
-# 			if card_name not in all_original_cards:
-# 				all_original_cards[card_name] = card
-# 			# If this card has a lower set number than the version currently in the dictionary, replaces it
-# 			elif all_original_cards[card_name]["collector_number"] > card["collector_number"]:
-# 				all_original_cards[card_name] = card
-#
-# 	# Flattens dictionary into a list. Returns
-# 	all_cards_list = []
-# 	for key in all_original_cards:
-# 		all_cards_list.append(all_original_cards[key])
-#
-# 	return all_cards_list
-
-# For a given dataset, filters out any card that is a reprint,
-#     returning the original printing for each card with the lowest set number
 def sort_cards_by_original_printing(data):
 	data_sorted = sort_cards_by_field(data, "oracle_id")
 	all_cards_list = []
@@ -146,12 +124,45 @@ def sort_cards_by_original_printing(data):
 	return all_cards_list
 
 
+def sort_cards_by_cheapest_printing(data):
+	data_sorted = sort_cards_by_field(data, "oracle_id")
+	all_cards_list = []
+
+	for card_name in data_sorted:
+		sorted_card_details = sort_cards_by_set_num(data_sorted[card_name])
+		sorted_card_details.sort(key=sort_set)
+		sorted_card_details.sort(key=sort_release)
+
+		cheapest_card = None
+		cheapest_value = None
+
+		for scryfall_card in sorted_card_details:
+			if get_card_is_constructed_legal(scryfall_card):
+				this_card_value = get_cheapest_usd_from_scryfall_card(scryfall_card)
+				if this_card_value > 0:
+					if cheapest_card is None:
+						cheapest_card = scryfall_card
+						cheapest_value = this_card_value
+					elif cheapest_value > this_card_value:
+						cheapest_card = scryfall_card
+						cheapest_value = this_card_value
+
+		if cheapest_card is not None:
+			all_cards_list.append(cheapest_card)
+
+	return all_cards_list
+
+
 def sort_release(card):
 	return card["released_at"]
 
 
 def sort_set(card):
 	return card["set"]
+
+
+def sort_usd(card):
+	return get_cheapest_usd_from_scryfall_card(card)
 
 
 # Returns the dataset at the given path sorted by set code
@@ -218,14 +229,16 @@ def controller_get_original_printings():
 	return original_printings
 
 
-#
-# def controller_get_test_data():
-# 	print("Importing test data")
-# 	data = common_methods_io.read_json("bin/all_khm_cards.json")
-# 	sorted_data = sort_cards_by_set(data)
-#
-# 	print(f"Success! Imported and sorted {len(data)} cards!")
-# 	return sorted_data
+def controller_get_cheapest_printing():
+	# then = datetime.now().timestamp()
+	then = datetime.now().timestamp()
+	data = import_scryfall_full()
+	print("Imported cards!")
+	original_printings = sort_cards_by_cheapest_printing(data)
+	now = datetime.now().timestamp()
+	print(f"Sorted cards by cheapest printing! "
+	      f"Imported and sorted {len(original_printings)} cards in {now - then} seconds!")
+	return original_printings
 
 
 if __name__ == '__main__':
