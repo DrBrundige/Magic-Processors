@@ -435,6 +435,7 @@ if __name__ == '__main__':
 
 	# Set Slots sheet
 	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
+	output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
 	# output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type","Rules"]
@@ -445,3 +446,5 @@ if __name__ == '__main__':
 
 	controller_import_custom_card_sheet_to_mse(filename)
 	# controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
+	# controller_import_custom_card_sheet_to_mse(filename)
+	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
