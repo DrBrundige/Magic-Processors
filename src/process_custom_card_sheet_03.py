@@ -1,5 +1,7 @@
 import re
 
+from unidecode import unidecode
+
 from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt, snake_case_parameter_list
 from common_methods_requests import call_scryfall_03
 from common_methods_processor import get_color_code_from_colors, get_card_type_from_type_line
@@ -282,7 +284,7 @@ class CustomCardReprint(CustomCardText):
 			if field == "set":
 				return self.set_code
 			elif field in self.scryfall_object:
-				return str(self.scryfall_object[field])
+				return unidecode(str(self.scryfall_object[field]))
 			else:
 				return super().try_get_field(field=field)
 
@@ -293,7 +295,9 @@ class CustomCardReprint(CustomCardText):
 			return f"ERROR | {E}"
 
 	def try_get_type_line(self):
-		return self.scryfall_object["type_line"]
+
+		return unidecode(self.scryfall_object["type_line"])
+
 
 # class CustomCardSpreadsheet(CustomCard):
 # 	card_object = {}
