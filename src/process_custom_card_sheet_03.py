@@ -22,7 +22,7 @@ class CustomCard:
 	set_code = ""
 
 	# All potential rarities. Used for MSE shit
-	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare", "L": "land"}
+	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare", "L": "land", "B": "Basic land"}
 
 	def __init__(self, name, slot=0, set_code=""):
 		self.name = name
@@ -165,11 +165,21 @@ class CustomCardText(CustomCard):
 		split_name = self.card_header.split()
 		cost = split_name.pop()
 
+		# Lands and cards with no mana cost include a parenthetical color after the name.
+		# This is omitted from this method but returned in try_get_mana_cost_for_color
 		m = REGEX_COLOR.fullmatch(cost)
 		if m is not None:
 			return ""
 		else:
 			return cost
+
+	# Tries to get the mana cost, which should be the last word of the first line.
+	# In fact returns the last word of the first line
+	def try_get_mana_cost_for_color(self):
+		split_name = self.card_header.split()
+		cost = split_name.pop()
+
+		return cost
 
 	# Tries to get the CMC, derived from the mana cost
 	def try_get_cmc(self):
@@ -183,7 +193,7 @@ class CustomCardText(CustomCard):
 
 	# Tries to get the color which as far as this logic can tell, is derived from the mana cost
 	def try_get_color(self):
-		return process_colors_from_mana_cost(self.try_get_mana_cost())
+		return process_colors_from_mana_cost(self.try_get_mana_cost_for_color())
 
 	# Tries to get the rules text, which should be between the type line and either the PT or a bar
 	def try_get_rules(self):
@@ -309,7 +319,7 @@ class CustomCardReprint(CustomCardText):
 def read_blocks_from_sheet(filename):
 	card_list = read_txt(filename)
 
-	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands"]
+	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands", "Basics", "Basic Lands"]
 	last_rarity = "C"
 	current_block_length = 0
 	current_block = []
