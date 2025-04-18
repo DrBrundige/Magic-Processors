@@ -278,7 +278,7 @@ class NewCard:
 					return ""
 			elif field == "code":
 				return f"{self.set.upper()}|{self.collector_number}"
-			elif field == "value" or field == "price":
+			elif field == "value" or field == "price" or field == "USD":
 				return self.try_get_field_value()
 			elif field == "reprint" or field == "is_reprint":
 				return str(self.scryfall_card["reprint"])
@@ -612,6 +612,7 @@ def controller_get_all_sets(match_fields=None):
 if __name__ == '__main__':
 	print("Welcome to Magic Grinder version Three!")
 
+	# Get audit data from sorted card names
 	# match_fields = read_csv_get_headers("audit_csv.csv", True, True)
 	# data = controller_get_sorted_data()
 	# filename = "all_order_cards.csv"
@@ -621,29 +622,31 @@ if __name__ == '__main__':
 	# data = import_scryfall_abridged()
 	# new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
 
-	# data = controller_get_sorted_data()
-	data = controller_get_sorted_data(path="test-cards")
+	# Updates data and sorts audit_csv
+	data = controller_get_sorted_data()
 	filename = "audit_csv.csv"
 	new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
 
-# controller_get_all_sets()
+	# controller_get_all_sets()
 
-# match_fields = ["name", "set", "set_num", "color", "cmc"]
-# data = import_scryfall_abridged()
-# filename = "all_cube_cards.csv"
-# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
-# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
-# request_url = "https://api.scryfall.com/cards/search?" \
-#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
-# request_url = get_set_search_uri_from_set_code("NEO")
-# new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
+	# match_fields = ["name", "set", "set_num", "color", "cmc"]
+	# data = import_scryfall_abridged()
+	# filename = "all_cube_cards.csv"
+	# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
+	# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
+	# request_url = "https://api.scryfall.com/cards/search?" \
+	#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
+	# request_url = get_set_search_uri_from_set_code("NEO")
+	# new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
 
-# match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
-# request_url = get_set_search_uri_from_set_code("NEO")
+	# Get set information from set code
+	# match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
+	# match_fields = ["Name", "Set", "Set No", "Rarity", "Mana cost", "Color", "Value"]
+	# match_fields = ["Name", "Set", "Set No", "Count", "Extras", "Foils", "Rarity", "Mana cost", "Color", "CMC", "Type"]
+	# request_url = get_set_search_uri_from_set_code("MH3")
+	# new_controller_process_cards_from_api(request_url, match_fields)
 
-# new_controller_process_cards_from_api(request_url, match_fields)
-
-# data = controller_get_sorted_data()
-# data = controller_get_sorted_data(path="test-cards")
-# filename = "audit_csv.csv"
-# new_controller_process_cards_from_file(filename, data, do_sort=True)
+	# data = controller_get_sorted_data()
+	# data = controller_get_sorted_data(path="test-cards")
+	# filename = "audit_csv.csv"
+	# new_controller_process_cards_from_file(filename, data, do_sort=True)

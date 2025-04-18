@@ -295,6 +295,7 @@ class CustomCardReprint(CustomCardText):
 	def try_get_type_line(self):
 		return self.scryfall_object["type_line"]
 
+
 # class CustomCardSpreadsheet(CustomCard):
 # 	card_object = {}
 #
@@ -305,7 +306,7 @@ class CustomCardReprint(CustomCardText):
 def read_blocks_from_sheet(filename):
 	card_list = read_txt(filename)
 
-	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands"]
+	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands", "Basic Lands"]
 	last_rarity = "C"
 	current_block_length = 0
 	current_block = []
@@ -383,7 +384,7 @@ def process_fields_from_cards_to_mse(all_custom_cards, output_fields):
 	return output_rows
 
 
-def controller_import_custom_card_sheet(filename, output_fields, set_code=""):
+def controller_import_custom_card_sheet(filename, output_fields, set_code="", output_name="out"):
 	print(f"Importing from {filename}")
 	all_blocks = read_blocks_from_sheet(filename)
 
@@ -394,7 +395,7 @@ def controller_import_custom_card_sheet(filename, output_fields, set_code=""):
 
 	if len(output_rows) > 0:
 		output_rows.insert(0, output_fields)
-		write_data_list(output_rows)
+		write_data_list(output_rows, filename=output_name)
 	else:
 		print("Errant operation! No cards output")
 
@@ -427,17 +428,19 @@ def find_regex_in_list(block, r):
 
 if __name__ == '__main__':
 	print("Importing and processing custom card sheet. V03")
-	filename = "bin/baol.txt"
+	filename = "bin/baol_2025.txt"
+	# filename = "bin/baol_commons.txt"
 
 	# Set Slots sheet
-	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
+	output_name = "slots"
+	output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
-	# output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type","Rules"]
-	# output_fields = ["name"]
+	# output_name = "types"
+	# output_fields = ["Name", "Set", "Slot", "Rarity", "Mana cost", "Color", "CMC", "Type", "Rules"]
 
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
-	controller_import_custom_card_sheet_to_mse(filename)
-	# controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
+	# controller_import_custom_card_sheet_to_mse(filename)
+	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY", output_name=output_name)
