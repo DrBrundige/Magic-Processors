@@ -283,13 +283,15 @@ class NewCard:
 			elif field == "reprint" or field == "is_reprint":
 				return str(self.scryfall_card["reprint"])
 			elif field == "eternal" or field == "is_eternal":
-				return str(get_card_is_eternal(self.scryfall_card))
+				return str(get_card_is_constructed_legal(self.scryfall_card))
 			elif field == "archetype" or field == "card_archetype":
 				return get_card_archetype_from_type_line(self.try_get_field("type_line"))
 			elif field == "paper" or field == "is_paper":
 				return str(get_card_is_paper(self.scryfall_card))
 			elif field == "release_date":
 				return self.try_get_field("released_at")
+			elif field == "is_pauper":
+				return str(self.scryfall_card["legalities"]["pauper"] == "legal")
 
 			# Checks if field is in scryfall object. If so, returns that field
 			scryfall_card_field = str(get_field_from_card(scryfall_card=self.scryfall_card, field=field))
@@ -564,32 +566,32 @@ def new_controller_process_all_cards_in_data_file(data, match_fields, output_nam
 
 # A controller for my use only with no parameters. Takes multiple files and combines them.
 # The different files are hard-coded to this method. This is terrible. Do not use this method.
-def controller_process_cards_from_multiple_files():
-	data = controller_get_sorted_data()
-	all_filenames = ["all_sort_cards_cmr.csv", "all_sort_cards_dmu.csv", "all_sort_cards_mid.csv",
-	                 "all_sort_cards_mom.csv", "all_sort_cards_neo.csv", "all_sort_cards_one.csv",
-	                 "all_sort_cards_thb.csv", "all_sort_cards_vow.csv"]
-	all_new_cards = []
-
-	for filename in all_filenames:
-		all_filename_cards = get_cards_from_file(filename, data)
-
-		for card in all_filename_cards:
-			all_new_cards.append(card)
-
-	all_sorted_cards = sort_all_cards(all_new_cards, "sorter_logic_03.json")
-
-	# match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
-	# header_row = read_csv_get_headers(name=filename)
-	match_fields = ["Name", "ID", "Set", "Set No", "Variant", "Spc", "Home Box", "Current Location", "Price Range",
-	                "Section", "Year", "Scryfall ID", "Input Code", "Rarity", "Card Type", "Color", "C ID", "Value",
-	                "Release Date"]
-
-	output_rows = output_bound_cards(all_sorted_cards, match_fields, count_field="count")
-
-	# Prepends output rows with header row and outputs to CSV
-	output_rows.insert(0, match_fields)
-	write_data_list(output_rows, "combined")
+# def controller_process_cards_from_multiple_files():
+# 	data = controller_get_sorted_data()
+# 	all_filenames = ["all_sort_cards_cmr.csv", "all_sort_cards_dmu.csv", "all_sort_cards_mid.csv",
+# 	                 "all_sort_cards_mom.csv", "all_sort_cards_neo.csv", "all_sort_cards_one.csv",
+# 	                 "all_sort_cards_thb.csv", "all_sort_cards_vow.csv"]
+# 	all_new_cards = []
+#
+# 	for filename in all_filenames:
+# 		all_filename_cards = get_cards_from_file(filename, data)
+#
+# 		for card in all_filename_cards:
+# 			all_new_cards.append(card)
+#
+# 	all_sorted_cards = sort_all_cards(all_new_cards, "sorter_logic_03.json")
+#
+# 	# match_fields = read_csv_get_headers(name=filename, do_standardize_header_names=True, do_snake_case_names=True)
+# 	# header_row = read_csv_get_headers(name=filename)
+# 	match_fields = ["Name", "ID", "Set", "Set No", "Variant", "Spc", "Home Box", "Current Location", "Price Range",
+# 	                "Section", "Year", "Scryfall ID", "Input Code", "Rarity", "Card Type", "Color", "C ID", "Value",
+# 	                "Release Date"]
+#
+# 	output_rows = output_bound_cards(all_sorted_cards, match_fields, count_field="count")
+#
+# 	# Prepends output rows with header row and outputs to CSV
+# 	output_rows.insert(0, match_fields)
+# 	write_data_list(output_rows, "combined")
 
 
 # I'm not sure if I've written a method with this same output before. In any case, here it is again.
@@ -618,35 +620,52 @@ if __name__ == '__main__':
 	# filename = "all_order_cards.csv"
 	# new_controller_process_cards_from_file(filename=filename, data=data, match_fields=match_fields, count_field="Count")
 
-	# match_fields = ["name", "set", "set_num", "released_at", "mana_cost"]
-	# data = import_scryfall_abridged()
-	# new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
+	match_fields = ["name", "set", "set_num", "released_at", "archetype", "colors", "mana_cost", "reprint", "spc",
+	                "value", "reserved", "edhrec_rank", "is_pauper"]
+	data = controller_get_cheapest_printing()
+	# data = import_scryfall(json_prefix="test-cards-vintage")
+	new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
 
 	# Updates data and sorts audit_csv
 	data = controller_get_sorted_data()
 	filename = "audit_csv.csv"
 	new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
+# data = controller_get_sorted_data()
+# data = controller_get_sorted_data(path="test-cards")
+# filename = "audit_csv.csv"
+# new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
 
-	# controller_get_all_sets()
 
-	# match_fields = ["name", "set", "set_num", "color", "cmc"]
-	# data = import_scryfall_abridged()
-	# filename = "all_cube_cards.csv"
-	# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
-	# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
-	# request_url = "https://api.scryfall.com/cards/search?" \
-	#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
-	# request_url = get_set_search_uri_from_set_code("NEO")
-	# new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
+# controller_get_all_sets()
 
-	# Get set information from set code
-	# match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
-	# match_fields = ["Name", "Set", "Set No", "Rarity", "Mana cost", "Color", "Value"]
-	# match_fields = ["Name", "Set", "Set No", "Count", "Extras", "Foils", "Rarity", "Mana cost", "Color", "CMC", "Type"]
-	# request_url = get_set_search_uri_from_set_code("MH3")
-	# new_controller_process_cards_from_api(request_url, match_fields)
+# match_fields = ["name", "set", "set_num", "color", "cmc"]
+# data = import_scryfall_abridged()
+# filename = "all_cube_cards.csv"
+# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
+# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
+# request_url = "https://api.scryfall.com/cards/search?" \
+#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
+# request_url = get_set_search_uri_from_set_code("NEO")
+# new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
+# match_fields = ["name", "set", "set_num", "color", "cmc"]
+# data = import_scryfall_abridged()
+# filename = "all_cube_cards.csv"
+# new_controller_process_cards_from_file(match_fields=match_fields, data=data, filename=filename)
+# request_url = "https://api.scryfall.com/cards/search?q=-is%3Areprint+stamp%3Atriangle"
+# request_url = "https://api.scryfall.com/cards/search?" \
+#               "q=is%3Areprint+-stamp%3Atriangle+new%3Aart&unique=cards&as=grid&order=set"
+# 	match_fields = ["Name", "Set", "collector_number", "Rarity", "Mana cost", "Color", "CMC", "Type","oracle_text"]
+# 	request_url = get_set_search_uri_from_set_code("BLB")
+# 	new_controller_process_cards_from_api(request_url=request_url, match_fields=match_fields)
 
-	# data = controller_get_sorted_data()
-	# data = controller_get_sorted_data(path="test-cards")
-	# filename = "audit_csv.csv"
-	# new_controller_process_cards_from_file(filename, data, do_sort=True)
+# Get set information from set code
+# match_fields = ["set_num", "name", "mana_cost", "color", "type", "rarity", "games"]
+# match_fields = ["Name", "Set", "Set No", "Rarity", "Mana cost", "Color", "Value"]
+# match_fields = ["Name", "Set", "Set No", "Count", "Extras", "Foils", "Rarity", "Mana cost", "Color", "CMC", "Type"]
+# request_url = get_set_search_uri_from_set_code("MH3")
+# new_controller_process_cards_from_api(request_url, match_fields)
+
+# data = controller_get_sorted_data()
+# data = controller_get_sorted_data(path="test-cards")
+# filename = "audit_csv.csv"
+# new_controller_process_cards_from_file(filename, data, do_sort=True)

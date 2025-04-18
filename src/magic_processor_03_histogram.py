@@ -1,11 +1,11 @@
 from magic_processor_03 import get_all_cards_from_data_file, get_cards_from_api, get_cards_from_file
 from common_methods_io import *
-from common_methods_processor import *
+# from common_methods_processor import *
 from bulk_data_import import *
 from common_methods_processor_03 import get_usd_from_card_03, get_price_range_03, get_all_creature_types
-from common_methods_requests import *
-from datetime import *
-from magic_sorter_03 import MagicSorterTrie03
+# from common_methods_requests import *
+# from datetime import *
+# from magic_sorter_03 import MagicSorterTrie03
 
 
 # Accepts a list of new_card objects, a single match field, and a histogram
@@ -34,6 +34,32 @@ def output_histogram(all_cards, match_field, histogram=None, do_split_faces=Fals
 
 
 # Accepts a list of new_card objects, a single match field, and a histogram
+def output_histogram_list(all_cards, match_field, histogram=None, do_split_faces=False):
+	if histogram is None:
+		histogram = {}
+
+	for new_card in all_cards:
+		if do_split_faces and "card_faces" in new_card.scryfall_card:
+			faces = new_card.scryfall_card["card_faces"]
+			for face in faces:
+				if match_field in face:
+					for list_item in face[match_field]:
+						if list_item in histogram:
+							histogram[list_item] = histogram[list_item] + 1
+						else:
+							histogram[list_item] = 1
+
+		else:
+			if match_field in new_card.scryfall_card:
+				for list_item in new_card.scryfall_card[match_field]:
+					if list_item in histogram:
+						histogram[list_item] = histogram[list_item] + 1
+					else:
+						histogram[list_item] = 1
+	return histogram
+
+
+# Accepts a list of new_card objects, a single match field, and a histogram
 def custom_histogram_creature_types(all_cards):
 	# all_creature_types = controller_get_scryfall_creature_types()
 	all_creature_types = get_all_creature_types()
@@ -52,7 +78,10 @@ def custom_histogram_creature_types(all_cards):
 
 def controller_process_histogram_from_data_file(data, match_field, output_name="scan", do_split_faces=False):
 	all_cards = get_all_cards_from_data_file(data)
-	populated_histogram = output_histogram(all_cards, match_field, do_split_faces=do_split_faces)
+
+	# populated_histogram = output_histogram(all_cards, match_field, do_split_faces=do_split_faces)
+	populated_histogram = output_histogram_list(all_cards, match_field, do_split_faces=do_split_faces)
+
 	write_data_dictionary(populated_histogram, filename=output_name)
 
 
@@ -70,15 +99,16 @@ def controller_process_histogram_from_sheet(filename, data, match_field, output_
 
 
 if __name__ == '__main__':
-	# data = import_scryfall("eternal-cards")
+	data = import_scryfall("test-cards-standard")
+	# data = import_scryfall("oracle-cards")
 	# data = controller_get_sorted_data()
 	# filename = "audit_csv.csv"
 	# request_url = get_set_search_uri_from_set_code("OTJ")
 	# set = "mkm"
 	# request_url = f"https://api.scryfall.com/cards/search?include_extras=true&order=set&q=e%3A{set}+game%3Apaper"
-	request_url = "https://api.scryfall.com/cards/search?include_extras=true&order=set&" \
-	              "q=type%3Acreature+type%3Asliver+game%3Apaper+f%3Avintage&unique=cards&as=grid&order=name"
-	match_field = "mana_cost"
+	# request_url = "https://api.scryfall.com/cards/search?include_extras=true&order=set&" \
+	#               "q=type%3Acreature+type%3Asliver+game%3Apaper+f%3Avintage&unique=cards&as=grid&order=name"
+	match_field = "keywords"
 	# controller_process_histogram_from_sheet(filename, data, match_field)
-	controller_process_histogram_from_api(request_url, match_field)
-	# controller_process_histogram_from_data_file(data, match_field, do_split_faces=True)
+	# controller_process_histogram_from_api(request_url, match_field)
+	controller_process_histogram_from_data_file(data, match_field, do_split_faces=True)

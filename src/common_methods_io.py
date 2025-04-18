@@ -57,7 +57,7 @@ def write_data_dictionary(data, filename="out"):
 
 			# For each row in data, writes values to file
 			for key, value in data.items():
-				writer.writerow([key, value])
+				writer.writerow([unidecode(key), value])
 
 	except Exception as e:
 		print("Errant operation writing data!")

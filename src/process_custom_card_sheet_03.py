@@ -1,5 +1,7 @@
 import re
 
+from unidecode import unidecode
+
 from common_methods_io import read_txt, write_data, write_data_list, write_data_to_txt, snake_case_parameter_list
 from common_methods_requests import call_scryfall_03
 from common_methods_processor import get_color_code_from_colors, get_card_type_from_type_line
@@ -20,7 +22,7 @@ class CustomCard:
 	set_code = ""
 
 	# All potential rarities. Used for MSE shit
-	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare", "L": "land"}
+	rarities = {"C": "common", "U": "uncommon", "R": "rare", "M": "mythic rare", "L": "land", "B": "Basic land"}
 
 	def __init__(self, name, slot=0, set_code=""):
 		self.name = name
@@ -163,11 +165,21 @@ class CustomCardText(CustomCard):
 		split_name = self.card_header.split()
 		cost = split_name.pop()
 
+		# Lands and cards with no mana cost include a parenthetical color after the name.
+		# This is omitted from this method but returned in try_get_mana_cost_for_color
 		m = REGEX_COLOR.fullmatch(cost)
 		if m is not None:
 			return ""
 		else:
 			return cost
+
+	# Tries to get the mana cost, which should be the last word of the first line.
+	# In fact returns the last word of the first line
+	def try_get_mana_cost_for_color(self):
+		split_name = self.card_header.split()
+		cost = split_name.pop()
+
+		return cost
 
 	# Tries to get the CMC, derived from the mana cost
 	def try_get_cmc(self):
@@ -181,7 +193,7 @@ class CustomCardText(CustomCard):
 
 	# Tries to get the color which as far as this logic can tell, is derived from the mana cost
 	def try_get_color(self):
-		return process_colors_from_mana_cost(self.try_get_mana_cost())
+		return process_colors_from_mana_cost(self.try_get_mana_cost_for_color())
 
 	# Tries to get the rules text, which should be between the type line and either the PT or a bar
 	def try_get_rules(self):
@@ -282,7 +294,7 @@ class CustomCardReprint(CustomCardText):
 			if field == "set":
 				return self.set_code
 			elif field in self.scryfall_object:
-				return str(self.scryfall_object[field])
+				return unidecode(str(self.scryfall_object[field]))
 			else:
 				return super().try_get_field(field=field)
 
@@ -293,7 +305,9 @@ class CustomCardReprint(CustomCardText):
 			return f"ERROR | {E}"
 
 	def try_get_type_line(self):
-		return self.scryfall_object["type_line"]
+
+		return unidecode(self.scryfall_object["type_line"])
+
 
 
 # class CustomCardSpreadsheet(CustomCard):
@@ -306,7 +320,7 @@ class CustomCardReprint(CustomCardText):
 def read_blocks_from_sheet(filename):
 	card_list = read_txt(filename)
 
-	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands", "Basic Lands"]
+	rarities = ["Commons", "Uncommons", "Rares", "Mythics", "Mythic Rares", "Lands", "Basics", "Basic Lands"]
 	last_rarity = "C"
 	current_block_length = 0
 	current_block = []
@@ -432,7 +446,9 @@ if __name__ == '__main__':
 	# filename = "bin/baol_commons.txt"
 
 	# Set Slots sheet
+
 	output_name = "slots"
+	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 	output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
@@ -443,4 +459,7 @@ if __name__ == '__main__':
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
 	# controller_import_custom_card_sheet_to_mse(filename)
-	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY", output_name=output_name)
+	controller_import_custom_card_sheet_to_mse(filename)
+	# controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
+	# controller_import_custom_card_sheet_to_mse(filename)
+	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
