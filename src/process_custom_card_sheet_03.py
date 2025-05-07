@@ -8,11 +8,11 @@ from common_methods_processor import get_color_code_from_colors, get_card_type_f
 # from import_scryfall_bulk_data import import_scryfall_abridged
 from common_methods_custom_cards import process_colors_from_mana_cost, process_mana_value_from_mana_cost
 
-REGEX_REPRINT = re.compile("\(Reprint\)")  # Validates that the string is the word (Reprint)
-REGEX_PT = re.compile("(^.{1,2}/.{1,2}$)")  # Validates that the string is power / toughness
-REGEX_FLAVOR = re.compile("(^-{4,9}$)")  # Validates that the string is the underbar separating rules from flavor text
-REGEX_COLOR = re.compile("(^\(.*\)$)")
-REGEX_SYMBOL = re.compile("(^\{.*\}$)")
+REGEX_REPRINT = re.compile("\(Reprint\)")   # The string is the word (Reprint)
+REGEX_PT = re.compile("(^.{1,2}/.{1,2}$)")  # The string is power / toughness
+REGEX_FLAVOR = re.compile("(^-{4,9}$)")     # The string is the underbar separating rules from flavor text
+REGEX_COLOR = re.compile("(^\(.*\)$)")      # The string is enclosed in parentheses
+REGEX_SYMBOL = re.compile("(^\{.*\}$)")     # I don't know what this does it never gets used here
 
 
 class CustomCard:
@@ -309,13 +309,6 @@ class CustomCardReprint(CustomCardText):
 		return unidecode(self.scryfall_object["type_line"])
 
 
-# class CustomCardSpreadsheet(CustomCard):
-# 	card_object = {}
-#
-# 	def __init__(self, card_header, block, rarity):
-# 		super().__init__(card_header, block, rarity)
-
-
 def read_blocks_from_sheet(filename):
 	card_list = read_txt(filename)
 
@@ -444,7 +437,6 @@ if __name__ == '__main__':
 	filename = "bin/baol.txt"
 
 	# Set Slots sheet
-	# output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 	output_fields = ["Slot", "Name", "mana cost", "Color", "CMC", "Type Line", "Rarity", "Rules", "Power", "Toughness"]
 
 	# Output for Card Type Breakdowns sheet
@@ -454,7 +446,5 @@ if __name__ == '__main__':
 	# block = ["Yearning 5 my bestie", ":", "(Reprint)", "{T}: Add {C}.", "6/9","{P}"]
 	# print(find_regex_in_list(block, REGEX_SYMBOL))
 
-	controller_import_custom_card_sheet_to_mse(filename)
-	# controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")
 	# controller_import_custom_card_sheet_to_mse(filename)
 	controller_import_custom_card_sheet(filename, output_fields, set_code="BRY")

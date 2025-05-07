@@ -243,4 +243,6 @@ def controller_get_cheapest_printing():
 
 if __name__ == '__main__':
 	print("Testing Import Scryfall methods")
-	controller_get_original_printings()
+	# controller_get_original_printings()
+	print(get_latest_json())
+

@@ -5,7 +5,7 @@ from common_methods import clean_word
 from common_methods_io import write_data_list
 from common_methods_processor import get_card_is_eternal, get_card_is_in_format
 from common_methods_processor_03 import sort_cards_by_set_num
-from common_methods_requests import scrape_sets_from_format_page
+from common_methods_scrapers import scrape_sets_from_format_page
 
 from unidecode import unidecode
 
@@ -243,9 +243,9 @@ def sort_release(card):
 if __name__ == '__main__':
 	print("Processing Magic cards to find complex information.")
 	# controller_find_cards_without_real_magic_printing()
-	# controller_find_crossovers_with_real_magic_reprint()
+	controller_find_crossovers_with_real_magic_reprint()
 	# controller_find_pioneer_cards_not_on_arena()
 	# controller_find_cards_with_single_artist()
-	controller_find_cards_with_no_frame_printing()
+	# controller_find_cards_with_no_frame_printing()
 
 	print("<3")

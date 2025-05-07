@@ -2,6 +2,7 @@ from magic_processor_03 import NewCard
 from bulk_data_import import controller_get_sorted_data, controller_get_original_printings
 from common_methods_io import read_csv, write_data_json
 from common_methods_requests import get_set_search_uri_from_set_code, call_scryfall_03, get_download_from_uri
+from datetime import datetime
 import os
 
 
@@ -58,6 +59,48 @@ def do_get_json(request_url, output_rows):
 	except Exception as E:
 		print(f"Errant operation getting test data from API!")
 		print(E)
+		return False
+
+
+def create_set_data_json():
+	data = call_scryfall_03("https://api.scryfall.com/sets/")
+	write_data_json(data=data['data'], filename="all-sets", destination="downloads")
+
+
+def get_all_set_names_with_type(set_types):
+	data = call_scryfall_03("https://api.scryfall.com/sets/")
+	today = datetime.today().strftime("%Y-%m-%d")
+	all_set_names = []
+	for set in data["data"]:
+		if set["set_type"] in set_types and not set["digital"] and set["released_at"] <= today:
+			all_set_names.append(set["code"].upper())
+
+	return all_set_names
+
+
+def get_all_set_names():
+	data = call_scryfall_03("https://api.scryfall.com/sets/")
+	all_set_names = []
+	for set in data["data"]:
+		all_set_names.append(set["code"].upper())
+
+	return all_set_names
+
+
+def create_set_names_json(set_types=None):
+	if set_types is None:
+		all_sets = get_all_set_names()
+	else:
+		all_sets = get_all_set_names_with_type(set_types)
+	# set_json = {"sets": all_sets}
+	write_data_json(data=all_sets, filename="all-sets-names", destination="downloads")
+
+	return True
+
+
+def create_set_names_json_major_sets():
+	set_types = ["expansion", "core", "masters", "draft_innovation"]
+	return create_set_names_json(set_types=set_types)
 
 
 def download_latest_json_files(bulk_names=None):
@@ -135,7 +178,11 @@ if __name__ == '__main__':
 	print("Creating new JSON download files.")
 	# controller_create_test_json_from_set("OTJ")
 	# controller_create_test_json(filename="all_eternal_cards.csv")
-	controller_create_test_json_from_format_cards(format="standard")
-# create_test_json_from_api("https://api.scryfall.com/cards/search?q=year%3A2023","test-cards-2023")
-# download_latest_json_files()
+	# controller_create_test_json_from_format_cards(format="standard")
+	# create_test_json_from_api("https://api.scryfall.com/cards/search?q=year%3A2023","test-cards-2023")
+	# download_latest_json_files()
+	# create_sets_json()
+	create_set_names_json_major_sets()
+	print("Downloaded latest bulk data files!")
+
 # controller_create_test_json()

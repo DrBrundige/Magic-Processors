@@ -45,6 +45,12 @@ def get_datetime_rounded():
 	return time - zero
 
 
+# Literally just gets the current day as a string. It's one line, but I can never remember how to do this.
+def get_date_string():
+
+	return datetime.today().strftime("%Y-%m-%d")
+
+
 def get_yesterday():
 	time = get_datetime_rounded()
 	yesterday = timedelta(hours=24)
@@ -53,3 +59,8 @@ def get_yesterday():
 
 def get_epoch():
 	return get_datetime_rounded().timestamp()
+
+
+if __name__ == '__main__':
+	print("Common methods")
+	print(get_date_string())

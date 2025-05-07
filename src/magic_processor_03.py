@@ -1,9 +1,9 @@
-from unidecode import unidecode
+# from unidecode import unidecode
 from common_methods_io import *
 from common_methods_processor import *
 from bulk_data_import import *
 from common_methods_processor_03 import get_usd_from_card_03, get_price_range_03
-from common_methods_requests import call_scryfall_03, get_set_search_uri_from_set_code
+from common_methods_requests import call_scryfall_03
 from datetime import *
 from magic_sorter_03 import MagicSorterTrie03
 
@@ -325,6 +325,14 @@ def get_cards_from_file(filename, data):
 	output_cards = []
 	failed_cards = []
 
+	# Checks to make sure that the data source is sorted if the cards will be matched by set
+	test_card = NewCard(all_cards[0])
+	if len(test_card.set) > 0 and isinstance(data, list):
+		safe_data = sort_cards_by_set(data)
+	else:
+		safe_data = data
+
+
 	for card in all_cards:
 		try:
 			# Some input files include a count row. If this row exists and is equal to 0, skips the card
@@ -333,7 +341,7 @@ def get_cards_from_file(filename, data):
 
 			this_card = NewCard(card)
 
-			if this_card.try_match_self(data):
+			if this_card.try_match_self(safe_data):
 				output_cards.append(this_card)
 			else:
 				failed_cards.append(this_card)
@@ -616,19 +624,19 @@ if __name__ == '__main__':
 
 	# match_fields = read_csv_get_headers("audit_csv.csv", True, True)
 	# data = controller_get_sorted_data()
-	# filename = "all_order_cards.csv"
+	filename = "all_otj_test_cards.csv"
 	# new_controller_process_cards_from_file(filename=filename, data=data, match_fields=match_fields, count_field="Count")
 
 	match_fields = ["name", "set", "set_num", "released_at", "archetype", "colors", "mana_cost", "reprint", "spc",
 	                "value", "reserved", "edhrec_rank", "is_pauper"]
-	data = controller_get_cheapest_printing()
+	data = import_scryfall("test-cards-OTJ")
 	# data = import_scryfall(json_prefix="test-cards-vintage")
-	new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
+	# new_controller_process_all_cards_in_data_file(data=data, match_fields=match_fields)
 
 # data = controller_get_sorted_data()
 # data = controller_get_sorted_data(path="test-cards")
 # filename = "audit_csv.csv"
-# new_controller_process_cards_from_file(filename=filename, data=data, do_sort=True)
+	new_controller_process_cards_from_file(filename=filename, data=data, do_sort=False)
 
 # controller_get_all_sets()
 
