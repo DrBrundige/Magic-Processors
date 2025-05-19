@@ -4,9 +4,10 @@ import os
 from bulk_data_import import controller_get_sorted_data
 from magic_processor_03 import get_cards_from_api, get_cards_from_file, output_bound_cards, get_all_cards_from_data_file
 from bulk_data_import import get_latest_json
-from bulk_data_create import do_get_json
+from bulk_data_create import do_get_json, download_latest_json_files, check_existing_json_files, \
+	create_set_names_json_major_sets
 from common_methods_io import read_json, read_csv_get_headers, write_data_list
-from common_methods_requests import get_set_search_uri_from_set_code
+from common_methods_requests import get_set_search_uri_from_set_code, call_scryfall_03
 
 
 class App(ttk.Frame):
@@ -93,7 +94,7 @@ class App(ttk.Frame):
 		 grid(column=0, row=32, padx=5, pady=10))
 		(ttk.Button(frm, name="btn_clear_data", text="Clear data", command=self.clear_data_source).
 		 grid(column=1, row=32, sticky="w", padx=5, pady=10))
-		(ttk.Button(frm, name="btn_update_data", text="Update data sources", command=master.destroy).
+		(ttk.Button(frm, name="btn_update_data", text="Update data sources", command=self.update_data_sources).
 		 grid(column=2, row=32, padx=5, pady=10))
 
 		(ttk.Button(frm, name="btn_process", text="Process", command=self.process_data).
@@ -395,7 +396,35 @@ class App(ttk.Frame):
 
 	# Update data source
 	def update_data_sources(self):
-		print("Updating data source")
+		if messagebox.askokcancel(title="Update data sources",
+		                          message="Update data sources? This operation may take some time"):
+			print("Updating data source")
+			try:
+				bulk_names = ["oracle_cards", "unique_artwork", "default_cards"]
+				payload = call_scryfall_03(endpoint="bulk-data")
+				valid_names = check_existing_json_files(payload, bulk_names)
+				if len(valid_names) > 0:
+					if (download_latest_json_files()):
+						messagebox.showinfo(title="Success", message="Bulk data files downloaded successfully.")
+					else:
+						self.throw_error(title="Error downloading bulk files", message=f"Bulk download failed!")
+				else:
+					messagebox.showinfo(title="No data files downloaded",
+					                    message="All data files already downloaded")
+			except Exception as E:
+				print(E)
+				self.throw_error(title="Error downloading bulk files", message=f"Error downloading bulk files {E}")
+
+			try:
+				if (create_set_names_json_major_sets()):
+					messagebox.showinfo(title="Success", message="Set file created successfully!")
+					self.reload_set_names()
+				else:
+					self.throw_error(title="Error downloading bulk files", message=f"Set file creation was unsuccessful!")
+
+			except Exception as E:
+				print(E)
+				self.throw_error(title="Error downloading bulk files", message=f"Error downloading set file {E}")
 
 	def throw_error(self, title="Error processing tickets", message="Errant operation"):
 		print(message)
